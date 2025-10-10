@@ -1,272 +1,244 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-  <base target="_top">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pendaftaran Kajian Wanita</title>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendaftaran Kajian Wanita</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
-  <style>
-    * { margin: 0; padding: 0; outline: 0; box-sizing: border-box; font-family: 'Open Sans', sans-serif; }
-    body { background-image: url(https://images.unsplash.com/photo-1549880181-56a44cf4a9a5?q=80&w=2070&auto=format&fit=crop); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; }
-    .navbar { background-color: rgba(0,0,0,0.6); backdrop-filter: blur(5px); }
-    .main-content { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 100px 1rem 2rem 1rem; }
-    .auth-container, .admin-card { width: 100%; animation: fadeIn 0.5s; display: none; }
-    .auth-container { max-width: 400px; padding: 2rem; background-color: rgba(0,0,0,.7); box-shadow: 0 0 15px rgba(255,255,255,.3); border-radius: 10px; }
-    .admin-card { max-width: 1100px; padding: 1.5rem; background-color: rgba(20, 20, 30, 0.85); backdrop-filter: blur(10px); color: white; border-radius: 10px; box-shadow: 0 0 15px rgba(255,255,255,.3); }
-    @media (min-width: 768px) { .admin-card { padding: 2.5rem; } .auth-container { padding: 2.5rem; } }
-    @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-    .auth-container h1 { text-align: center; color: #fafafa; margin-bottom: 30px; text-transform: uppercase; border-bottom: 4px solid #A7F300; font-size: 1.5rem; padding-bottom: 10px; }
-    @media (max-width: 576px) { .auth-container h1 { font-size: 1.25rem; } .admin-card h2 { font-size: 1.4rem; } }
-    .auth-container label { text-align: left; color: #90caf9; font-size: 14px; }
-    .auth-container form input { width: 100%; padding: 8px 10px; margin-bottom: 20px; border: none; background-color: transparent; border-bottom: 2px solid #A7F300; color: #fff; font-size: 1rem; }
-    .auth-container form button { width: 100%; height: 45px; padding: 5px 0; border: none; background-color: #A7F300; font-size: 1rem; color: #1a1a1a; border-radius: 25px; cursor: pointer; transition: background-color 0.3s ease; }
-    .auth-container form button:hover { background-color: #8AD400; }
-    #proofModal .modal-content, #loginModal .modal-content { background-color: rgba(30,30,40,.9); backdrop-filter: blur(10px); color: white; border: 1px solid #A7F300; }
-    #loginModal .modal-header, #proofModal .modal-header { border-bottom-color: #A7F300; }
-    #bukti-pendaftaran { text-align: center; color: #333; padding: 20px; background: white; border-radius: 5px; }
-    #qrcode-container { display: flex; justify-content: center; align-items: center; padding: 15px 0; }
-    .loader { border: 5px solid #f3f3f3; border-top: 5px solid #A7F300; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
-    @keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }
-    #loginModal .modal-body label{color:#90caf9;font-size:14px;}
-    #loginModal .modal-body input{width:100%;padding:8px 10px;margin-bottom:20px;border:none;background-color:transparent;border-bottom:2px solid #A7F300;color:#fff;font-size:1rem;}
-    #loginModal .modal-body button{width:100%;height:45px;border:none;background-color:#A7F300;font-size:1rem;color:#1a1a1a;border-radius:25px;}
-    #loginModal .modal-body button:hover { background-color: #8AD400; }
-    .admin-card h2 { font-size: 1.75rem; }
-    .summary-box { background-color: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: .5rem; }
-    .summary-box h5 { margin-bottom: 0.25rem; font-size: 1rem; color: #adb5bd; }
-    .summary-box h3 { margin-bottom: 0; font-weight: bold; }
-    #admin-view .btn-primary { background-color: #A7F300; border-color: #A7F300; color: #1a1a1a; }
-    #admin-view .btn-primary:hover { background-color: #8AD400; border-color: #8AD400; }
-    #admin-view .btn-outline-light { color: #A7F300; border-color: #A7F300; }
-    #admin-view .btn-outline-light:hover { background-color: #A7F300; color: #1a1a1a; }
-    #scanner-view .btn-outline-info { color: #A7F300; border-color: #A7F300; }
-    #scanner-view .btn-outline-info:hover { background-color: #A7F300; color: #1a1a1a; }
-    #proofModal .btn-success { background-color: #A7F300; border-color: #A7F300; color: #1a1a1a; }
-    #proofModal .btn-success:hover { background-color: #8AD400; border-color: #8AD400; }
-    .auth-container .auth-logo { display: block; margin: 0 auto 20px auto; max-width: 200px; height: auto; }
-    .navbar-subtitle { color: #F472B6; font-size: 0.8rem; font-weight: normal; }
-    #loginModal .modal-body .login-logo { display: block; margin: 0 auto 20px auto; max-width: 120px; height: auto; }
-  </style>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Open Sans', sans-serif; }
+        body { background-image: url(https://images.unsplash.com/photo-1549880181-56a44cf4a9a5?q=80&w=2070&auto=format&fit=crop); background-size: cover; background-position: center; background-attachment: fixed; }
+        .navbar { background-color: rgba(0,0,0,0.6); backdrop-filter: blur(5px); }
+        .main-content { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 100px 1rem 2rem; }
+        .auth-container, .admin-card { width: 100%; display: none; animation: fadeIn 0.4s ease-in-out; }
+        .auth-container { max-width: 400px; padding: 2rem; background-color: rgba(0,0,0,0.7); border-radius: 10px; box-shadow: 0 0 15px rgba(255,255,255,0.3); }
+        .admin-card { max-width: 1100px; padding: 2rem; background-color: rgba(20,20,30,0.85); color: white; border-radius: 10px; box-shadow: 0 0 15px rgba(255,255,255,0.3); }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .auth-container h1 { text-align: center; color: #fafafa; margin-bottom: 30px; border-bottom: 4px solid #A7F300; padding-bottom: 10px; font-size: 1.5rem; }
+        .auth-container form input { width: 100%; padding: 8px; margin-bottom: 15px; border: none; background: transparent; border-bottom: 2px solid #A7F300; color: #fff; }
+        .auth-container form button { width: 100%; height: 45px; border: none; background-color: #A7F300; color: #111; border-radius: 25px; cursor: pointer; font-weight: bold; }
+        .auth-container form button:hover { background-color: #8AD400; }
+        #proofModal .modal-content, #loginModal .modal-content { background-color: rgba(30,30,40,.9); color: white; border: 1px solid #A7F300; }
+        .loader { border: 5px solid #eee; border-top: 5px solid #A7F300; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <div class="d-flex flex-column lh-1">
+                    <span class="fw-bold">Kajian Wanita</span>
+                    <span class="navbar-subtitle text-pink">Perempuan Sholihah</span>
+                </div>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a id="nav-daftar" class="nav-link" href="#">Daftar</a></li>
+                    <li class="nav-item"><a id="nav-cetak" class="nav-link" href="#">Cetak</a></li>
+                    <li class="nav-item">
+                        <a id="admin-login-btn" class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">Login Admin</a>
+                        <a id="admin-menu-btn" class="nav-link d-none" href="#">Menu Admin</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-<!-- NAVIGATION -->
-<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">
-      <div class="d-flex flex-column lh-1">
-        <span class="fw-bold">Kajian Wanita</span>
-        <span class="navbar-subtitle">Perempuan Sholihah</span>
-      </div>
-    </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a id="nav-daftar" class="nav-link" href="#">Daftar</a></li>
-        <li class="nav-item"><a id="nav-cetak" class="nav-link" href="#">Cetak</a></li>
-        <li class="nav-item">
-          <a id="admin-login-btn" class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">Login Admin</a>
-          <a id="admin-menu-btn" class="nav-link d-none" href="#">Menu Admin</a>
-        </li>
-      </ul>
+    <div class="main-content">
+        <!-- FORM PENDAFTARAN -->
+        <div id="registration-view" class="auth-container">
+            <img src="https://verval.mtsnutbs.sch.id/logo100.png" alt="Logo" class="auth-logo d-block mx-auto mb-3" style="max-width:150px">
+            <h1>Daftar Kajian</h1>
+            <form id="seminar-form">
+                <label>Nama Lengkap</label><input type="text" id="nama" required>
+                <label>Alamat</label><input type="text" id="alamat" required>
+                <label>No. HP</label><input type="tel" id="noHp" required>
+                <label>Instansi</label><input type="text" id="instansi" required>
+                <button type="submit">Daftar</button>
+            </form>
+        </div>
+
+        <!-- CETAK ULANG -->
+        <div id="reprint-view" class="auth-container">
+            <img src="https://verval.mtsnutbs.sch.id/logo100.png" class="auth-logo d-block mx-auto mb-3" style="max-width:150px">
+            <h1>Cetak Ulang</h1>
+            <form id="reprint-form">
+                <label>No. HP Terdaftar</label><input type="tel" id="reprintHp" required>
+                <button type="submit">Cari & Cetak</button>
+            </form>
+        </div>
+
+        <!-- MENU ADMIN -->
+        <div id="admin-view" class="admin-card">
+            <h2 class="text-center mb-4">Menu Admin</h2>
+            <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+                <button id="btn-scan" class="btn btn-primary btn-lg px-4">Scan Kehadiran</button>
+                <button id="btn-participants" class="btn btn-outline-light btn-lg px-4">Daftar Peserta</button>
+                <button id="btn-logout" class="btn btn-danger mt-3 mt-sm-0">Logout</button>
+            </div>
+        </div>
+
+        <!-- SCANNER -->
+        <div id="scanner-view" class="admin-card">
+            <h2 class="text-center mb-4">Scan QR Code Kehadiran</h2>
+            <div id="qr-reader" style="width:100%; background:#fff; border-radius:10px;"></div>
+            <div class="text-center mt-3">
+                <button id="btn-switch-camera" class="btn btn-outline-info">Ganti Kamera</button>
+                <button id="btn-back-scanner" class="btn btn-secondary">Kembali</button>
+            </div>
+        </div>
+
+        <!-- DAFTAR PESERTA -->
+        <div id="participants-view" class="admin-card">
+            <h2 class="text-center mb-4">Daftar Peserta</h2>
+            <div class="row text-center mb-3">
+                <div class="col"><strong>Total:</strong> <span id="summary-total">0</span></div>
+                <div class="col text-success"><strong>Hadir:</strong> <span id="summary-hadir">0</span></div>
+                <div class="col text-warning"><strong>Belum Hadir:</strong> <span id="summary-belum-hadir">0</span></div>
+            </div>
+            <div id="participants-list" class="table-responsive"></div>
+            <div class="text-center mt-3"><button id="btn-back-participants" class="btn btn-secondary">Kembali</button></div>
+        </div>
     </div>
-  </div>
-</nav>
 
-<!-- CONTENT AREA -->
-<div class="main-content">
-  <!-- registration view -->
-  <div id="registration-view" class="auth-container">
-    <img src="https://verval.mtsnutbs.sch.id/logo100.png" alt="Logo" class="auth-logo">
-    <h1>Daftar Kajian</h1>
-    <form id="seminar-form">
-      <label>Nama Lengkap</label><input type="text" id="nama" required>
-      <label>Alamat</label><input type="text" id="alamat" required>
-      <label>No. HP</label><input type="tel" id="noHp" pattern="[0-9]{10,15}" required>
-      <label>Instansi</label><input type="text" id="instansi" required>
-      <button type="submit">Daftar</button>
-    </form>
-  </div>
+    <!-- MODAL LOGIN -->
+    <div class="modal fade" id="loginModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5>Login Admin</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><img src="https://verval.mtsnutbs.sch.id/logo100.png" class="d-block mx-auto mb-3" style="max-width:100px"><label>Passkey</label><input type="password" id="passkey" class="form-control mb-3"><button id="login-btn" class="btn btn-success w-100">Login</button></div></div></div></div>
 
-  <!-- reprint view -->
-  <div id="reprint-view" class="auth-container">
-    <img src="https://verval.mtsnutbs.sch.id/logo100.png" alt="Logo" class="auth-logo">
-    <h1>Cetak Ulang</h1>
-    <form id="reprint-form">
-      <p style="color: #ccc; font-size: 14px;">Masukkan nomor HP untuk cetak ulang bukti pendaftaran.</p>
-      <label>No. HP Terdaftar</label><input type="tel" id="reprintHp" required>
-      <button type="submit">Cari & Cetak</button>
-    </form>
-  </div>
+    <!-- MODAL BUKTI -->
+    <div class="modal fade" id="proofModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 id="proofModalTitle">Bukti Pendaftaran</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="loading-spinner" class="text-center"><div class="loader"></div><p>Memproses...</p></div><div id="proof-content" class="d-none"><div id="bukti-pendaftaran" class="text-dark bg-white p-3 rounded"><h4 id="proof-title">Pendaftaran Berhasil!</h4><p id="proof-subtitle">Simpan bukti ini untuk proses check-in.</p><hr><p><strong>Nama:</strong> <span id="popup-nama"></span></p><p><strong>No. HP:</strong> <span id="popup-noHp"></span></p><p><strong>Instansi:</strong> <span id="popup-instansi"></span></p><div id="qrcode-container" class="text-center"></div></div></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button><button class="btn btn-success" onclick="cetakPDF()">Cetak PDF</button></div></div></div></div>
 
-  <!-- admin view -->
-  <div id="admin-view" class="admin-card">
-    <h2 class="text-center mb-4">Menu Admin</h2>
-    <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
-      <button id="btn-scan" class="btn btn-primary btn-lg px-4 gap-3">Scan Kehadiran</button>
-      <button id="btn-participants" class="btn btn-outline-light btn-lg px-4">Daftar Peserta</button>
-      <button id="btn-logout" class="btn btn-danger mt-3 mt-sm-0">Logout</button>
-    </div>
-  </div>
-
-  <!-- scanner view -->
-  <div id="scanner-view" class="admin-card">
-    <h2 class="text-center mb-4">Scan QR Code Kehadiran</h2>
-    <div id="qr-reader" style="width:100%; background: white; border-radius: 10px;"></div>
-    <div class="text-center mt-3">
-      <button id="btn-switch-camera" class="btn btn-outline-info"><span class="material-icons align-middle" style="font-size: 1rem;">switch_camera</span> Ganti Kamera</button>
-      <button id="btn-back-scanner" class="btn btn-secondary">Kembali</button>
-    </div>
-  </div>
-
-  <!-- participants view -->
-  <div id="participants-view" class="admin-card">
-    <h2 class="text-center mb-4">Daftar Peserta</h2>
-    <div id="participants-summary" class="row g-3 text-center mb-4">
-      <div class="col-md-4"><div class="summary-box text-primary"><h5>Total Peserta</h5><h3 id="summary-total">0</h3></div></div>
-      <div class="col-md-4"><div class="summary-box text-success"><h5>Hadir</h5><h3 id="summary-hadir">0</h3></div></div>
-      <div class="col-md-4"><div class="summary-box text-warning"><h5>Belum Hadir</h5><h3 id="summary-belum-hadir">0</h3></div></div>
-    </div>
-    <div id="participants-list" class="table-responsive"></div>
-    <div class="text-center mt-3"><button id="btn-back-participants" class="btn btn-secondary">Kembali</button></div>
-  </div>
-</div>
-
-<!-- modals -->
-<div class="modal fade" id="loginModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Login Admin</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><img src="https://verval.mtsnutbs.sch.id/logo100.png" alt="Logo" class="login-logo"><label>Passkey</label><input type="password" id="passkey"><button id="login-btn">Login</button></div></div></div></div>
-
-<div class="modal fade" id="proofModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="proofModalTitle">Bukti Pendaftaran</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="loading-spinner" class="text-center"><div class="loader"></div><p class="text-white">Memproses...</p></div><div id="proof-content" class="d-none"><div id="bukti-pendaftaran"><h4 id="proof-title">Pendaftaran Berhasil!</h4><p id="proof-subtitle" class="text-dark">Simpan bukti ini untuk proses check-in.</p><hr><p><strong>Nama:</strong> <span id="popup-nama"></span></p><p><strong>No. HP:</strong> <span id="popup-noHp"></span></p><p><strong>Instansi:</strong> <span id="popup-instansi"></span></p><div id="qrcode-container"></div></div></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button><button type="button" class="btn btn-success" onclick="cetakPDF()">Cetak PDF</button></div></div></div></div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx3epLq2nzi8SLYCIdrI_y2rPXa2QJ9hHJPiTyl-rhoxCA0uWIw-V3OFWHH-4Jx-p5YpQ/exec"; // 🔧 GANTI DENGAN URL WEB APP ANDA
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw3kBqoKgBAs3O-ukGS1iZ5jQGzJxPr6TEqwuIWx-Yn2fKsoyUNKIH0ojep_YYzWJ4NYA/exec"; // GANTI URL
 const adminPasskey = "admin100tbs";
-let html5QrCode, proofModal, loginModal, currentFacingMode = "environment";
+let html5QrCode, proofModal, loginModal, currentFacingMode="environment";
 
 document.addEventListener('DOMContentLoaded',()=>{
   setupEventListeners();
-  if(sessionStorage.getItem('isAdminLoggedIn')==='true'){setAdminView(true);showView('admin-view');}
+  if(sessionStorage.getItem('isAdminLoggedIn')==='true'){ setAdminView(true); showView('admin-view'); }
   else showView('registration-view');
 });
 
-function setupEventListeners(){
-  const safe=(id,evt,fn)=>{const el=document.getElementById(id);if(el)el.addEventListener(evt,fn);}
-  safe('nav-daftar','click',e=>{e.preventDefault();showView('registration-view')});
-  safe('nav-cetak','click',e=>{e.preventDefault();showView('reprint-view')});
-  safe('admin-menu-btn','click',e=>{e.preventDefault();showView('admin-view')});
-  safe('login-btn','click',handleLogin);
-  safe('btn-scan','click',()=>showView('scanner-view'));
-  safe('btn-participants','click',()=>showView('participants-view'));
-  safe('btn-logout','click',logout);
-  safe('btn-back-scanner','click',()=>showView('admin-view'));
-  safe('btn-back-participants','click',()=>showView('admin-view'));
-  safe('seminar-form','submit',handleRegistration);
-  safe('reprint-form','submit',handleReprint);
-  safe('btn-switch-camera','click',switchCamera);
+async function postToScript(action,payload){
+  const params=new URLSearchParams();
+  params.append('action',action);
+  if(payload!==undefined)params.append('payload',typeof payload==='string'?payload:JSON.stringify(payload));
+  const res=await fetch(SCRIPT_URL,{method:'POST',body:params});
+  if(!res.ok)throw new Error('HTTP '+res.status);
+  return res.json();
 }
 
-function showView(id){document.querySelectorAll('.auth-container,.admin-card').forEach(v=>v.style.display='none');
-const v=document.getElementById(id);if(v)v.style.display='block';
-if(html5QrCode&&html5QrCode.isScanning)html5QrCode.stop().catch(()=>{});
-if(id==='scanner-view')startScanner();if(id==='participants-view')loadParticipants();}
+function setupEventListeners(){
+  const add=(id,ev,fn)=>{const el=document.getElementById(id);if(el)el.addEventListener(ev,fn);};
+  add('nav-daftar','click',e=>{e.preventDefault();showView('registration-view');});
+  add('nav-cetak','click',e=>{e.preventDefault();showView('reprint-view');});
+  add('admin-menu-btn','click',e=>{e.preventDefault();showView('admin-view');});
+  add('login-btn','click',handleLogin);
+  add('btn-scan','click',()=>showView('scanner-view'));
+  add('btn-participants','click',()=>showView('participants-view'));
+  add('btn-logout','click',logout);
+  add('btn-back-scanner','click',()=>showView('admin-view'));
+  add('btn-back-participants','click',()=>showView('admin-view'));
+  add('seminar-form','submit',handleRegistration);
+  add('reprint-form','submit',handleReprint);
+  add('btn-switch-camera','click',switchCamera);
+}
+
+function showView(id){
+  document.querySelectorAll('.auth-container,.admin-card').forEach(v=>v.style.display='none');
+  const v=document.getElementById(id); if(v)v.style.display='block';
+  if(html5QrCode&&html5QrCode.isScanning)html5QrCode.stop().catch(()=>{});
+  if(id==='scanner-view')startScanner();
+  if(id==='participants-view')loadParticipants();
+}
+
+function startScanner(){
+  html5QrCode=new Html5Qrcode("qr-reader");
+  html5QrCode.start({facingMode:currentFacingMode},{fps:10,qrbox:250},onScanSuccess)
+  .catch(()=>Swal.fire("Error","Tidak bisa akses kamera","error"));
+}
+function switchCamera(){
+  if(html5QrCode&&html5QrCode.isScanning){html5QrCode.stop().then(()=>{currentFacingMode=currentFacingMode==="environment"?"user":"environment";startScanner();});}
+}
+async function onScanSuccess(decoded){
+  if(html5QrCode&&html5QrCode.isScanning)html5QrCode.stop().catch(()=>{});
+  const r=await postToScript("checkIn",decoded);
+  onCheckInSuccess(r);
+}
+function onCheckInSuccess(r){
+  const toast=Swal.mixin({toast:true,position:'top-end',showConfirmButton:false,timer:3000});
+  if(r.status==="SUCCESS")toast.fire({icon:'success',title:'Hadir: '+r.name});
+  else if(r.status==="INFO")toast.fire({icon:'info',title:r.name+' sudah hadir'});
+  else toast.fire({icon:'error',title:r.message||'Gagal'});
+  setTimeout(()=>{if(document.getElementById('scanner-view').style.display==='block')startScanner();},2000);
+}
+function setAdminView(x){document.getElementById('admin-login-btn').classList.toggle('d-none',x);document.getElementById('admin-menu-btn').classList.toggle('d-none',!x);}
+function handleLogin(){if(document.getElementById('passkey').value===adminPasskey){sessionStorage.setItem('isAdminLoggedIn','true');setAdminView(true);showView('admin-view');bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();}else Swal.fire("Gagal","Passkey salah","error");}
+function logout(){sessionStorage.removeItem('isAdminLoggedIn');setAdminView(false);showView('registration-view');}
 
 async function handleRegistration(e){
   e.preventDefault();
-  const data={nama:nama.value,alamat:alamat.value,noHp:noHp.value,instansi:instansi.value};
+  const d={nama:nama.value,alamat:alamat.value,noHp:noHp.value,instansi:instansi.value};
   showProofPopup(true);
-  const res=await fetch(SCRIPT_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"saveData",payload:data})});
-  const result=await res.json();onRegistrationSuccess(result);
+  const r=await postToScript("saveData",d);
+  if(r.status==="SUCCESS")displayProof(r.data,false);
+  else{proofModal.hide();Swal.fire("Gagal",r.message,"error");}
 }
-
-function onRegistrationSuccess(result){
-  if(result.status==="SUCCESS"){populateProof(result.data);}
-  else if(result.status==="EXISTS"){Swal.fire("Gagal",result.message,"warning");showProofPopup(false);}
-  else{Swal.fire("Error",result.message,"error");showProofPopup(false);}
-}
-
 async function handleReprint(e){
-  e.preventDefault();showProofPopup(true);
-  const phone=reprintHp.value;
-  const res=await fetch(SCRIPT_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"getParticipantByPhoneNumber",payload:phone})});
-  const result=await res.json();onReprintSuccess(result);
+  e.preventDefault();
+  showProofPopup(true);
+  const hp=reprintHp.value;
+  const r=await postToScript("getParticipantByPhoneNumber",hp);
+  if(r.status==="FOUND")displayProof(r,true);
+  else{proofModal.hide();Swal.fire("Tidak Ditemukan","Nomor tidak terdaftar","info");}
 }
-
-function onReprintSuccess(result){
-  if(result.status==="FOUND"){populateProof(result);}
-  else{Swal.fire("Tidak Ditemukan","Nomor tidak terdaftar","info");showProofPopup(false);}
+function showProofPopup(b){
+  if(!proofModal)proofModal=new bootstrap.Modal(document.getElementById('proofModal'));
+  proofModal.show();document.getElementById('loading-spinner').style.display=b?'block':'none';
+  document.getElementById('proof-content').classList.toggle('d-none',b);
 }
-
-function populateProof(data){
-  document.getElementById('popup-nama').innerText=data.nama;
-  document.getElementById('popup-noHp').innerText=data.noHp;
-  document.getElementById('popup-instansi').innerText=data.instansi;
-  new QRCode(document.getElementById('qrcode-container'),{text:data.noHp,width:150,height:150});
+function displayProof(d,rp){
+  document.getElementById('popup-nama').textContent=d.nama;
+  document.getElementById('popup-noHp').textContent=d.noHp;
+  document.getElementById('popup-instansi').textContent=d.instansi;
+  const qr=document.getElementById('qrcode-container');qr.innerHTML='';
+  new QRCode(qr,{text:d.noHp,width:180,height:180});
   showProofPopup(false);
 }
-
-function showProofPopup(show){
-  const modal=new bootstrap.Modal(document.getElementById('proofModal'));
-  proofModal=modal;
-  document.getElementById('proof-content').classList.toggle('d-none',show);
-  document.getElementById('loading-spinner').classList.toggle('d-none',!show);
-  modal.show();
+async function cetakPDF(){
+  const {jsPDF}=window.jspdf;
+  const el=document.getElementById('bukti-pendaftaran');
+  const c=await html2canvas(el,{scale:2});
+  const img=c.toDataURL('image/png');
+  const pdf=new jsPDF({unit:'mm',format:'a5'});
+  pdf.addImage(img,'PNG',0,0,148,0);
+  pdf.save('bukti-daftar.pdf');
 }
-
-async function startScanner(){
-  if(!html5QrCode){html5QrCode=new Html5Qrcode("qr-reader");}
-  await html5QrCode.start({facingMode:currentFacingMode},{fps:10,qrbox:{width:250,height:250}},onScanSuccess);
-}
-
-function switchCamera(){currentFacingMode=(currentFacingMode==='environment')?'user':'environment';startScanner();}
-async function onScanSuccess(decodedText){
-  if(html5QrCode&&html5QrCode.isScanning)html5QrCode.stop().catch(()=>{});
-  const res=await fetch(SCRIPT_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"checkIn",payload:decodedText})});
-  const r=await res.json();onCheckInSuccess(r);
-}
-
-function onCheckInSuccess(r){
-  if(r.status==="SUCCESS")Swal.fire("Hadir",r.name+" berhasil check-in","success");
-  else if(r.status==="INFO")Swal.fire("Sudah Check-in",r.name+" sudah tercatat hadir","info");
-  else Swal.fire("Gagal",r.message||"Data tidak ditemukan","error");
-}
-
 async function loadParticipants(){
   const c=document.getElementById('participants-list');c.innerHTML='<div class="loader"></div>';
-  const res=await fetch(SCRIPT_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"getParticipants"})});
-  const r=await res.json();displayParticipants(r);
+  const r=await postToScript("getParticipants");
+  displayParticipants(r);
 }
-
 function displayParticipants(r){
-  if(!r||!r.data){document.getElementById('participants-list').innerHTML='<p class="text-danger">Gagal memuat data</p>';return;}
-  const rows=r.data.map(d=>`<tr><td>${d[0]}</td><td>${d[1]}</td><td>${d[3]}</td><td>${d[4]}</td><td>${d[5]?'<span class="text-success">Hadir</span>':'<span class="text-warning">Belum'}</span></td></tr>`).join('');
-  document.getElementById('participants-list').innerHTML=`<table class="table table-dark table-striped"><thead><tr><th>Waktu Daftar</th><th>Nama</th><th>No. HP</th><th>Instansi</th><th>Kehadiran</th></tr></thead><tbody>${rows}</tbody></table>`;
-  document.getElementById('summary-total').textContent=r.summary.total;
-  document.getElementById('summary-hadir').textContent=r.summary.hadir;
-  document.getElementById('summary-belum-hadir').textContent=r.summary.belumHadir;
-}
-
-function handleLogin(){
-  const key=document.getElementById('passkey').value.trim();
-  if(key===adminPasskey){sessionStorage.setItem('isAdminLoggedIn','true');setAdminView(true);bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();showView('admin-view');}
-  else Swal.fire("Gagal","Passkey salah","error");
-}
-
-function setAdminView(isLogged){document.getElementById('admin-login-btn').classList.toggle('d-none',isLogged);document.getElementById('admin-menu-btn').classList.toggle('d-none',!isLogged);}
-function logout(){sessionStorage.removeItem('isAdminLoggedIn');setAdminView(false);showView('registration-view');}
-async function cetakPDF(){
-  const e=document.getElementById('bukti-pendaftaran');
-  const c=await html2canvas(e);const i=c.toDataURL("image/png");
-  const{jsPDF}=window.jspdf;const p=new jsPDF();p.addImage(i,'PNG',10,10,190,0);p.save('bukti-pendaftaran.pdf');
+  const c=document.getElementById('participants-list');c.innerHTML='';
+  const s=r.summary||{total:0,hadir:0,belumHadir:0};
+  summary-total.textContent=s.total;summary-hadir.textContent=s.hadir;summary-belum-hadir.textContent=s.belumHadir;
+  const d=r.data||[];if(!d.length){c.innerHTML='<p class="text-center">Belum ada data</p>';return;}
+  let html='<table class="table table-dark table-striped"><thead><tr><th>No</th><th>Timestamp</th><th>Nama</th><th>Alamat</th><th>No HP</th><th>Instansi</th><th>Waktu Hadir</th></tr></thead><tbody>';
+  d.forEach((x,i)=>{html+=`<tr><td>${i+1}</td>${x.map((v,j)=>`<td>${j===5&&!v?'Belum Hadir':v}</td>`).join('')}</tr>`;});
+  html+='</tbody></table>';c.innerHTML=html;
 }
 </script>
 </body>
