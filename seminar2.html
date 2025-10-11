@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pendaftaran & Presensi Seminar</title>
+    <title>1</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- QR Code Generator -->
@@ -500,7 +500,7 @@
         // KONFIGURASI PENTING
         // =================================================================================
         // Ganti URL ini dengan URL Web App dari Google Apps Script Anda setelah di-deploy.
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzLd5aQT_yjRltb8WHJ8t5kmprul1TIOlZ50aYOOeul4Y-3aKcFsLoBERK_XrM0khyP/exec'; 
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbxiGNVQiAyo5l1AsrPJDNn8lQP4LwT0Z-HgNnaOL4cTP24-CT5ng9Kp4Zxss04z3jOw/exec'; 
 
         // Token admin yang digunakan untuk login.
         const ADMIN_TOKEN = 'faisaltbs';
@@ -685,6 +685,10 @@
             try {
                 const response = await fetch(GAS_URL + '?action=register', {
                     method: 'POST',
+                    redirect: 'follow', // Menambahkan redirect
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8', // Mengubah Content-Type
+                    },
                     body: JSON.stringify(data)
                 });
                 const result = await response.json();
@@ -751,6 +755,10 @@
             try {
                 const response = await fetch(GAS_URL + '?action=markAttendance', {
                     method: 'POST',
+                    redirect: 'follow', // Menambahkan redirect
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8', // Mengubah Content-Type
+                    },
                     body: JSON.stringify({ nomor_hp: phone })
                 });
                 const result = await response.json();
@@ -792,6 +800,10 @@
                     try {
                         const response = await fetch(GAS_URL + '?action=markAttendance', {
                             method: 'POST',
+                            redirect: 'follow', // Menambahkan redirect
+                            headers: {
+                                'Content-Type': 'text/plain;charset=utf-8', // Mengubah Content-Type
+                            },
                             body: JSON.stringify({ nomor_hp: decodedText })
                         });
                         const result = await response.json();
@@ -894,4 +906,5 @@
 
 </body>
 </html>
+
 
