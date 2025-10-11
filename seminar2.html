@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendaftaran & Presensi Seminar</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- QR Code Generator -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <!-- PDF Generator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- QR Code Scanner -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <!-- Feather Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f3f4f6;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        .spinner {
+            border-top-color: transparent;
+            border-right-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        #qr-reader {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        /* === CSS DARI ANDA === */
+
+        /* Full-width input fields */
+        input[type=text], input[type=password], input[type=tel], textarea {
+          width: 100%;
+          padding: 12px 20px;
+          margin: 8px 0;
+          display: inline-block;
+          border: 1px solid #ccc;
+          box-sizing: border-box;
+        }
+
+        /* Set a style for all buttons */
+        button {
+          background-color: #F57F17;
+          color: white;
+          padding: 14px 20px;
+          margin: 8px 0;
+          border: none;
+          cursor: pointer;
+          width: 100%;
+        }
+
+        button:hover {
+          opacity: 0.8;
+        }
+
+        /* Extra styles for the cancel button */
+        .cancelbtn {
+          width: auto;
+          padding: 10px 18px;
+          background-color: #FF9800;
+          border-radius: 5px;
+          -webkit-box-shadow: 0 1px 2px #333;
+          -moz-box-shadow:    0 1px 3px #333;
+          box-shadow:         0 1px 2px #333;
+        }
+
+        /* Center the image and position the close button */
+        .imgcontainer {
+          text-align: center;
+          margin: 24px 0 12px 0;
+          position: relative;
+        }
+
+        img.avatar {
+          width: 40%;
+          border-radius: 50%;
+        }
+
+        .container {
+          padding: 16px;
+          border-bottom-left-radius: 8px;
+          border-bottom-right-radius: 8px;
+        }
+
+        span.psw {
+          float: right;
+          color: #ffffff;
+          padding-top: 16px;
+        }
+        span.pswm {
+          float: right;
+          color: #666;
+          padding-top: 16px;
+        }
+        span.psw a{
+          color: #ffc107;
+        }
+
+        /* The Modal (background) */
+        .modal {
+          display: none; /* Hidden by default */
+          position: fixed; /* Stay in place */
+          z-index: 1; /* Sit on top */
+          left: 0;
+          top: 0;
+          width: 100%; /* Full width */
+          height: 100%; /* Full height */
+          overflow: auto; /* Enable scroll if needed */
+          background-color: rgb(0,0,0); /* Fallback color */
+          background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+          padding-top: 60px;
+        }
+
+        /* Modal Content/Box */
+        .modal-content {
+          background-image: linear-gradient(to right, #B1A0F5 0, #B1A0F5 50%, #FFEB3B 50%, #FFEB3B 100%);
+          margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
+          border-radius: 8px;
+          border: 1px solid #ddd;
+          width: 80%; /* Could be more or less, depending on screen size */
+        }
+
+        /* The Close Button (x) */
+        .close {
+          position: absolute;
+          right: 20px;
+          top: -15px;
+          color: #f5f5f5;
+          background: #4CAF50;
+          padding: 0 11.5px 0;
+          border-radius: 50px;
+          font-size: 35px;
+          font-weight: bold;
+          -webkit-box-shadow: 0 1px 2px #333;
+          -moz-box-shadow:    0 1px 3px #333;
+          box-shadow:         0 1px 2px #333;
+        }
+
+        .close:hover,
+        .close:focus {
+          color: red;
+          cursor: pointer;
+        }
+
+        /* Add Zoom Animation */
+        .animate {
+          -webkit-animation: animatezoom 0.6s;
+          animation: animatezoom 0.6s
+        }
+
+        @-webkit-keyframes animatezoom {
+          from {-webkit-transform: scale(0)} 
+          to {-webkit-transform: scale(1)}
+        }
+          
+        @keyframes animatezoom {
+          from {transform: scale(0)} 
+          to {transform: scale(1)}
+        }
+
+        /* Change styles for span and cancel button on extra small screens */
+        @media screen and (max-width: 300px) {
+          span.psw {
+             display: block;
+             float: none;
+          }
+          .cancelbtn {
+             width: 100%;
+          }
+        }
+        
+        /* === Penyesuaian Agar Tidak Bertabrakan dengan Tailwind === */
+        .nav-button {
+            @apply flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-600 rounded-lg transition-colors duration-200;
+            background-color: transparent !important;
+            color: #4b5563 !important;
+            width: auto !important;
+            margin: 0 !important;
+        }
+        .nav-button:hover {
+            background-color: #f3f4f6 !important;
+            opacity: 1;
+        }
+        .nav-button.active {
+            @apply bg-blue-100 text-blue-700;
+        }
+
+        .admin-tab-button {
+             @apply flex items-center whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300;
+             background-color: transparent !important;
+             border: none !important;
+             border-bottom: 2px solid transparent !important;
+             width: auto !important;
+             margin: 0 !important;
+             padding: 16px 4px !important;
+             color: #6b7280 !important;
+        }
+        .admin-tab-button:hover {
+            opacity: 1;
+            border-bottom-color: #d1d5db !important;
+            color: #374151 !important;
+        }
+        .admin-tab-button.active {
+            border-bottom-color: #3b82f6 !important;
+            color: #2563eb !important;
+        }
+
+        .pagination-button {
+            @apply bg-white border border-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed;
+            width: auto !important;
+            margin: 0 !important;
+        }
+         .pagination-button:hover {
+            background-color: #f9fafb !important;
+            opacity: 1;
+        }
+
+    </style>
+</head>
+<body class="antialiased text-gray-800">
+
+    <div id="app" class="min-h-screen container mx-auto p-4 md:p-6 lg:p-8">
+
+        <!-- ===== Header & Navigasi ===== -->
+        <header class="bg-white shadow-md rounded-xl p-4 mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="text-center md:text-left mb-4 md:mb-0">
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Seminar Teknologi Digital 2025</h1>
+                    <p class="text-gray-500">Manajemen Pendaftaran dan Kehadiran Peserta</p>
+                </div>
+                <nav class="flex items-center gap-2 md:gap-4">
+                    <button onclick="showPage('pendaftaran')" class="nav-button active" data-page="pendaftaran">
+                        <i data-feather="edit-3" class="w-4 h-4"></i> Pendaftaran
+                    </button>
+                    <button onclick="showPage('cetakUlang')" class="nav-button" data-page="cetakUlang">
+                        <i data-feather="printer" class="w-4 h-4"></i> Cetak Ulang
+                    </button>
+                    <button onclick="showPage('loginAdmin')" class="nav-button" data-page="loginAdmin">
+                        <i data-feather="user-check" class="w-4 h-4"></i> Admin
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <main>
+            <!-- ===== Halaman Pendaftaran ===== -->
+            <div id="pendaftaran" class="page-content">
+                <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden md:flex">
+                    <!-- Left Panel -->
+                    <div class="hidden md:flex w-full md:w-1/2 bg-gradient-to-br from-indigo-600 to-blue-500 text-white p-8 flex-col justify-center items-center">
+                        <svg class="w-32 h-32" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        <h2 class="text-3xl font-bold mt-4 text-center">Seminar Teknologi Digital 2025</h2>
+                        <p class="mt-2 text-indigo-200 text-center">Daftar sekarang untuk mendapatkan wawasan terbaru dan memperluas jaringan Anda.</p>
+                        <div class="flex justify-around w-full mt-10 text-center">
+                            <div>
+                                <i data-feather="award" class="w-8 h-8 mx-auto"></i>
+                                <p class="text-sm mt-2">Sertifikat</p>
+                            </div>
+                            <div>
+                                <i data-feather="users" class="w-8 h-8 mx-auto"></i>
+                                <p class="text-sm mt-2">Networking</p>
+                            </div>
+                            <div>
+                                <i data-feather="cpu" class="w-8 h-8 mx-auto"></i>
+                                <p class="text-sm mt-2">Ilmu Baru</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Right Panel (Form) -->
+                    <div class="w-full md:w-1/2 p-6 md:p-8">
+                        <h2 class="text-2xl font-bold mb-6 text-gray-800">Formulir Pendaftaran</h2>
+                        <form id="registrationForm">
+                            <div class="space-y-2">
+                                <div>
+                                    <label for="nama_lengkap" class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
+                                    <input type="text" id="nama_lengkap" name="nama_lengkap" required>
+                                </div>
+                                <div>
+                                    <label for="alamat" class="block text-sm font-medium text-gray-700">Alamat</label>
+                                    <textarea id="alamat" name="alamat" rows="2" required></textarea>
+                                </div>
+                                <div>
+                                    <label for="nomor_hp" class="block text-sm font-medium text-gray-700">Nomor HP (WhatsApp)</label>
+                                    <input type="tel" id="nomor_hp" name="nomor_hp" placeholder="Contoh: 08123456789" required>
+                                </div>
+                                <div>
+                                    <label for="instansi" class="block text-sm font-medium text-gray-700">Instansi / Lembaga</label>
+                                    <input type="text" id="instansi" name="instansi" required>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <button type="submit" id="submitBtn" class="flex items-center justify-center gap-2 transition duration-300 shadow-md hover:shadow-lg rounded-lg">
+                                    <span id="btnText">Daftar Sekarang</span>
+                                    <div id="btnSpinner" class="spinner w-5 h-5 border-2 border-white rounded-full hidden"></div>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== Halaman Cetak Ulang Bukti ===== -->
+            <div id="cetakUlang" class="page-content hidden">
+                <div class="max-w-lg mx-auto bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                    <h2 class="text-xl font-bold mb-6 text-center">Cetak Ulang Bukti Pendaftaran</h2>
+                    <p class="text-center text-gray-600 mb-6">Masukkan nomor HP yang Anda gunakan saat mendaftar untuk mencetak ulang bukti pendaftaran.</p>
+                    <form id="reprintForm">
+                        <div>
+                            <label for="nomor_hp_reprint" class="block text-sm font-medium text-gray-700">Nomor HP</label>
+                            <input type="tel" id="nomor_hp_reprint" name="nomor_hp_reprint" placeholder="Masukkan Nomor HP terdaftar" required>
+                        </div>
+                        <div class="mt-2">
+                            <button type="submit" id="reprintBtn" class="flex items-center justify-center gap-2 transition duration-300 rounded-lg">
+                                <span id="reprintBtnText">Cari & Cetak</span>
+                                <div id="reprintSpinner" class="spinner w-5 h-5 border-2 border-white rounded-full hidden"></div>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ===== Halaman Login Admin ===== -->
+            <div id="loginAdmin" class="page-content hidden">
+                <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden md:flex">
+                     <!-- Left Panel -->
+                     <div class="hidden md:flex w-full md:w-1/2 bg-gradient-to-br from-gray-700 to-gray-900 text-white p-8 flex-col justify-center items-center">
+                        <svg class="w-32 h-32" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        <h2 class="text-3xl font-bold mt-4 text-center">Area Administrator</h2>
+                        <p class="mt-2 text-gray-300 text-center">Silakan masuk untuk mengelola data pendaftaran dan kehadiran peserta.</p>
+                    </div>
+                    <!-- Right Panel (Form) -->
+                    <div class="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-center">
+                        <h2 class="text-2xl font-bold mb-6 text-gray-800">Login Admin</h2>
+                        <form id="adminLoginForm">
+                            <div>
+                                <label for="admin_token" class="block text-sm font-medium text-gray-700">Token Akses</label>
+                                <input type="password" id="admin_token" name="admin_token" required placeholder="••••••••">
+                            </div>
+                            <div class="mt-4">
+                                <button type="submit" class="transition duration-300 shadow-md hover:shadow-lg rounded-lg">
+                                    Masuk
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ===== Halaman Dashboard Admin ===== -->
+            <div id="adminDashboard" class="page-content hidden">
+                 <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Dashboard Admin</h2>
+                    <button onclick="adminLogout()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2" style="width: auto; margin: 0;">
+                        <i data-feather="log-out" class="w-4 h-4"></i> Logout
+                    </button>
+                 </div>
+
+                <!-- Navigasi Tab Admin -->
+                <div class="mb-6 border-b border-gray-200">
+                    <nav class="flex -mb-px space-x-6" aria-label="Tabs">
+                        <button onclick="showAdminTab('scan')" class="admin-tab-button active" data-tab="scan">
+                            <i data-feather="camera" class="w-5 h-5 mr-2"></i> Scan Kehadiran
+                        </button>
+                        <button onclick="showAdminTab('manual')" class="admin-tab-button" data-tab="manual">
+                            <i data-feather="edit" class="w-5 h-5 mr-2"></i> Input Manual
+                        </button>
+                        <button onclick="showAdminTab('peserta')" class="admin-tab-button" data-tab="peserta">
+                            <i data-feather="users" class="w-5 h-5 mr-2"></i> Daftar Peserta
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Konten Tab Admin -->
+                <div id="scan" class="admin-tab-content">
+                    <div class="max-w-xl mx-auto bg-white p-6 rounded-xl shadow-lg">
+                        <h3 class="text-lg font-bold mb-4 text-center">Scan QR Code Kehadiran</h3>
+                        <div id="qr-reader" class="w-full"></div>
+                        <div id="scan-result" class="mt-4 text-center font-medium"></div>
+                    </div>
+                </div>
+
+                <div id="manual" class="admin-tab-content hidden">
+                    <div class="max-w-xl mx-auto bg-white p-6 rounded-xl shadow-lg">
+                        <h3 class="text-lg font-bold mb-4">Input Kehadiran Manual</h3>
+                        <form id="manualAttendanceForm">
+                            <label for="manual_phone" class="block text-sm font-medium text-gray-700">Nomor HP Peserta</label>
+                            <div class="flex gap-2 mt-1">
+                                <input type="tel" id="manual_phone" class="flex-grow" placeholder="Masukkan nomor HP">
+                                <button type="submit" id="manualSubmitBtn" class="flex items-center justify-center rounded-lg" style="width: auto;">
+                                    <span id="manualBtnText">Submit</span>
+                                    <div id="manualSpinner" class="spinner w-5 h-5 border-2 border-white rounded-full hidden"></div>
+                                </button>
+                            </div>
+                        </form>
+                         <div id="manual-result" class="mt-4 text-center font-medium"></div>
+                    </div>
+                </div>
+
+                <div id="peserta" class="admin-tab-content hidden">
+                    <div class="bg-white p-6 rounded-xl shadow-lg">
+                        <h3 class="text-lg font-bold mb-4">Daftar Seluruh Peserta</h3>
+                        <!-- Filter dan Search -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 items-center">
+                            <input type="text" id="searchInput" placeholder="Cari nama atau nomor hp...">
+                            <select id="filterStatus" class="form-input" style="margin: 0;">
+                                <option value="">Semua Status</option>
+                                <option value="Hadir">Hadir</option>
+                                <option value="Belum Hadir">Belum Hadir</option>
+                            </select>
+                             <button id="applyFilterBtn" class="rounded-lg">Terapkan Filter</button>
+                        </div>
+                        
+                        <!-- Tabel Peserta -->
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kontak</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Instansi</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="participantTableBody" class="bg-white divide-y divide-gray-200">
+                                    <!-- Data akan diisi oleh JavaScript -->
+                                </tbody>
+                            </table>
+                            <div id="tableSpinner" class="flex justify-center items-center py-8 hidden"><div class="spinner w-8 h-8 border-4 border-blue-500 rounded-full"></div></div>
+                            <div id="noResults" class="text-center py-8 text-gray-500 hidden">Tidak ada data ditemukan.</div>
+                        </div>
+
+                        <!-- Paginasi -->
+                        <div class="flex justify-between items-center mt-4">
+                            <span id="paginationInfo" class="text-sm text-gray-700"></span>
+                            <div class="flex gap-2">
+                                <button id="prevPageBtn" class="pagination-button">Sebelumnya</button>
+                                <button id="nextPageBtn" class="pagination-button">Berikutnya</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ===== Modal Notifikasi ===== -->
+    <div id="notificationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full">
+            <div id="modalContent" class="p-6 text-center">
+                <!-- Konten dinamis -->
+            </div>
+            <div class="px-6 pb-6">
+                 <button onclick="closeModal()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg" style="background-color: #e5e7eb;">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Modal Bukti Pendaftaran ===== -->
+    <div id="proofModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all scale-95 opacity-0" id="proofModalContent">
+            <div id="registrationProof" class="p-6 md:p-8">
+                <div class="text-center mb-6">
+                    <i data-feather="check-circle" class="w-16 h-16 text-green-500 mx-auto"></i>
+                    <h3 class="text-2xl font-bold mt-4">Pendaftaran Berhasil!</h3>
+                    <p class="text-gray-600">Simpan bukti pendaftaran ini untuk presensi.</p>
+                </div>
+                <div class="border-t border-b border-gray-200 py-4 space-y-2">
+                    <p><strong>Nama:</strong> <span id="proof_nama"></span></p>
+                    <p><strong>No. HP:</strong> <span id="proof_hp"></span></p>
+                    <p><strong>Instansi:</strong> <span id="proof_instansi"></span></p>
+                </div>
+                <div class="flex justify-center mt-6">
+                    <div id="qrcode" class="p-2 border rounded-lg"></div>
+                </div>
+                 <p class="text-center text-xs text-gray-500 mt-4">Scan QR Code ini di meja registrasi</p>
+            </div>
+            <div class="bg-gray-50 p-4 flex gap-4 rounded-b-2xl">
+                <button onclick="printProof()" class="flex-1 font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2" style="background-color: #2563eb;">
+                    <i data-feather="download" class="w-5 h-5"></i> Cetak PDF
+                </button>
+                <button onclick="closeProofModal()" class="flex-1 font-bold py-3 px-4 rounded-lg" style="background-color: #e5e7eb; color: #1f2937;">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =================================================================================
+        // KONFIGURASI PENTING
+        // =================================================================================
+        // Ganti URL ini dengan URL Web App dari Google Apps Script Anda setelah di-deploy.
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbyD-oG1eA4x4y6f6Wq4n9z8k3h7gC5j2L1m0P9vR7B6a/exec'; 
+
+        // Token admin yang digunakan untuk login.
+        const ADMIN_TOKEN = 'faisaltbs';
+
+        // =================================================================================
+        // State Aplikasi
+        // =================================================================================
+        let currentPage = 1;
+        let totalPages = 1;
+        const PARTICIPANTS_PER_PAGE = 20;
+        let html5QrCode;
+
+        // =================================================================================
+        // Inisialisasi Aplikasi & Event Listeners
+        // =================================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            feather.replace(); // Inisialisasi Feather Icons
+            
+            // Event listener untuk form
+            document.getElementById('registrationForm').addEventListener('submit', handleRegistration);
+            document.getElementById('reprintForm').addEventListener('submit', handleReprint);
+            document.getElementById('adminLoginForm').addEventListener('submit', handleAdminLogin);
+            document.getElementById('manualAttendanceForm').addEventListener('submit', handleManualAttendance);
+            
+            // Event listener untuk filter & paginasi
+            document.getElementById('applyFilterBtn').addEventListener('click', () => {
+                currentPage = 1;
+                fetchParticipants();
+            });
+            document.getElementById('prevPageBtn').addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    fetchParticipants();
+                }
+            });
+            document.getElementById('nextPageBtn').addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    fetchParticipants();
+                }
+            });
+        });
+
+        // =================================================================================
+        // Fungsi Navigasi & UI
+        // =================================================================================
+        function showPage(pageId) {
+            document.querySelectorAll('.page-content').forEach(page => page.classList.add('hidden'));
+            document.getElementById(pageId).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-button').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.page === pageId) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Hentikan scanner jika pindah dari halaman admin
+            if (pageId !== 'adminDashboard' && html5QrCode && html5QrCode.isScanning) {
+                 html5QrCode.stop().catch(err => console.error("Gagal menghentikan scanner.", err));
+            }
+        }
+        
+        function showAdminTab(tabId) {
+             document.querySelectorAll('.admin-tab-content').forEach(tab => tab.classList.add('hidden'));
+             document.getElementById(tabId).classList.remove('hidden');
+
+             document.querySelectorAll('.admin-tab-button').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.tab === tabId) {
+                    btn.classList.add('active');
+                }
+            });
+
+            if (tabId === 'scan') {
+                startScanner();
+            } else {
+                if (html5QrCode && html5QrCode.isScanning) {
+                    html5QrCode.stop().catch(err => console.error("Gagal menghentikan scanner.", err));
+                }
+            }
+             if (tabId === 'peserta') {
+                currentPage = 1;
+                fetchParticipants();
+            }
+        }
+
+        function showNotification(type, title, message) {
+            const modalContent = document.getElementById('modalContent');
+            const icon = type === 'success' 
+                ? `<i data-feather="check-circle" class="w-16 h-16 text-green-500 mx-auto"></i>`
+                : `<i data-feather="x-circle" class="w-16 h-16 text-red-500 mx-auto"></i>`;
+            
+            modalContent.innerHTML = `
+                ${icon}
+                <h3 class="text-2xl font-bold mt-4">${title}</h3>
+                <p class="text-gray-600 mt-2">${message}</p>
+            `;
+            feather.replace();
+            document.getElementById('notificationModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('notificationModal').classList.add('hidden');
+        }
+        
+        function showProofModal(data) {
+            document.getElementById('proof_nama').textContent = data.nama_lengkap;
+            document.getElementById('proof_hp').textContent = data.nomor_hp;
+            document.getElementById('proof_instansi').textContent = data.instansi;
+
+            const qrcodeContainer = document.getElementById('qrcode');
+            qrcodeContainer.innerHTML = '';
+            new QRCode(qrcodeContainer, {
+                text: data.nomor_hp,
+                width: 180,
+                height: 180,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+            
+            const modal = document.getElementById('proofModal');
+            const content = document.getElementById('proofModalContent');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 50);
+        }
+
+        function closeProofModal() {
+            const modal = document.getElementById('proofModal');
+            const content = document.getElementById('proofModalContent');
+            content.classList.add('scale-95', 'opacity-0');
+            content.classList.remove('scale-100', 'opacity-100');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function printProof() {
+            const element = document.getElementById('registrationProof');
+            const registrantName = document.getElementById('proof_nama').textContent;
+            const opt = {
+                margin:       0.5,
+                filename:     `bukti_pendaftaran_${registrantName.replace(/\s/g, '_')}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'in', format: 'a5', orientation: 'portrait' }
+            };
+            html2pdf().from(element).set(opt).save();
+        }
+
+        function setLoading(btnId, spinnerId, textId, isLoading, text) {
+            const btn = document.getElementById(btnId);
+            const spinner = document.getElementById(spinnerId);
+            const btnText = document.getElementById(textId);
+
+            if(isLoading) {
+                btn.disabled = true;
+                spinner.classList.remove('hidden');
+                btnText.textContent = 'Memproses...';
+            } else {
+                btn.disabled = false;
+                spinner.classList.add('hidden');
+                btnText.textContent = text;
+            }
+        }
+
+        // =================================================================================
+        // Handler Fungsi
+        // =================================================================================
+        
+        async function handleRegistration(e) {
+            e.preventDefault();
+            setLoading('submitBtn', 'btnSpinner', 'btnText', true);
+
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const response = await fetch(GAS_URL + '?action=register', {
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showProofModal(data);
+                    e.target.reset();
+                } else {
+                    showNotification('error', 'Gagal Mendaftar', result.message || 'Terjadi kesalahan.');
+                }
+            } catch (error) {
+                showNotification('error', 'Koneksi Gagal', 'Tidak dapat terhubung ke server. Silakan coba lagi.');
+                console.error('Error:', error);
+            } finally {
+                setLoading('submitBtn', 'btnSpinner', 'btnText', false, 'Daftar Sekarang');
+            }
+        }
+
+        async function handleReprint(e) {
+            e.preventDefault();
+            setLoading('reprintBtn', 'reprintSpinner', 'reprintBtnText', true);
+            const phone = document.getElementById('nomor_hp_reprint').value;
+
+            try {
+                const response = await fetch(`${GAS_URL}?action=getParticipant&phone=${phone}`);
+                const result = await response.json();
+                if (result.success && result.data) {
+                    showProofModal(result.data);
+                    e.target.reset();
+                } else {
+                    showNotification('error', 'Data Tidak Ditemukan', result.message || 'Nomor HP tidak terdaftar.');
+                }
+            } catch (error) {
+                showNotification('error', 'Koneksi Gagal', 'Tidak dapat terhubung ke server.');
+                console.error('Error:', error);
+            } finally {
+                setLoading('reprintBtn', 'reprintSpinner', 'reprintBtnText', false, 'Cari & Cetak');
+            }
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const token = document.getElementById('admin_token').value;
+            if (token === ADMIN_TOKEN) {
+                showPage('adminDashboard');
+                showAdminTab('scan');
+                document.getElementById('admin_token').value = '';
+            } else {
+                showNotification('error', 'Login Gagal', 'Token yang Anda masukkan salah.');
+            }
+        }
+        
+        function adminLogout() {
+            showPage('pendaftaran');
+        }
+
+        async function handleManualAttendance(e) {
+            e.preventDefault();
+            setLoading('manualSubmitBtn', 'manualSpinner', 'manualBtnText', true);
+            const phone = document.getElementById('manual_phone').value;
+            const resultDiv = document.getElementById('manual-result');
+            resultDiv.textContent = '';
+
+            try {
+                const response = await fetch(GAS_URL + '?action=markAttendance', {
+                    method: 'POST',
+                    body: JSON.stringify({ nomor_hp: phone })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    resultDiv.textContent = `Berhasil: ${result.data.nama_lengkap} telah ditandai hadir.`;
+                    resultDiv.className = 'mt-4 text-center font-medium text-green-600';
+                    document.getElementById('manual_phone').value = '';
+                } else {
+                    resultDiv.textContent = `Gagal: ${result.message}`;
+                    resultDiv.className = 'mt-4 text-center font-medium text-red-600';
+                }
+            } catch (error) {
+                 resultDiv.textContent = 'Koneksi Gagal: Tidak dapat terhubung ke server.';
+                 resultDiv.className = 'mt-4 text-center font-medium text-red-600';
+            } finally {
+                setLoading('manualSubmitBtn', 'manualSpinner', 'manualBtnText', false, 'Submit');
+            }
+        }
+        
+        // =================================================================================
+        // Fungsi Admin Dashboard
+        // =================================================================================
+        
+        function startScanner() {
+            const resultDiv = document.getElementById('scan-result');
+            resultDiv.textContent = 'Arahkan kamera ke QR Code...';
+            resultDiv.className = 'mt-4 text-center font-medium text-gray-500';
+
+            html5QrCode = new Html5Qrcode("qr-reader");
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+            html5QrCode.start({ facingMode: "environment" }, config, 
+                async (decodedText, decodedResult) => {
+                    // Berhasil scan
+                    html5QrCode.pause();
+                    resultDiv.textContent = `QR Code terdeteksi: ${decodedText}. Memproses...`;
+                    resultDiv.className = 'mt-4 text-center font-medium text-blue-600';
+
+                    try {
+                        const response = await fetch(GAS_URL + '?action=markAttendance', {
+                            method: 'POST',
+                            body: JSON.stringify({ nomor_hp: decodedText })
+                        });
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            resultDiv.textContent = `Berhasil! ${result.data.nama_lengkap} (${result.data.instansi}) telah ditandai hadir.`;
+                            resultDiv.className = 'mt-4 text-center font-medium text-green-600';
+                        } else {
+                            resultDiv.textContent = `Gagal: ${result.message}`;
+                            resultDiv.className = 'mt-4 text-center font-medium text-red-600';
+                        }
+                    } catch (error) {
+                        resultDiv.textContent = 'Koneksi Gagal. Tidak dapat memproses kehadiran.';
+                        resultDiv.className = 'mt-4 text-center font-medium text-red-600';
+                    }
+
+                    setTimeout(() => {
+                        html5QrCode.resume();
+                        resultDiv.textContent = 'Arahkan kamera ke QR Code...';
+                        resultDiv.className = 'mt-4 text-center font-medium text-gray-500';
+                    }, 3000);
+                },
+                (errorMessage) => {
+                    // Tidak ada QR code terdeteksi
+                })
+            .catch(err => {
+                resultDiv.textContent = `Error inisialisasi kamera: ${err}`;
+                resultDiv.className = 'mt-4 text-center font-medium text-red-600';
+            });
+        }
+
+
+        async function fetchParticipants() {
+            const tableBody = document.getElementById('participantTableBody');
+            const tableSpinner = document.getElementById('tableSpinner');
+            const noResults = document.getElementById('noResults');
+
+            tableBody.innerHTML = '';
+            tableSpinner.classList.remove('hidden');
+            noResults.classList.add('hidden');
+
+            const search = document.getElementById('searchInput').value;
+            const filter = document.getElementById('filterStatus').value;
+            
+            try {
+                const response = await fetch(`${GAS_URL}?action=getParticipants&page=${currentPage}&limit=${PARTICIPANTS_PER_PAGE}&search=${search}&filter=${filter}`);
+                const result = await response.json();
+                
+                if (result.success && result.data.length > 0) {
+                    renderTable(result.data);
+                    totalPages = result.pagination.totalPages;
+                    updatePaginationInfo(result.pagination);
+                } else {
+                    noResults.classList.remove('hidden');
+                    totalPages = 1;
+                    updatePaginationInfo({ currentPage: 1, totalPages: 1, totalRecords: 0 });
+                }
+            } catch (error) {
+                noResults.textContent = 'Gagal memuat data. Periksa koneksi Anda.';
+                noResults.classList.remove('hidden');
+                 console.error('Error fetching participants:', error);
+            } finally {
+                tableSpinner.classList.add('hidden');
+            }
+        }
+        
+        function renderTable(participants) {
+            const tableBody = document.getElementById('participantTableBody');
+            tableBody.innerHTML = '';
+            participants.forEach(p => {
+                const statusClass = p.status_kehadiran === 'Hadir' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
+                const row = `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">${p.nama_lengkap}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">${p.nomor_hp}</div>
+                            <div class="text-sm text-gray-500">${p.alamat}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.instansi}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                                ${p.status_kehadiran}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        function updatePaginationInfo(pagination) {
+            const { currentPage, totalPages, totalRecords } = pagination;
+            document.getElementById('paginationInfo').textContent = `Halaman ${currentPage} dari ${totalPages} (${totalRecords} total peserta)`;
+            document.getElementById('prevPageBtn').disabled = currentPage === 1;
+            document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
+        }
+    </script>
+
+</body>
+</html>
+
