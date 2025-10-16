@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendaftaran & Presensi Seminar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js"></script>
+    <style>
+        /* ... (CSS ASLI) ... */
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Full-width input fields */
+        input[type=text], input[type=password], input[type=tel], textarea {
+          width: 100%;
+          padding: 12px 20px;
+          margin: 8px 0;
+          display: inline-block;
+          border: 1px solid #ccc;
+          box-sizing: border-box;
+          border-radius: 4px;
+        }
+        
+        /* Popup Notification System */
+        .popup-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .popup-backdrop.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .popup-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            padding: 24px;
+            border-radius: 12px;
+            color: white;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            width: 90%;
+            max-width: 320px;
+            text-align: center;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .popup-notification.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: auto;
+        }
+        .popup-notification.success { background-color: #28a745; }
+        .popup-notification.error { background-color: #dc3545; }
+        .popup-notification.loading { background-color: #17a2b8; }
+
+
+        .decorative-panel {
+            background-image: url('https://faisalrohman.github.io/IMG-20251014-WA0000.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        /* ========================================= */
+        /* Custom Background with Animations */
+        /* ========================================= */
+        .animated-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://faisalrohman.github.io/IMG-20251014-WA0000.jpg');
+            background-size: cover;
+            background-position: center;
+            z-index: -2;
+            filter: brightness(0.7);
+        }
+
+        .animated-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 5s infinite ease-in-out;
+        }
+
+        .line {
+            position: absolute;
+            height: 3px;
+            width: 200%;
+            background: linear-gradient(90deg, transparent, var(--line-color), transparent);
+            opacity: 0.6;
+            transform: translateY(var(--y-offset, 0)) translateX(var(--x-offset, 0));
+            animation: wave 20s infinite linear, sparkleLine 10s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 0.8; transform: scale(1); }
+        }
+
+        @keyframes wave {
+            0% { transform: translateY(var(--y-offset)) translateX(-25%); }
+            50% { transform: translateY(calc(var(--y-offset) + 10px)) translateX(-75%); }
+            100% { transform: translateY(var(--y-offset)) translateX(-25%); }
+        }
+
+        @keyframes sparkleLine {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.5); }
+        }
+
+        .line:nth-child(1) { --line-color: #9333ea; top: 10%; animation-delay: 0s; animation-duration: 25s; }
+        .line:nth-child(2) { --line-color: #3b82f6; top: 30%; animation-delay: 5s; animation-duration: 30s; }
+        .line:nth-child(3) { --line-color: #10b981; top: 50%; animation-delay: 10s; animation-duration: 20s; }
+        .line:nth-child(4) { --line-color: #f59e0b; top: 70%; animation-delay: 15s; animation-duration: 35s; }
+        .line:nth-child(5) { --line-color: #ec4899; top: 90%; animation-delay: 20s; animation-duration: 28s; }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="animated-background"></div>
+    <div class="animated-elements">
+        <div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div>
+    </div>
+
+    <div id="popup-backdrop" class="popup-backdrop"></div>
+    <div id="popup-notification" class="popup-notification">
+        <div id="popup-icon"></div>
+        <strong id="popup-title" class="text-xl font-bold"></strong>
+        <p id="popup-message"></p>
+    </div>
+
+    <div id="app" class="container mx-auto p-4 max-w-6xl relative z-10 w-full">
+        <nav class="bg-white p-4 rounded-lg shadow-md mb-6 md:flex md:justify-center md:items-center relative">
+            <button id="menu-toggle" class="md:hidden absolute top-4 right-4">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+            <div class="hidden md:flex md:space-x-2 w-full justify-center" id="menu-items">
+                <button data-page="register" class="nav-btn w-full md:w-auto mt-2 md:mt-0 bg-orange-500 text-white px-6 py-2 rounded-md font-semibold hover:bg-orange-600 transition">Pendaftaran</button>
+                <button data-page="reprint" class="nav-btn w-full md:w-auto mt-2 md:mt-0 bg-gray-200 text-gray-700 px-6 py-2 rounded-md font-semibold hover:bg-gray-300 transition">Cetak Ulang</button>
+                <button data-page="adminLogin" class="nav-btn w-full md:w-auto mt-2 md:mt-0 bg-gray-200 text-gray-700 px-6 py-2 rounded-md font-semibold hover:bg-gray-300 transition">Login Admin</button>
+            </div>
+        </nav>
+
+        <main id="content-area"></main>
+    </div>
+
+    <div id="proof-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg shadow-xl p-8 max-w-sm w-full relative text-center">
+            <h2 class="text-2xl font-bold mb-4 text-green-600">Pendaftaran Berhasil!</h2>
+            <p class="mb-4">Simpan bukti pendaftaran ini untuk presensi.</p>
+            <div id="qrcode-container" class="flex justify-center mb-6"><div id="qrcode" class="p-2 border rounded-md"></div></div>
+            <div id="participant-details" class="text-left mb-6 bg-gray-50 p-4 rounded-md">
+                <p><strong>Nama:</strong> <span id="detail-nama"></span></p>
+                <p><strong>No. HP:</strong> <span id="detail-hp"></span></p>
+                <p><strong>Instansi:</strong> <span id="detail-instansi"></span></p>
+            </div>
+            <div class="flex space-x-4">
+                <button id="print-pdf-btn" class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">Cetak PDF</button>
+                <button id="close-modal-btn" class="flex-1 bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // --- 1. SETTING TANGGAL PENDAFTARAN ---
+        // Format: YYYY-MM-DD
+        const START_DATE = '2025-10-10'; // Ganti dengan tanggal mulai pendaftaran Anda
+        const END_DATE = '2025-10-25';   // Ganti dengan tanggal penutupan pendaftaran Anda
+        // ----------------------------------------
+        
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbztMyCRHUX7MFPNlaLtp57Wb5szmksWv3znixUJtcabHhTLex4NNSDTlsTnHFquqSzpjg/exec';
+        const ADMIN_TOKEN = "100tahuntbs"; //untukrdpno1
+
+        const contentArea = document.getElementById('content-area');
+        const navButtons = document.querySelectorAll('.nav-btn');
+        const menuToggle = document.getElementById('menu-toggle');
+        const menuItems = document.getElementById('menu-items');
+
+        // Popup elements
+        const popupBackdrop = document.getElementById('popup-backdrop');
+        const popupNotification = document.getElementById('popup-notification');
+        const popupIcon = document.getElementById('popup-icon');
+        const popupTitle = document.getElementById('popup-title');
+        const popupMessage = document.getElementById('popup-message');
+        
+        let currentPage = 'register';
+        let adminState = { currentPage: 1, currentSearch: '', currentFilter: '' };
+
+        const templates = {
+            register: `...`,
+            registerClosed: `...`, // Template baru untuk pendaftaran ditutup
+            reprint: `...`,
+            adminLogin: `...`,
+            adminDashboard: `...`
+        };
+
+        // --- 2. TEMPLATE UNTUK FORM PENDAFTARAN (DIBUKA) ---
+        // Ditambahkan <p> dibawah <h2> untuk keterangan tanggal
+        templates.register = `
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden min-h-[60vh] md:grid md:grid-cols-2">
+                    <div class="decorative-panel hidden md:block"></div>
+                    <div class="p-8 md:p-12">
+                        <h2 class="text-3xl font-bold mb-1 text-gray-800">Pendaftaran Seminar</h2>
+                        <p class="text-sm text-orange-600 mb-4 font-semibold">Dibuka: ${new Date(START_DATE).toLocaleDateString('id-ID')} - Ditutup: ${new Date(END_DATE).toLocaleDateString('id-ID')}</p>
+                        <p class="text-gray-600 mb-8">Silakan isi data diri Anda dengan lengkap.</p>
+                        <form id="registration-form">
+                            <div class="mb-4"><label for="nama_lengkap" class="block text-gray-700 font-medium mb-2">Nama Lengkap</label><input type="text" id="nama_lengkap" name="nama_lengkap" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" required></div>
+                            <div class="mb-4"><label for="alamat" class="block text-gray-700 font-medium mb-2">Alamat</label><textarea id="alamat" name="alamat" rows="3" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" required></textarea></div>
+                            <div class="mb-4"><label for="nomor_hp" class="block text-gray-700 font-medium mb-2">Nomor HP</label><input type="tel" id="nomor_hp" name="nomor_hp" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Contoh: 081234567890" required></div>
+                            <div class="mb-4"><label for="instansi" class="block text-gray-700 font-medium mb-2">Instansi / Lembaga</label><input type="text" id="instansi" name="instansi" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" required></div>
+                            <button type="submit" id="submitBtn" class="w-full bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600 transition flex items-center justify-center"><span id="btnText">Daftar Sekarang</span><svg id="btnSpinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></button>
+                        </form>
+                    </div>
+                </div>`;
+
+        // --- 3. TEMPLATE UNTUK PENDAFTARAN DITUTUP ---
+        templates.registerClosed = `
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden min-h-[60vh] md:grid md:grid-cols-2">
+                    <div class="decorative-panel hidden md:block"></div>
+                    <div class="p-8 md:p-12 flex flex-col justify-center items-center text-center">
+                        <svg class="w-20 h-20 text-orange-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <h2 class="text-3xl font-bold mb-4 text-gray-800">Pendaftaran Seminar Ditutup</h2>
+                        <p class="text-lg text-gray-600 mb-2">Pendaftaran dibuka antara:</p>
+                        <p class="text-xl font-semibold text-orange-600 mb-8">${new Date(START_DATE).toLocaleDateString('id-ID')} sampai ${new Date(END_DATE).toLocaleDateString('id-ID')}</p>
+                        <p class="text-gray-600">Terima kasih atas minat Anda. Silakan hubungi panitia jika ada pertanyaan.</p>
+                    </div>
+                </div>`;
+
+
+        templates.reprint = `
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden min-h-[60vh] md:grid md:grid-cols-2">
+                     <div class="decorative-panel hidden md:block"></div>
+                    <div class="p-8 md:p-12">
+                        <h2 class="text-3xl font-bold mb-2 text-gray-800">Cetak Ulang Bukti</h2>
+                        <p class="text-gray-600 mb-8">Masukkan nomor HP yang Anda daftarkan.</p>
+                        <form id="reprint-form">
+                            <div class="mb-4"><label for="reprint_phone" class="block text-gray-700 font-medium mb-2">Nomor HP</label><input type="tel" id="reprint_phone" name="reprint_phone" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Contoh: 081234567890" required></div>
+                            <button type="submit" id="reprintBtn" class="w-full bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600 transition flex items-center justify-center"><span id="reprintBtnText">Cari & Cetak</span><svg id="reprintSpinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></button>
+                        </form>
+                    </div>
+                </div>`;
+        templates.adminLogin = `
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden min-h-[60vh] md:grid md:grid-cols-2">
+                     <div class="decorative-panel hidden md:block"></div>
+                    <div class="p-8 md:p-12 flex flex-col justify-center">
+                        <h2 class="text-3xl font-bold mb-2 text-gray-800">Login Admin</h2>
+                        <p class="text-gray-600 mb-8">Masukkan token akses yaitu <b>100tahuntbs</b> untuk melanjutkan. semua data masuk ke spreadsheet berikut https://docs.google.com/spreadsheets/d/1fBL-Xwbx3VK9lGK3qDPIbRvSrVKvfzPZWLd2eF0djWY/edit?usp=drivesdk</p>
+                        <form id="admin-login-form">
+                            <div class="mb-4"><label for="admin_token" class="block text-gray-700 font-medium mb-2">Token Admin</label><input type="password" id="admin_token" name="admin_token" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" required></div>
+                            <button type="submit" class="w-full bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600 transition">Masuk</button>
+                        </form>
+                    </div>
+                </div>`;
+        templates.adminDashboard = `
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold mb-4">Dashboard Admin</h2>
+                    <div class="mb-6 border-b"><nav class="flex space-x-4"><button data-tab="scan" class="admin-tab py-2 px-4 border-b-2 border-orange-500 font-semibold text-orange-600">Scan Kehadiran</button><button data-tab="manual" class="admin-tab py-2 px-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700">Input Manual</button><button data-tab="list" class="admin-tab py-2 px-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700">Daftar Peserta</button></nav></div>
+                    <div id="admin-content"></div>
+                </div>`;
+        
+        const adminTabs = {
+            scan: `...`, manual: `...`, list: `...`
+        };
+        adminTabs.scan = `<div class="max-w-md mx-auto text-center"><h3 class="text-xl font-semibold mb-4">Scan QR Code Kehadiran</h3><div id="qr-reader" class="w-full border-2 border-dashed rounded-lg p-2"></div><div id="qr-reader-result" class="mt-4 font-medium"></div></div>`;
+        adminTabs.manual = `<div class="max-w-md mx-auto"><h3 class="text-xl font-semibold mb-4 text-center">Input Kehadiran Manual</h3><form id="manual-attendance-form"><div class="mb-4"><label for="manual_phone" class="block text-gray-700 font-medium mb-2">Nomor HP Peserta</label><input type="tel" id="manual_phone" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" required></div><button type="submit" id="manualSubmitBtn" class="w-full bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600 transition flex items-center justify-center"><span id="manualBtnText">Submit</span><svg id="manualSpinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></button></form></div>`;
+        adminTabs.list = `<div><h3 class="text-xl font-semibold mb-4">Daftar Peserta</h3><div class="md:flex md:justify-between md:items-center mb-4 space-y-2 md:space-y-0"><div class="flex items-center space-x-2"><label for="filter-status" class="font-medium">Filter:</label><select id="filter-status" class="border rounded-md p-2"><option value="">Semua</option><option value="Hadir">Hadir</option><option value="Belum Hadir">Belum Hadir</option></select></div><div class="relative"><input type="text" id="search-input" placeholder="Cari nama atau no. hp..." class="border rounded-md p-2 pl-8 w-full md:w-auto"><svg class="w-5 h-5 text-gray-400 absolute left-2 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></div></div><div id="participants-table-container" class="overflow-x-auto"><div class="text-center p-8 text-gray-500" id="table-loading">Memuat data...</div></div><div id="pagination-container" class="mt-4 flex justify-between items-center"></div></div>`;
+
+        // --- ICONS for POPUP ---
+        const icons = {
+            success: `<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
+            error: `<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
+            loading: `<svg class="animate-spin w-12 h-12 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`
+        };
+        
+        // --- EVENT LISTENERS & INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPage(currentPage);
+            setupNavListeners();
+            generateStars(50);
+        });
+
+        function setupNavListeners() {
+            // Hamburger Toggle
+            menuToggle.addEventListener('click', () => {
+                menuItems.classList.toggle('hidden');
+            });
+
+            // Menu Item Clicks
+            navButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    currentPage = button.dataset.page;
+                    renderPage(currentPage);
+                    updateActiveNav(button);
+                    // Hide menu on mobile after click
+                    if (!menuItems.classList.contains('md:flex')) {
+                        menuItems.classList.add('hidden');
+                    }
+                });
+            });
+        }
+        
+        function updateActiveNav(activeButton) {
+            navButtons.forEach(btn => {
+                btn.classList.remove('bg-orange-500', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-700');
+            });
+            activeButton.classList.add('bg-orange-500', 'text-white');
+            activeButton.classList.remove('bg-gray-200', 'text-gray-700');
+        }
+
+        // --- 4. MODIFIKASI FUNGSI RENDER PAGE UNTUK CEK TANGGAL ---
+        function isRegistrationOpen() {
+            const now = new Date();
+            // Menggunakan fungsi setHours(0, 0, 0, 0) agar perbandingan hanya berdasarkan tanggal.
+            const start = new Date(START_DATE);
+            start.setHours(0, 0, 0, 0); 
+            const end = new Date(END_DATE);
+            // Tambahkan satu hari agar pendaftaran masih bisa dilakukan di hari penutupan penuh.
+            end.setDate(end.getDate() + 1);
+            end.setHours(0, 0, 0, 0); 
+
+            return now >= start && now < end;
+        }
+
+        function renderPage(page) {
+            let templateKey = page;
+            
+            if (page === 'register') {
+                if (isRegistrationOpen()) {
+                    templateKey = 'register';
+                } else {
+                    templateKey = 'registerClosed';
+                }
+            }
+
+            contentArea.innerHTML = templates[templateKey];
+            addPageSpecificListeners(templateKey); // Gunakan templateKey untuk listener
+            
+            const activeBtn = document.querySelector(`.nav-btn[data-page="${page}"]`);
+            if (activeBtn) updateActiveNav(activeBtn);
+            if (page === 'adminDashboard') renderAdminTab('scan');
+        }
+        
+        function addPageSpecificListeners(page) {
+            // Cek jika halaman adalah 'register' dan pendaftaran DIBUKA
+            if (page === 'register') {
+                 document.getElementById('registration-form').addEventListener('submit', handleRegistration);
+            }
+            // Halaman lain tetap sama
+            if (page === 'reprint') document.getElementById('reprint-form').addEventListener('submit', handleReprint);
+            if (page === 'adminLogin') document.getElementById('admin-login-form').addEventListener('submit', handleAdminLogin);
+            if (page === 'adminDashboard') {
+                document.querySelectorAll('.admin-tab').forEach(tab => {
+                    tab.addEventListener('click', () => renderAdminTab(tab.dataset.tab));
+                });
+            }
+        }
+        
+        // --- HELPER FUNCTIONS ---
+        function normalizePhoneNumber(phone) {
+            const trimmedPhone = phone.trim();
+            return trimmedPhone.startsWith('0') ? '62' + trimmedPhone.substring(1) : trimmedPhone;
+        }
+
+        function setLoading(btnId, spinnerId, textId, isLoading, defaultText = '') {
+            const button = document.getElementById(btnId);
+            const spinner = document.getElementById(spinnerId);
+            const text = document.getElementById(textId);
+            if(!button) return;
+            if (isLoading) {
+                button.disabled = true;
+                if(spinner) spinner.classList.remove('hidden');
+                if(text) text.textContent = 'Memproses...';
+            } else {
+                button.disabled = false;
+                if(spinner) spinner.classList.add('hidden');
+                if(text) text.textContent = defaultText;
+            }
+        }
+        
+        // --- NEW POPUP NOTIFICATION SYSTEM ---
+        let popupTimeout;
+        function showPopup(type, title, message, duration = null) {
+            clearTimeout(popupTimeout);
+            popupNotification.className = `popup-notification ${type}`;
+            popupIcon.innerHTML = icons[type] || '';
+            popupTitle.textContent = title;
+            popupMessage.textContent = message;
+
+            popupBackdrop.classList.add('show');
+            popupNotification.classList.add('show');
+
+            if (duration) {
+                popupTimeout = setTimeout(() => {
+                    hidePopup();
+                }, duration);
+            }
+        }
+
+        function hidePopup() {
+            popupBackdrop.classList.remove('show');
+            popupNotification.classList.remove('show');
+        }
+
+
+        // --- MAIN HANDLERS (UPDATED) ---
+        async function handleRegistration(e) {
+            e.preventDefault();
+            
+            // Re-check tanggal untuk keamanan
+            if (!isRegistrationOpen()) {
+                showPopup('error', 'Pendaftaran Ditutup', 'Formulir sudah tidak menerima pendaftaran.', 4000);
+                // Render ulang halaman untuk menampilkan pesan penutupan
+                renderPage('register'); 
+                return;
+            }
+
+            setLoading('submitBtn', 'btnSpinner', 'btnText', true);
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            data.nomor_hp = normalizePhoneNumber(data.nomor_hp);
+            
+            try {
+                const response = await fetch(`${GAS_URL}?action=register`, { method: 'POST', redirect: 'follow', headers: {'Content-Type': 'text/plain;charset=utf-8'}, body: JSON.stringify(data) });
+                const result = await response.json();
+                if (result.success) {
+                    showProofModal(data);
+                    e.target.reset();
+                } else {
+                    showPopup('error', 'Gagal Mendaftar', result.message || 'Terjadi kesalahan.', 4000);
+                }
+            } catch (error) {
+                showPopup('error', 'Koneksi Gagal', 'Tidak dapat terhubung ke server. Coba lagi nanti.', 4000);
+            } finally {
+                setLoading('submitBtn', 'btnSpinner', 'btnText', false, 'Daftar Sekarang');
+            }
+        }
+
+        async function handleReprint(e) {
+            e.preventDefault();
+            setLoading('reprintBtn', 'reprintSpinner', 'reprintBtnText', true);
+            const phone = normalizePhoneNumber(document.getElementById('reprint_phone').value);
+
+            try {
+                const response = await fetch(`${GAS_URL}?action=getParticipant&phone=${phone}`);
+                const result = await response.json();
+                if (result.success && result.data) {
+                    showProofModal(result.data);
+                    e.target.reset();
+                } else {
+                    showPopup('error', 'Data Tidak Ditemukan', result.message || 'Nomor HP tidak terdaftar.', 4000);
+                }
+            } catch (error) {
+                showPopup('error', 'Terjadi Kesalahan', 'Gagal memproses respons dari server.', 4000);
+            } finally {
+                setLoading('reprintBtn', 'reprintSpinner', 'reprintBtnText', false, 'Cari & Cetak');
+            }
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const token = document.getElementById('admin_token').value;
+            if (token === ADMIN_TOKEN) {
+                currentPage = 'adminDashboard';
+                renderPage(currentPage);
+            } else {
+                showPopup('error', 'Login Gagal', 'Token admin yang Anda masukkan salah.', 3000);
+            }
+        }
+
+        // --- ADMIN DASHBOARD FUNCTIONS (Lainnya tetap) ---
+        function renderAdminTab(tab) {
+             document.querySelectorAll('.admin-tab').forEach(t => {
+                t.classList.remove('border-orange-500', 'text-orange-600');
+                t.classList.add('border-transparent', 'text-gray-500');
+            });
+            document.querySelector(`.admin-tab[data-tab="${tab}"]`).classList.add('border-orange-500', 'text-orange-600');
+            document.getElementById('admin-content').innerHTML = adminTabs[tab];
+
+            if (tab === 'scan') setupQrScanner();
+            if (tab === 'manual') document.getElementById('manual-attendance-form').addEventListener('submit', handleManualAttendance);
+            if (tab === 'list') setupParticipantList();
+        }
+        
+        function setupQrScanner() {
+            const html5QrCode = new Html5Qrcode("qr-reader");
+            const qrReaderResultEl = document.getElementById('qr-reader-result');
+
+            const qrCodeSuccessCallback = async (decodedText) => {
+                html5QrCode.pause();
+                showPopup('loading', 'Memproses...', `QR Code terdeteksi: ${decodedText}`);
+
+                try {
+                    const response = await fetch(`${GAS_URL}?action=markAttendance`, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ nomor_hp: decodedText }) });
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showPopup('success', 'Berhasil Hadir!', `${result.data.nama_lengkap} dari ${result.data.instansi} telah hadir.`, 2000);
+                    } else {
+                        showPopup('error', 'Gagal', result.message, 4000);
+                    }
+                } catch (error) {
+                    showPopup('error', 'Koneksi Gagal', 'Tidak dapat memproses kehadiran.', 4000);
+                }
+
+                setTimeout(() => {
+                    if (html5QrCode.getState() === 3) { // 3 = PAUSED
+                         html5QrCode.resume();
+                    }
+                }, 3000);
+            };
+
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, qrCodeSuccessCallback)
+            .catch(err => {
+                qrReaderResultEl.textContent = "Gagal memulai kamera. Mohon berikan izin akses kamera.";
+                qrReaderResultEl.className = 'mt-4 font-medium text-red-600';
+            });
+        }
+        
+        async function handleManualAttendance(e) {
+            e.preventDefault();
+            setLoading('manualSubmitBtn', 'manualSpinner', 'manualBtnText', true);
+            const phone = normalizePhoneNumber(document.getElementById('manual_phone').value);
+            
+            showPopup('loading', 'Memproses...', 'Mencatat kehadiran manual.');
+
+            try {
+                const response = await fetch(`${GAS_URL}?action=markAttendance`, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ nomor_hp: phone }) });
+                const result = await response.json();
+                if (result.success) {
+                    showPopup('success', 'Berhasil', `${result.data.nama_lengkap} telah ditandai hadir.`, 2000);
+                    document.getElementById('manual_phone').value = '';
+                } else {
+                    showPopup('error', 'Gagal', result.message, 4000);
+                }
+            } catch (error) {
+                 showPopup('error', 'Koneksi Gagal', 'Tidak dapat terhubung ke server.', 4000);
+            } finally {
+                setLoading('manualSubmitBtn', 'manualSpinner', 'manualBtnText', false, 'Submit');
+            }
+        }
+        
+        function setupParticipantList() {
+             fetchParticipants(adminState.currentPage, adminState.currentSearch, adminState.currentFilter);
+                document.getElementById('filter-status').addEventListener('change', (e) => {
+                    adminState.currentFilter = e.target.value;
+                    adminState.currentPage = 1;
+                    fetchParticipants(1, adminState.currentSearch, adminState.currentFilter);
+                });
+                document.getElementById('search-input').addEventListener('input', (e) => {
+                    adminState.currentSearch = e.target.value;
+                    adminState.currentPage = 1;
+                    fetchParticipants(1, adminState.currentSearch, adminState.currentFilter);
+                });
+        }
+
+        async function fetchParticipants(page, search, filter) {
+            const tableContainer = document.getElementById('participants-table-container');
+            tableContainer.innerHTML = '<div class="text-center p-8 text-gray-500">Memuat data...</div>';
+            
+            try {
+                const response = await fetch(`${GAS_URL}?action=getParticipants&page=${page}&limit=20&search=${search}&filter=${filter}`);
+                const result = await response.json();
+                if (result.success) {
+                    renderParticipantsTable(result.data, result.pagination);
+                    renderPagination(result.pagination);
+                } else {
+                    tableContainer.innerHTML = `<div class="text-center p-8 text-red-500">${result.message || 'Gagal memuat data.'}</div>`;
+                }
+            } catch (error) {
+                tableContainer.innerHTML = `<div class="text-center p-8 text-red-500">Gagal terhubung ke server.</div>`;
+            }
+        }
+        
+        function renderParticipantsTable(data, pagination) {
+            const tableContainer = document.getElementById('participants-table-container');
+            if (data.length === 0) {
+                tableContainer.innerHTML = '<div class="text-center p-8 text-gray-500">Tidak ada data peserta.</div>';
+                return;
+            }
+            const startNumber = (pagination.currentPage - 1) * 20 + 1;
+            const tableRows = data.map((p, index) => `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="p-3 text-center">${startNumber + index}</td>
+                    <td class="p-3 font-medium text-gray-800">${p.nama_lengkap}</td>
+                    <td class="p-3 text-gray-600">${p.nomor_hp}</td>
+                    <td class="p-3 text-gray-600">${p.instansi}</td>
+                    <td class="p-3 text-center"><span class="px-3 py-1 text-sm rounded-full ${p.status_kehadiran === 'Hadir' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${p.status_kehadiran}</span></td>
+                </tr>`).join('');
+            tableContainer.innerHTML = `<table class="w-full text-left"><thead class="bg-gray-100"><tr><th class="p-3 text-center w-16">No.</th><th class="p-3">Nama</th><th class="p-3">No. HP</th><th class="p-3">Instansi</th><th class="p-3 text-center">Status</th></tr></thead><tbody>${tableRows}</tbody></table>`;
+        }
+
+        function renderPagination(pagination) {
+            const { currentPage, totalPages, totalRecords } = pagination;
+            const paginationContainer = document.getElementById('pagination-container');
+            if (totalPages <= 1) {
+                paginationContainer.innerHTML = `<div class="text-sm text-gray-600">Total ${totalRecords} peserta</div>`;
+                return;
+            };
+            let buttons = Array.from({length: totalPages}, (_, i) => `<button class="pg-btn h-10 w-10 rounded-md ${i + 1 === currentPage ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700'}" data-page="${i + 1}">${i + 1}</button>`).join('');
+            paginationContainer.innerHTML = `<div class="text-sm text-gray-600">Total ${totalRecords} peserta</div><div class="flex space-x-1">${buttons}</div>`;
+            document.querySelectorAll('.pg-btn').forEach(btn => btn.addEventListener('click', () => {
+                adminState.currentPage = parseInt(btn.dataset.page);
+                fetchParticipants(adminState.currentPage, adminState.currentSearch, adminState.currentFilter);
+            }));
+        }
+        
+        // --- DECORATIVE FUNCTIONS ---
+        function generateStars(count) {
+            const animatedElements = document.querySelector('.animated-elements');
+            for (let i = 0; i < count; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                star.style.cssText = `width:${Math.random()*2+1}px; height:${star.style.width}; top:${Math.random()*100}%; left:${Math.random()*100}%; animation-delay:${Math.random()*5}s;`;
+                animatedElements.appendChild(star);
+            }
+        }
+        
+        // Modal functions are separate from popup
+        function showProofModal(data) {
+            document.getElementById('qrcode').innerHTML = '';
+            new QRCode(document.getElementById('qrcode'), { text: normalizePhoneNumber(data.nomor_hp), width: 180, height: 180 });
+            document.getElementById('detail-nama').textContent = data.nama_lengkap;
+            document.getElementById('detail-hp').textContent = normalizePhoneNumber(data.nomor_hp);
+            document.getElementById('detail-instansi').textContent = data.instansi;
+            document.getElementById('proof-modal').classList.remove('hidden');
+            document.getElementById('close-modal-btn').onclick = () => document.getElementById('proof-modal').classList.add('hidden');
+            document.getElementById('print-pdf-btn').onclick = () => generatePdf(data);
+        }
+
+        function generatePdf(data) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFontSize(18); doc.text('Bukti Pendaftaran Seminar', 105, 20, null, null, 'center');
+            doc.addImage(document.querySelector('#qrcode canvas').toDataURL('image/png'), 'PNG', 75, 30, 60, 60);
+            doc.setFontSize(12); doc.text('Nama Lengkap:', 20, 110); doc.text(data.nama_lengkap, 60, 110);
+            doc.text('Nomor HP:', 20, 120); doc.text(normalizePhoneNumber(data.nomor_hp), 60, 120);
+            doc.text('Instansi:', 20, 130); doc.text(data.instansi, 60, 130);
+            doc.text('Alamat:', 20, 140); doc.text(data.alamat, 60, 140, { maxWidth: 130 });
+            doc.save(`bukti_${data.nama_lengkap}.pdf`);
+        }
+    </script>
+</body>
+</html>
