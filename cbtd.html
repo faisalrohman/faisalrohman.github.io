@@ -323,31 +323,34 @@
             border-bottom: 3px solid #fff;
         }
 
-        /* Config Panel */
-        .config-panel {
-            background: #f8f9fa;
-            padding: 20px;
+        /* Status Panel */
+        .status-panel {
+            background: #d4edda;
+            padding: 15px;
             border-radius: 10px;
             margin-bottom: 20px;
-            border-left: 4px solid #3498db;
+            border-left: 4px solid #28a745;
+            text-align: center;
         }
 
-        .config-input {
-            margin-bottom: 15px;
+        .status-panel.error {
+            background: #f8d7da;
+            border-left-color: #dc3545;
         }
 
-        .config-input label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-
-        .config-input input {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #e1e8ed;
+        .copy-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
             border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .copy-btn:hover {
+            background: #5a6268;
         }
     </style>
 </head>
@@ -363,14 +366,10 @@
         </div>
         
         <div class="content">
-            <!-- Config Panel -->
-            <div class="config-panel">
-                <h3>Konfigurasi Server</h3>
-                <div class="config-input">
-                    <label for="serverUrl">URL Google Apps Script (Web App):</label>
-                    <input type="text" id="serverUrl" placeholder="https://script.google.com/macros/s/..." value="">
-                </div>
-                <button class="btn" onclick="saveConfig()" style="max-width: 200px;">Simpan Konfigurasi</button>
+            <!-- Status Panel -->
+            <div id="statusPanel" class="status-panel">
+                <strong>✅ SISTEM SIAP DIGUNAKAN</strong><br>
+                <small>Server: <span id="serverStatus">TERHUBUNG</span></small>
             </div>
             
             <!-- Login Screen -->
@@ -391,6 +390,12 @@
                     <button class="btn" onclick="handleLogin()" id="loginBtn">Masuk ke Ujian</button>
                     
                     <div id="loginMessage" class="alert error hidden" style="margin-top: 20px;"></div>
+
+                    <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; font-size: 12px; color: #6c757d;">
+                        <strong>Info Login Test:</strong><br>
+                        Nama: <strong>Andi Wijaya</strong> | Password: <strong>andi123</strong><br>
+                        Nama: <strong>Budi Santoso</strong> | Password: <strong>budi456</strong>
+                    </div>
                 </div>
             </div>
             
@@ -401,7 +406,7 @@
                         <strong id="userName"></strong>
                     </div>
                     <div class="timer" id="timer">120:00</div>
-                    <div class="question-counter" id="questionCounter">Soal 1/50</div>
+                    <div class="question-counter" id="questionCounter">Soal 1/6</div>
                 </div>
                 
                 <div class="question-container">
@@ -453,8 +458,12 @@
     </div>
 
     <script>
-        // Konfigurasi
-        const CONFIG_KEY = 'cbt_system_config';
+        // ================================
+        // KONFIGURASI URL GOOGLE APPS SCRIPT
+        // ================================
+        const SERVER_URL = "https://script.google.com/macros/s/AKfycbxNIv4D5ScskXIZ-jgbE-55fLdZtrnpLN3POBOiwuI2pJuqUmVUIpcQaM-ndrJ_G9lINQ/exec";
+        // GANTI "YOUR_SCRIPT_ID" dengan ID Google Apps Script Anda
+        // Contoh: https://script.google.com/macros/s/AKfycbyf5Jk8H7X3Z2qYwLxVpM9nT1R4S6D8G0H2J4L6N8P0Q/exec
         
         // Global variables
         let currentUser = null;
@@ -464,7 +473,6 @@
         let examTimer = null;
         let timeLeft = 0;
         let sessionToken = null;
-        let serverUrl = '';
         
         // Security monitoring
         let focusLost = false;
@@ -472,40 +480,25 @@
         
         // Initialize
         function initialize() {
-            loadConfig();
+            checkServerStatus();
             initializeSecurity();
         }
         
-        // Configuration management
-        function loadConfig() {
-            const savedConfig = localStorage.getItem(CONFIG_KEY);
-            if (savedConfig) {
-                const config = JSON.parse(savedConfig);
-                serverUrl = config.serverUrl;
-                document.getElementById('serverUrl').value = serverUrl;
+        // Check server status
+        async function checkServerStatus() {
+            try {
+                const response = await callServer('validate_session', { session_token: 'test' });
+                document.getElementById('serverStatus').textContent = 'TERHUBUNG';
+                document.getElementById('statusPanel').className = 'status-panel';
+            } catch (error) {
+                document.getElementById('serverStatus').textContent = 'GAGAL TERHUBUNG';
+                document.getElementById('statusPanel').className = 'status-panel error';
+                showMessage('Server tidak dapat dihubungi. Pastikan URL Google Apps Script sudah benar.', 'error');
             }
-        }
-        
-        function saveConfig() {
-            const url = document.getElementById('serverUrl').value.trim();
-            if (!url) {
-                alert('Harap masukkan URL Google Apps Script');
-                return;
-            }
-            
-            serverUrl = url;
-            const config = { serverUrl: url };
-            localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
-            
-            showMessage('Konfigurasi berhasil disimpan!', 'success');
         }
         
         // API Call function
         async function callServer(action, data = {}) {
-            if (!serverUrl) {
-                throw new Error('Harap konfigurasi server URL terlebih dahulu');
-            }
-            
             const formData = new FormData();
             formData.append('action', action);
             
@@ -514,7 +507,7 @@
                 formData.append(key, data[key]);
             });
             
-            const response = await fetch(serverUrl, {
+            const response = await fetch(SERVER_URL, {
                 method: 'POST',
                 body: formData
             });
@@ -531,21 +524,27 @@
         function initializeSecurity() {
             // Monitor tab/window focus
             window.addEventListener('blur', () => {
-                focusLost = true;
-                showSecurityWarning();
+                if (currentUser) { // Only monitor during exam
+                    focusLost = true;
+                    showSecurityWarning();
+                }
             });
             
             window.addEventListener('focus', () => {
-                if (focusLost) {
+                if (focusLost && currentUser) {
                     handleViolation();
                 }
             });
             
             // Prevent right click
-            document.addEventListener('contextmenu', (e) => e.preventDefault());
+            document.addEventListener('contextmenu', (e) => {
+                if (currentUser) e.preventDefault();
+            });
             
-            // Prevent keyboard shortcuts
+            // Prevent keyboard shortcuts during exam
             document.addEventListener('keydown', (e) => {
+                if (!currentUser) return;
+                
                 if (e.ctrlKey && (e.key === 'c' || e.key === 'C' || e.key === 'v' || e.key === 'V' || e.key === 'u' || e.key === 'U')) {
                     e.preventDefault();
                     showSecurityWarning();
@@ -555,22 +554,42 @@
                     e.preventDefault();
                     showSecurityWarning();
                 }
+
+                // Block copy-paste
+                if (e.ctrlKey && (e.key === 'c' || e.key === 'v')) {
+                    e.preventDefault();
+                    showSecurityWarning();
+                }
+            });
+            
+            // Prevent text selection during exam
+            document.addEventListener('selectstart', (e) => {
+                if (currentUser) {
+                    e.preventDefault();
+                }
             });
             
             // Session validation
-            validationInterval = setInterval(validateSession, 30000); // Every 30 seconds
+            validationInterval = setInterval(() => {
+                if (currentUser) {
+                    validateSession();
+                }
+            }, 30000); // Every 30 seconds
         }
         
         function showSecurityWarning() {
-            alert('⚠️ PERINGATAN KEAMANAN!\n\nAnda terdeteksi melakukan aktivitas yang mencurigakan. Sistem akan otomatis mengunci jika pelanggaran berlanjut.');
+            if (currentUser) {
+                alert('⚠️ PERINGATAN KEAMANAN!\n\nAnda terdeteksi melakukan aktivitas yang mencurigakan. Sistem akan otomatis mengunci jika pelanggaran berlanjut.');
+            }
         }
         
         function handleViolation() {
-            if (confirm('⚠️ PELANGGARAN KEAMANAN TERDETEKSI!\n\nAnda membuka tab/aplikasi lain selama ujian. Apakah Anda ingin melanjutkan ujian?')) {
+            if (currentUser && confirm('⚠️ PELANGGARAN KEAMANAN TERDETEKSI!\n\nAnda membuka tab/aplikasi lain selama ujian. Apakah Anda ingin melanjutkan ujian?')) {
                 focusLost = false;
-            } else {
+            } else if (currentUser) {
                 endExam();
                 alert('Ujian telah dihentikan karena pelanggaran keamanan.');
+                location.reload();
             }
         }
         
@@ -580,11 +599,6 @@
             const password = document.getElementById('password').value;
             const loginBtn = document.getElementById('loginBtn');
             const messageDiv = document.getElementById('loginMessage');
-            
-            if (!serverUrl) {
-                showMessage('Harap konfigurasi server URL terlebih dahulu!', 'error');
-                return;
-            }
             
             if (!nama || !password) {
                 showMessage('Harap lengkapi semua field!', 'error');
@@ -608,6 +622,7 @@
                     await loadQuestions();
                     showExamScreen();
                     startTimer();
+                    showMessage('Login berhasil! Mulai ujian...', 'success');
                 } else {
                     showMessage(response.message, 'error');
                 }
@@ -877,6 +892,7 @@
             if (validationInterval) {
                 clearInterval(validationInterval);
             }
+            currentUser = null;
         }
         
         // Session validation
