@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Ujian CBT Anti-Curang</title>
+    
+    <!-- KaTeX untuk rumus matematika -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 900px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        /* Login Styles */
+        .login-form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+        }
+        
+        .btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Exam Styles */
+        .exam-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+        
+        .timer {
+            background: #e74c3c;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+        
+        .question-counter {
+            font-size: 16px;
+            color: #7f8c8d;
+            font-weight: 600;
+        }
+        
+        .question-container {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #3498db;
+        }
+        
+        .question-text {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .options-container {
+            margin-top: 15px;
+        }
+        
+        .option {
+            background: white;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .option:hover {
+            border-color: #3498db;
+            background: #f8fafc;
+        }
+        
+        .option.selected {
+            border-color: #3498db;
+            background: #e1f0fa;
+        }
+        
+        .option input {
+            margin-right: 12px;
+        }
+        
+        .category-question {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 2px solid #e1e8ed;
+        }
+        
+        .category-statement {
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .category-options {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .category-option {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .category-option.selected {
+            border-color: #3498db;
+            background: #e1f0fa;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .nav-btn {
+            background: #95a5a6;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn:hover {
+            background: #7f8c8d;
+        }
+        
+        .nav-btn.primary {
+            background: #3498db;
+        }
+        
+        .nav-btn.primary:hover {
+            background: #2980b9;
+        }
+        
+        /* Result Styles */
+        .result-container {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            font-size: 36px;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(52, 152, 219, 0.3);
+        }
+        
+        .result-details {
+            max-width: 500px;
+            margin: 0 auto;
+            text-align: left;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .alert.error {
+            background: #ffeaa7;
+            color: #e17055;
+            border: 2px solid #fab1a0;
+        }
+        
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .katex-display {
+            margin: 1em 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        
+        /* Security Warning */
+        .security-warning {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            border-bottom: 3px solid #fff;
+        }
+
+        /* Config Panel */
+        .config-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+
+        .config-input {
+            margin-bottom: 15px;
+        }
+
+        .config-input label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .config-input input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e1e8ed;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="security-warning">
+            ⚠️ SISTEM ANTI-CURANG AKTIF - JANGAN BUKA TAB/APLIKASI LAIN!
+        </div>
+        
+        <div class="header">
+            <h1>🛡️ SISTEM UJIAN CBT ANTI-CURANG</h1>
+            <p>Platform Ujian Online Terpercaya dengan Proteksi Maksimal</p>
+        </div>
+        
+        <div class="content">
+            <!-- Config Panel -->
+            <div class="config-panel">
+                <h3>Konfigurasi Server</h3>
+                <div class="config-input">
+                    <label for="serverUrl">URL Google Apps Script (Web App):</label>
+                    <input type="text" id="serverUrl" placeholder="https://script.google.com/macros/s/..." value="">
+                </div>
+                <button class="btn" onclick="saveConfig()" style="max-width: 200px;">Simpan Konfigurasi</button>
+            </div>
+            
+            <!-- Login Screen -->
+            <div id="loginScreen">
+                <div class="login-form">
+                    <h2 style="text-align: center; margin-bottom: 30px; color: #2c3e50;">Masuk ke Sistem Ujian</h2>
+                    
+                    <div class="form-group">
+                        <label for="nama">Nama Lengkap</label>
+                        <input type="text" id="nama" placeholder="Masukkan nama lengkap Anda">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password Ujian</label>
+                        <input type="password" id="password" placeholder="Masukkan password ujian">
+                    </div>
+                    
+                    <button class="btn" onclick="handleLogin()" id="loginBtn">Masuk ke Ujian</button>
+                    
+                    <div id="loginMessage" class="alert error hidden" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+            
+            <!-- Exam Screen -->
+            <div id="examScreen" class="hidden">
+                <div class="exam-header">
+                    <div class="user-info">
+                        <strong id="userName"></strong>
+                    </div>
+                    <div class="timer" id="timer">120:00</div>
+                    <div class="question-counter" id="questionCounter">Soal 1/50</div>
+                </div>
+                
+                <div class="question-container">
+                    <div class="question-text" id="questionText"></div>
+                    <div class="options-container" id="optionsContainer"></div>
+                </div>
+                
+                <div class="navigation">
+                    <button class="nav-btn" onclick="previousQuestion()" id="prevBtn">Sebelumnya</button>
+                    <button class="nav-btn primary" onclick="nextQuestion()" id="nextBtn">Selanjutnya</button>
+                    <button class="nav-btn" onclick="showSubmitConfirm()" id="submitBtn" style="background: #e74c3c;">Selesai & Kirim</button>
+                </div>
+            </div>
+            
+            <!-- Result Screen -->
+            <div id="resultScreen" class="hidden">
+                <div class="result-container">
+                    <div class="score-circle" id="finalScore">0</div>
+                    <h2 style="margin-bottom: 10px; color: #2c3e50;">Ujian Selesai!</h2>
+                    <p style="color: #7f8c8d; margin-bottom: 30px;">Hasil ujian Anda telah tercatat dalam sistem</p>
+                    
+                    <div class="result-details">
+                        <div class="detail-item">
+                            <span>Nama Peserta:</span>
+                            <span id="resultName"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Skor Akhir:</span>
+                            <span id="resultScore"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Jawaban Benar:</span>
+                            <span id="correctAnswers"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Total Soal:</span>
+                            <span id="totalQuestions"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Waktu Selesai:</span>
+                            <span id="completionTime"></span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn" onclick="location.reload()" style="margin-top: 30px; max-width: 200px;">Kembali ke Login</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Konfigurasi
+        const CONFIG_KEY = 'cbt_system_config';
+        
+        // Global variables
+        let currentUser = null;
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let userAnswers = {};
+        let examTimer = null;
+        let timeLeft = 0;
+        let sessionToken = null;
+        let serverUrl = '';
+        
+        // Security monitoring
+        let focusLost = false;
+        let validationInterval = null;
+        
+        // Initialize
+        function initialize() {
+            loadConfig();
+            initializeSecurity();
+        }
+        
+        // Configuration management
+        function loadConfig() {
+            const savedConfig = localStorage.getItem(CONFIG_KEY);
+            if (savedConfig) {
+                const config = JSON.parse(savedConfig);
+                serverUrl = config.serverUrl;
+                document.getElementById('serverUrl').value = serverUrl;
+            }
+        }
+        
+        function saveConfig() {
+            const url = document.getElementById('serverUrl').value.trim();
+            if (!url) {
+                alert('Harap masukkan URL Google Apps Script');
+                return;
+            }
+            
+            serverUrl = url;
+            const config = { serverUrl: url };
+            localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+            
+            showMessage('Konfigurasi berhasil disimpan!', 'success');
+        }
+        
+        // API Call function
+        async function callServer(action, data = {}) {
+            if (!serverUrl) {
+                throw new Error('Harap konfigurasi server URL terlebih dahulu');
+            }
+            
+            const formData = new FormData();
+            formData.append('action', action);
+            
+            // Add all data parameters
+            Object.keys(data).forEach(key => {
+                formData.append(key, data[key]);
+            });
+            
+            const response = await fetch(serverUrl, {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            return result;
+        }
+        
+        // Security monitoring
+        function initializeSecurity() {
+            // Monitor tab/window focus
+            window.addEventListener('blur', () => {
+                focusLost = true;
+                showSecurityWarning();
+            });
+            
+            window.addEventListener('focus', () => {
+                if (focusLost) {
+                    handleViolation();
+                }
+            });
+            
+            // Prevent right click
+            document.addEventListener('contextmenu', (e) => e.preventDefault());
+            
+            // Prevent keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && (e.key === 'c' || e.key === 'C' || e.key === 'v' || e.key === 'V' || e.key === 'u' || e.key === 'U')) {
+                    e.preventDefault();
+                    showSecurityWarning();
+                }
+                
+                if (e.key === 'F12') {
+                    e.preventDefault();
+                    showSecurityWarning();
+                }
+            });
+            
+            // Session validation
+            validationInterval = setInterval(validateSession, 30000); // Every 30 seconds
+        }
+        
+        function showSecurityWarning() {
+            alert('⚠️ PERINGATAN KEAMANAN!\n\nAnda terdeteksi melakukan aktivitas yang mencurigakan. Sistem akan otomatis mengunci jika pelanggaran berlanjut.');
+        }
+        
+        function handleViolation() {
+            if (confirm('⚠️ PELANGGARAN KEAMANAN TERDETEKSI!\n\nAnda membuka tab/aplikasi lain selama ujian. Apakah Anda ingin melanjutkan ujian?')) {
+                focusLost = false;
+            } else {
+                endExam();
+                alert('Ujian telah dihentikan karena pelanggaran keamanan.');
+            }
+        }
+        
+        // Login function
+        async function handleLogin() {
+            const nama = document.getElementById('nama').value.trim();
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const messageDiv = document.getElementById('loginMessage');
+            
+            if (!serverUrl) {
+                showMessage('Harap konfigurasi server URL terlebih dahulu!', 'error');
+                return;
+            }
+            
+            if (!nama || !password) {
+                showMessage('Harap lengkapi semua field!', 'error');
+                return;
+            }
+            
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Memproses...';
+            
+            try {
+                const response = await callServer('login', {
+                    nama: nama,
+                    password: password
+                });
+                
+                if (response.success) {
+                    currentUser = response;
+                    sessionToken = response.session_token;
+                    timeLeft = response.waktu_ujian * 60; // Convert to seconds
+                    
+                    await loadQuestions();
+                    showExamScreen();
+                    startTimer();
+                } else {
+                    showMessage(response.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Terjadi kesalahan saat login: ' + error, 'error');
+            }
+            
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Masuk ke Ujian';
+        }
+        
+        // Load questions
+        async function loadQuestions() {
+            try {
+                const response = await callServer('get_questions', {
+                    session_token: sessionToken
+                });
+                
+                if (response.success) {
+                    questions = response.questions;
+                    initializeAnswers();
+                } else {
+                    throw new Error(response.message);
+                }
+            } catch (error) {
+                showMessage('Gagal memuat soal: ' + error, 'error');
+            }
+        }
+        
+        function initializeAnswers() {
+            userAnswers = {};
+            questions.forEach((question, index) => {
+                switch(question.type) {
+                    case 'PGS':
+                        userAnswers[question.id] = [];
+                        break;
+                    case 'MCMA':
+                        userAnswers[question.id] = [];
+                        break;
+                    case 'KATEGORI':
+                        userAnswers[question.id] = new Array(question.options.length).fill('');
+                        break;
+                }
+            });
+        }
+        
+        // Screen management
+        function showExamScreen() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('examScreen').classList.remove('hidden');
+            document.getElementById('userName').textContent = currentUser.nama;
+            showQuestion(0);
+        }
+        
+        function showResultScreen(result) {
+            document.getElementById('examScreen').classList.add('hidden');
+            document.getElementById('resultScreen').classList.remove('hidden');
+            
+            document.getElementById('finalScore').textContent = result.score + '%';
+            document.getElementById('resultName').textContent = currentUser.nama;
+            document.getElementById('resultScore').textContent = result.score + '%';
+            document.getElementById('correctAnswers').textContent = result.correct_answers + '/' + result.total_questions;
+            document.getElementById('totalQuestions').textContent = result.total_questions;
+            document.getElementById('completionTime').textContent = new Date().toLocaleString();
+        }
+        
+        // Question navigation
+        function showQuestion(index) {
+            if (index < 0 || index >= questions.length) return;
+            
+            currentQuestionIndex = index;
+            const question = questions[index];
+            
+            document.getElementById('questionCounter').textContent = `Soal ${index + 1}/${questions.length}`;
+            document.getElementById('questionText').innerHTML = question.question;
+            
+            renderOptions(question);
+            updateNavigationButtons();
+            
+            // Render KaTeX formulas
+            if (window.renderMathInElement) {
+                renderMathInElement(document.getElementById('questionText'), {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ]
+                });
+            }
+        }
+        
+        function renderOptions(question) {
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+            
+            switch(question.type) {
+                case 'PGS':
+                    question.options.forEach((option, index) => {
+                        const optionDiv = document.createElement('div');
+                        optionDiv.className = `option ${userAnswers[question.id][0] === option ? 'selected' : ''}`;
+                        optionDiv.innerHTML = `
+                            <input type="radio" name="option" value="${option}" 
+                                   ${userAnswers[question.id][0] === option ? 'checked' : ''}
+                                   onchange="selectOption('${question.id}', '${option}')">
+                            <span>${String.fromCharCode(65 + index)}. ${option}</span>
+                        `;
+                        container.appendChild(optionDiv);
+                    });
+                    break;
+                    
+                case 'MCMA':
+                    question.options.forEach((option, index) => {
+                        const isSelected = userAnswers[question.id].includes(option);
+                        const optionDiv = document.createElement('div');
+                        optionDiv.className = `option ${isSelected ? 'selected' : ''}`;
+                        optionDiv.innerHTML = `
+                            <input type="checkbox" value="${option}" 
+                                   ${isSelected ? 'checked' : ''}
+                                   onchange="toggleOption('${question.id}', '${option}')">
+                            <span>${String.fromCharCode(65 + index)}. ${option}</span>
+                        `;
+                        container.appendChild(optionDiv);
+                    });
+                    break;
+                    
+                case 'KATEGORI':
+                    question.options.forEach((statement, index) => {
+                        const statementDiv = document.createElement('div');
+                        statementDiv.className = 'category-question';
+                        statementDiv.innerHTML = `
+                            <div class="category-statement">${statement}</div>
+                            <div class="category-options">
+                                <div class="category-option ${userAnswers[question.id][index] === 'B' ? 'selected' : ''}" 
+                                     onclick="selectCategoryOption('${question.id}', ${index}, 'B')">
+                                    <input type="radio" name="cat_${question.id}_${index}" value="B" 
+                                           ${userAnswers[question.id][index] === 'B' ? 'checked' : ''}>
+                                    <span>Benar</span>
+                                </div>
+                                <div class="category-option ${userAnswers[question.id][index] === 'S' ? 'selected' : ''}" 
+                                     onclick="selectCategoryOption('${question.id}', ${index}, 'S')">
+                                    <input type="radio" name="cat_${question.id}_${index}" value="S" 
+                                           ${userAnswers[question.id][index] === 'S' ? 'checked' : ''}>
+                                    <span>Salah</span>
+                                </div>
+                            </div>
+                        `;
+                        container.appendChild(statementDiv);
+                    });
+                    break;
+            }
+        }
+        
+        // Answer selection functions
+        function selectOption(questionId, option) {
+            userAnswers[questionId] = [option];
+            renderOptions(questions.find(q => q.id === questionId));
+        }
+        
+        function toggleOption(questionId, option) {
+            const answers = userAnswers[questionId];
+            const index = answers.indexOf(option);
+            
+            if (index > -1) {
+                answers.splice(index, 1);
+            } else {
+                answers.push(option);
+            }
+            
+            renderOptions(questions.find(q => q.id === questionId));
+        }
+        
+        function selectCategoryOption(questionId, statementIndex, value) {
+            userAnswers[questionId][statementIndex] = value;
+            renderOptions(questions.find(q => q.id === questionId));
+        }
+        
+        // Navigation functions
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                showQuestion(currentQuestionIndex - 1);
+            }
+        }
+        
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                showQuestion(currentQuestionIndex + 1);
+            }
+        }
+        
+        function updateNavigationButtons() {
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            document.getElementById('nextBtn').disabled = currentQuestionIndex === questions.length - 1;
+        }
+        
+        // Timer functions
+        function startTimer() {
+            updateTimerDisplay();
+            examTimer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    endExam();
+                    submitExam();
+                }
+            }, 1000);
+        }
+        
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Change color when time is running out
+            if (timeLeft < 300) { // 5 minutes
+                document.getElementById('timer').style.background = '#e74c3c';
+            }
+        }
+        
+        // Exam submission
+        function showSubmitConfirm() {
+            const unanswered = Object.values(userAnswers).filter(answer => 
+                Array.isArray(answer) ? answer.length === 0 || answer.some(a => a === '') : false
+            ).length;
+            
+            let message = 'Apakah Anda yakin ingin menyelesaikan ujian?';
+            if (unanswered > 0) {
+                message += `\n\nPeringatan: Masih ada ${unanswered} soal yang belum dijawab.`;
+            }
+            
+            if (confirm(message)) {
+                submitExam();
+            }
+        }
+        
+        async function submitExam() {
+            try {
+                const answers = Object.keys(userAnswers).map(questionId => ({
+                    question_id: questionId,
+                    answer: userAnswers[questionId]
+                }));
+                
+                const response = await callServer('submit_exam', {
+                    session_token: sessionToken,
+                    user_id: currentUser.user_id,
+                    nama: currentUser.nama,
+                    answers: JSON.stringify(answers)
+                });
+                
+                if (response.success) {
+                    endExam();
+                    showResultScreen(response);
+                } else {
+                    throw new Error(response.message);
+                }
+            } catch (error) {
+                showMessage('Gagal mengirim jawaban: ' + error, 'error');
+            }
+        }
+        
+        function endExam() {
+            if (examTimer) {
+                clearInterval(examTimer);
+            }
+            if (validationInterval) {
+                clearInterval(validationInterval);
+            }
+        }
+        
+        // Session validation
+        async function validateSession() {
+            try {
+                const response = await callServer('validate_session', {
+                    session_token: sessionToken
+                });
+                
+                if (!response.success) {
+                    alert('Session telah kadaluarsa. Silakan login kembali.');
+                    location.reload();
+                }
+            } catch (error) {
+                console.error('Session validation failed:', error);
+            }
+        }
+        
+        // Utility functions
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('loginMessage');
+            messageDiv.textContent = message;
+            messageDiv.className = `alert ${type}`;
+            messageDiv.classList.remove('hidden');
+            
+            setTimeout(() => {
+                messageDiv.classList.add('hidden');
+            }, 5000);
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initialize();
+            
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ]
+                });
+            }
+        });
+    </script>
+</body>
+</html>
