@@ -338,19 +338,13 @@
             border-left-color: #dc3545;
         }
 
-        .copy-btn {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 8px 15px;
+        .debug-info {
+            background: #f8f9fa;
+            padding: 10px;
             border-radius: 5px;
-            cursor: pointer;
             font-size: 12px;
-            margin-left: 10px;
-        }
-
-        .copy-btn:hover {
-            background: #5a6268;
+            margin-top: 10px;
+            border-left: 3px solid #6c757d;
         }
     </style>
 </head>
@@ -368,12 +362,13 @@
         <div class="content">
             <!-- Status Panel -->
             <div id="statusPanel" class="status-panel">
-                <strong>✅ SISTEM SIAP DIGUNAKAN</strong><br>
-                <small>Server: <span id="serverStatus">TERHUBUNG</span></small>
+                <strong>🔄 MEMERIKSA KONEKSI...</strong><br>
+                <small>Server: <span id="serverStatus">MEMUAT...</span></small>
+                <div id="debugInfo" class="debug-info hidden"></div>
             </div>
             
             <!-- Login Screen -->
-            <div id="loginScreen">
+            <div id="loginScreen" class="hidden">
                 <div class="login-form">
                     <h2 style="text-align: center; margin-bottom: 30px; color: #2c3e50;">Masuk ke Sistem Ujian</h2>
                     
@@ -461,9 +456,8 @@
         // ================================
         // KONFIGURASI URL GOOGLE APPS SCRIPT
         // ================================
-        const SERVER_URL = "https://script.google.com/macros/s/AKfycbxNIv4D5ScskXIZ-jgbE-55fLdZtrnpLN3POBOiwuI2pJuqUmVUIpcQaM-ndrJ_G9lINQ/exec";
-        // GANTI "YOUR_SCRIPT_ID" dengan ID Google Apps Script Anda
-        // Contoh: https://script.google.com/macros/s/AKfycbyf5Jk8H7X3Z2qYwLxVpM9nT1R4S6D8G0H2J4L6N8P0Q/exec
+        // GANTI URL_DEPLOY_ANDA dengan URL Web App Google Apps Script Anda
+        const SERVER_URL = "https://script.google.com/macros/s/AKfycbwjj9H3GyXmEfk4s3IlrHeF4cfN2uL0GkFyg5gac32hOaC1UisTeadOxvNJDKtZ5fWtNg/exec";
         
         // Global variables
         let currentUser = null;
@@ -479,52 +473,114 @@
         let validationInterval = null;
         
         // Initialize
-        function initialize() {
-            checkServerStatus();
+        async function initialize() {
+            await checkServerStatus();
             initializeSecurity();
         }
         
-        // Check server status
+        // Check server status dengan error handling
         async function checkServerStatus() {
             try {
-                const response = await callServer('validate_session', { session_token: 'test' });
-                document.getElementById('serverStatus').textContent = 'TERHUBUNG';
-                document.getElementById('statusPanel').className = 'status-panel';
+                showDebugInfo('🔄 Menguji koneksi ke server...');
+                
+                const response = await callServer('test_connection', {});
+                
+                if (response && response.success) {
+                    document.getElementById('serverStatus').textContent = 'TERHUBUNG ✅';
+                    document.getElementById('statusPanel').className = 'status-panel';
+                    document.getElementById('loginScreen').classList.remove('hidden');
+                    showDebugInfo('✅ Koneksi berhasil: ' + response.message);
+                } else {
+                    throw new Error(response?.message || 'Response tidak valid');
+                }
             } catch (error) {
-                document.getElementById('serverStatus').textContent = 'GAGAL TERHUBUNG';
+                document.getElementById('serverStatus').textContent = 'GAGAL TERHUBUNG ❌';
                 document.getElementById('statusPanel').className = 'status-panel error';
-                showMessage('Server tidak dapat dihubungi. Pastikan URL Google Apps Script sudah benar.', 'error');
+                showDebugInfo('❌ Error: ' + error.message);
+                
+                // Tampilkan pesan error yang lebih detail
+                let errorMessage = 'Server tidak dapat dihubungi. ';
+                if (error.message.includes('Failed to fetch')) {
+                    errorMessage += 'Kemungkinan masalah CORS atau server down.';
+                } else if (error.message.includes('404')) {
+                    errorMessage += 'URL Google Apps Script mungkin salah.';
+                } else {
+                    errorMessage += 'Error: ' + error.message;
+                }
+                
+                showMessage(errorMessage, 'error');
             }
         }
         
-        // API Call function
+        // API Call function dengan improved error handling
         async function callServer(action, data = {}) {
-            const formData = new FormData();
-            formData.append('action', action);
+            showDebugInfo(`📡 Mengirim request: ${action}`);
+            
+            // Encode parameters untuk URL
+            const params = new URLSearchParams();
+            params.append('action', action);
             
             // Add all data parameters
             Object.keys(data).forEach(key => {
-                formData.append(key, data[key]);
+                if (data[key] !== undefined && data[key] !== null) {
+                    params.append(key, data[key]);
+                }
             });
             
-            const response = await fetch(SERVER_URL, {
-                method: 'POST',
-                body: formData
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            try {
+                // Gunakan GET untuk test_connection, POST untuk lainnya
+                const isTest = action === 'test_connection';
+                const url = isTest ? `${SERVER_URL}?${params}` : SERVER_URL;
+                const options = {
+                    method: isTest ? 'GET' : 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: isTest ? null : params
+                };
+                
+                // Timeout setelah 10 detik
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+                options.signal = controller.signal;
+                
+                const response = await fetch(url, options);
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                showDebugInfo(`✅ Response: ${JSON.stringify(result).substring(0, 100)}...`);
+                return result;
+                
+            } catch (error) {
+                showDebugInfo(`❌ Fetch error: ${error.message}`);
+                
+                if (error.name === 'AbortError') {
+                    throw new Error('Request timeout - server tidak merespons');
+                } else if (error.message.includes('Failed to fetch')) {
+                    throw new Error('Tidak dapat terhubung ke server. Periksa koneksi internet dan URL.');
+                } else {
+                    throw error;
+                }
             }
-            
-            const result = await response.json();
-            return result;
+        }
+        
+        // Tampilkan debug info
+        function showDebugInfo(message) {
+            const debugDiv = document.getElementById('debugInfo');
+            debugDiv.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
+            debugDiv.classList.remove('hidden');
+            debugDiv.scrollTop = debugDiv.scrollHeight;
         }
         
         // Security monitoring
         function initializeSecurity() {
             // Monitor tab/window focus
             window.addEventListener('blur', () => {
-                if (currentUser) { // Only monitor during exam
+                if (currentUser) {
                     focusLost = true;
                     showSecurityWarning();
                 }
@@ -574,7 +630,7 @@
                 if (currentUser) {
                     validateSession();
                 }
-            }, 30000); // Every 30 seconds
+            }, 30000);
         }
         
         function showSecurityWarning() {
@@ -617,7 +673,7 @@
                 if (response.success) {
                     currentUser = response;
                     sessionToken = response.session_token;
-                    timeLeft = response.waktu_ujian * 60; // Convert to seconds
+                    timeLeft = response.waktu_ujian * 60;
                     
                     await loadQuestions();
                     showExamScreen();
@@ -627,7 +683,7 @@
                     showMessage(response.message, 'error');
                 }
             } catch (error) {
-                showMessage('Terjadi kesalahan saat login: ' + error, 'error');
+                showMessage('Terjadi kesalahan saat login: ' + error.message, 'error');
             }
             
             loginBtn.disabled = false;
@@ -648,13 +704,13 @@
                     throw new Error(response.message);
                 }
             } catch (error) {
-                showMessage('Gagal memuat soal: ' + error, 'error');
+                showMessage('Gagal memuat soal: ' + error.message, 'error');
             }
         }
         
         function initializeAnswers() {
             userAnswers = {};
-            questions.forEach((question, index) => {
+            questions.forEach((question) => {
                 switch(question.type) {
                     case 'PGS':
                         userAnswers[question.id] = [];
@@ -704,14 +760,17 @@
             
             // Render KaTeX formulas
             if (window.renderMathInElement) {
-                renderMathInElement(document.getElementById('questionText'), {
-                    delimiters: [
-                        {left: '$$', right: '$$', display: true},
-                        {left: '$', right: '$', display: false},
-                        {left: '\\(', right: '\\)', display: false},
-                        {left: '\\[', right: '\\]', display: true}
-                    ]
-                });
+                setTimeout(() => {
+                    renderMathInElement(document.getElementById('questionText'), {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false},
+                            {left: '\\(', right: '\\)', display: false},
+                            {left: '\\[', right: '\\]', display: true}
+                        ],
+                        throwOnError: false
+                    });
+                }, 100);
             }
         }
         
@@ -838,8 +897,7 @@
             document.getElementById('timer').textContent = 
                 `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             
-            // Change color when time is running out
-            if (timeLeft < 300) { // 5 minutes
+            if (timeLeft < 300) {
                 document.getElementById('timer').style.background = '#e74c3c';
             }
         }
@@ -881,17 +939,13 @@
                     throw new Error(response.message);
                 }
             } catch (error) {
-                showMessage('Gagal mengirim jawaban: ' + error, 'error');
+                showMessage('Gagal mengirim jawaban: ' + error.message, 'error');
             }
         }
         
         function endExam() {
-            if (examTimer) {
-                clearInterval(examTimer);
-            }
-            if (validationInterval) {
-                clearInterval(validationInterval);
-            }
+            if (examTimer) clearInterval(examTimer);
+            if (validationInterval) clearInterval(validationInterval);
             currentUser = null;
         }
         
@@ -934,7 +988,8 @@
                         {left: '$', right: '$', display: false},
                         {left: '\\(', right: '\\)', display: false},
                         {left: '\\[', right: '\\]', display: true}
-                    ]
+                    ],
+                    throwOnError: false
                 });
             }
         });
