@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Matematika</title>
+  <title>Tarik Tambang Matematika</title>
   <!-- Memuat Tailwind CSS untuk styling -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -111,7 +111,6 @@
 
     <!-- ======================================================= -->
     <!-- Layar Pilihan Device (Tampil di awal)                 -->
-    <!-- PERUBAHAN: Menambahkan "Mode Penonton"                  -->
     <!-- ======================================================= -->
     <div id="device-mode-selection-screen" class="bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
       <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
@@ -125,11 +124,11 @@
           <span class="text-4xl sm:text-5xl font-bold text-blue-600">👤</span>
           <span class="block text-base sm:text-lg font-medium text-gray-700 mt-2">1 Device (Lokal)</span>
         </button>
-        <button onclick="showGameModeScreen('online')" class="mode-btn p-6 rounded-xl bg-gray-100 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-400">
+        <!-- PERUBAHAN: Ganti ke showNicknameScreen() -->
+        <button onclick="showNicknameScreen()" class="mode-btn p-6 rounded-xl bg-gray-100 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-400">
           <span class="text-4xl sm:text-5xl font-bold text-purple-600">👥</span>
           <span class="block text-base sm:text-lg font-medium text-gray-700 mt-2">2 Device (Online)</span>
         </button>
-        <!-- BARU: Tombol Mode Penonton -->
         <button onclick="showSpectatorScreen()" class="mode-btn p-6 rounded-xl bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400">
           <span class="text-4xl sm:text-5xl font-bold text-gray-600">📺</span>
           <span class="block text-base sm:text-lg font-medium text-gray-700 mt-2">Mode Penonton</span>
@@ -175,13 +174,34 @@
     </div>
 
     <!-- ======================================================= -->
-    <!-- Layar Pilihan Mode Game (ONLINE) - BARU                 -->
+    <!-- Layar Masukkan Nama (BARU)                            -->
+    <!-- ======================================================= -->
+    <div id="nickname-screen" class="hidden bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
+        Mode 2 Device
+      </h1>
+      <h2 class="text-xl sm:text-2xl font-semibold text-gray-600 mb-6 sm:mb-8">
+        Masukkan Nama Panggilan
+      </h2>
+      <div class="w-full">
+        <input type="text" id="nickname-input" placeholder="Nama Anda (Maks 12 Karakter)" maxlength="12" class="w-full p-3 border border-gray-300 rounded-lg text-center text-lg text-black mb-4 focus:ring-2 focus:ring-purple-400 focus:outline-none">
+        <button onclick="submitNickname()" class="w-full px-5 py-3 bg-purple-600 text-white text-base font-semibold rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-400">
+          Lanjut
+        </button>
+      </div>
+      <button onclick="showDeviceModeScreen()" class="mt-8 text-sm text-gray-600 hover:text-blue-600 hover:underline">
+        &larr; Kembali Pilih Mode
+      </button>
+    </div>
+    
+    <!-- ======================================================= -->
+    <!-- Layar Pilihan Mode Game (ONLINE)                      -->
     <!-- ======================================================= -->
     <div id="online-game-mode-screen" class="hidden bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
       <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
         Mode 2 Device
       </h1>
-      <h2 class="text-xl sm:text-2xl font-semibold text-gray-600 mb-6 sm:mb-8">
+      <h2 id="online-mode-greeting" class="text-xl sm:text-2xl font-semibold text-gray-600 mb-6 sm:mb-8">
         Pilih Mode Permainan
       </h2>
       <div class="grid grid-cols-3 gap-3 sm:gap-4">
@@ -206,8 +226,9 @@
           <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Campuran</span>
         </button>
       </div>
-      <button onclick="showDeviceModeScreen()" class="mt-8 text-sm text-gray-600 hover:text-blue-600 hover:underline">
-        &larr; Kembali Pilih Mode
+      <!-- PERUBAHAN: Kembali ke Layar Nickname -->
+      <button onclick="showNicknameScreen()" class="mt-8 text-sm text-gray-600 hover:text-blue-600 hover:underline">
+        &larr; Kembali (Ganti Nama)
       </button>
     </div>
 
@@ -252,14 +273,13 @@
         </div>
       </div>
 
-      <!-- Tombol Kembali (sekarang ke showGameModeScreen('online')) -->
-      <button id="back-from-pairing-btn" onclick="showGameModeScreen('online')" class="mt-8 text-sm text-gray-600 hover:text-blue-600 hover:underline">
+      <button id="back-from-pairing-btn" onclick="showOnlineGameModeScreen()" class="mt-8 text-sm text-gray-600 hover:text-blue-600 hover:underline">
         &larr; Kembali Pilih Game
       </button>
     </div>
 
     <!-- ======================================================= -->
-    <!-- Layar Mode Penonton (BARU)                            -->
+    <!-- Layar Mode Penonton                                   -->
     <!-- ======================================================= -->
     <div id="spectator-screen" class="hidden bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
       <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
@@ -307,6 +327,8 @@
 
           <!-- Pemain 1 (Kiri) -->
           <div id="player1-card" class="bg-blue-800 p-3 sm:p-4 rounded-2xl shadow-lg w-full max-w-[280px] sm:max-w-xs">
+            <!-- BARU: Nama Pemain -->
+            <h2 id="p1-name" class="text-white text-xl font-semibold mb-2 truncate">Pemain 1</h2>
             <div id="player1-problem" class="text-white text-2xl sm:text-3xl font-bold mb-3 h-9 sm:h-10 flex items-center justify-center">? + ? = ?</div>
             <input type="text" id="player1-answer" class="w-full p-2 sm:p-3 rounded-lg text-right text-2xl sm:text-3xl text-black mb-3 pointer-events-none bg-gray-100" readonly>
             <div class="grid grid-cols-3 gap-2 sm:gap-3">
@@ -327,10 +349,13 @@
 
           <!-- Visual Tarik Tambang -->
           <div id="game-visual" class="flex items-center justify-center w-full lg:w-auto px-4 my-4 lg:my-0">
-            <!-- P1 Visual (dengan skor) -->
+            <!-- P1 Visual (dengan info penonton) -->
             <div class="relative text-center">
-              <!-- BARU: Skor P1 (disembunyikan by default) -->
-              <div id="p1-score-display" class="hidden absolute -top-8 left-1/2 -translate-x-1/2 text-2xl font-bold text-blue-600 bg-white/70 px-3 py-1 rounded-lg">0</div>
+              <!-- BARU: Info Penonton P1 -->
+              <div id="p1-spectator-info" class="hidden absolute -top-10 left-1/2 -translate-x-1/2 text-xl font-bold text-blue-600 bg-white/70 px-3 py-1 rounded-lg w-max max-w-xs truncate">
+                <span id="p1-spectator-name">Pemain 1</span>: 
+                <span id="p1-score-display">0</span>
+              </div>
               <span class="player-avatar">🧍‍♂️</span>
               <span id="explosion-p1" class="hidden player-avatar absolute inset-0 flex items-center justify-center">💥</span>
             </div>
@@ -339,10 +364,13 @@
               <div id="rope-marker" class="absolute top-1/2 text-3xl sm:text-4xl" style="left: 50%;">💣</div>
             </div>
             
-            <!-- P2 Visual (dengan skor) -->
+            <!-- P2 Visual (dengan info penonton) -->
             <div class="relative text-center">
-              <!-- BARU: Skor P2 (disembunyikan by default) -->
-              <div id="p2-score-display" class="hidden absolute -top-8 left-1/2 -translate-x-1/2 text-2xl font-bold text-red-600 bg-white/70 px-3 py-1 rounded-lg">0</div>
+              <!-- BARU: Info Penonton P2 -->
+              <div id="p2-spectator-info" class="hidden absolute -top-10 left-1/2 -translate-x-1/2 text-xl font-bold text-red-600 bg-white/70 px-3 py-1 rounded-lg w-max max-w-xs truncate">
+                <span id="p2-spectator-name">Pemain 2</span>: 
+                <span id="p2-score-display">0</span>
+              </div>
               <span class="player-avatar transform -scale-x-100">🧍‍♂️</span> 
               <span id="explosion-p2" class="hidden player-avatar absolute inset-0 flex items-center justify-center">💥</span>
             </div>
@@ -350,6 +378,8 @@
 
           <!-- Pemain 2 (Kanan) -->
           <div id="player2-card" class="bg-red-800 p-3 sm:p-4 rounded-2xl shadow-lg w-full max-w-[280px] sm:max-w-xs">
+            <!-- BARU: Nama Pemain -->
+            <h2 id="p2-name" class="text-white text-xl font-semibold mb-2 truncate">Pemain 2</h2>
             <div id="player2-problem" class="text-white text-2xl sm:text-3xl font-bold mb-3 h-9 sm:h-10 flex items-center justify-center">? + ? = ?</div>
             <input type="text" id="player2-answer" class="w-full p-2 sm:p-3 rounded-lg text-right text-2xl sm:text-3xl text-black mb-3 pointer-events-none bg-gray-100" readonly>
             <div class="grid grid-cols-3 gap-2 sm:gap-3">
@@ -390,7 +420,7 @@
     // --- ========================================================== ---
     // --- PENTING! GANTI URL INI DENGAN URL GOOGLE APPS SCRIPT ANDA ---
     // --- ========================================================== ---
-    const gasWebAppUrl = "https://script.google.com/macros/s/AKfycby2f5Ys83rQoW012FKbZzlA8uU2tN8JqfCGC4ha3MYTFdawD5-AY8RXXaRrCzsoHtqz/exec";
+    const gasWebAppUrl = "https://script.google.com/macros/s/AKfycbxgObGkWmqqifITmCD8jEuDsQhTt-OSHArsNoZ7bp1pi3oBmaHUDghgJWkxKdf2Q761/exec";
     // --- ========================================================== ---
 
 
@@ -405,10 +435,11 @@
     const newGameBtn = document.getElementById('new-game-btn');
     const allCalcButtons = document.querySelectorAll('.calc-btn');
     
-    // Elemen Layar (BARU)
+    // Elemen Layar
     const deviceModeSelectionScreen = document.getElementById('device-mode-selection-screen');
     const localGameModeScreen = document.getElementById('local-game-mode-screen');
     const onlineGameModeScreen = document.getElementById('online-game-mode-screen');
+    const onlineModeGreeting = document.getElementById('online-mode-greeting');
     const countdownOverlay = document.getElementById('countdown-overlay');
     const countdownTextEl = document.getElementById('countdown-text');
     const gameContainerWrapper = document.getElementById('game-container-wrapper');
@@ -417,6 +448,12 @@
     const explosionP1El = document.getElementById('explosion-p1');
     const explosionP2El = document.getElementById('explosion-p2');
     
+    // Elemen Nama (BARU)
+    const nicknameScreen = document.getElementById('nickname-screen');
+    const nicknameInput = document.getElementById('nickname-input');
+    const p1NameEl = document.getElementById('p1-name');
+    const p2NameEl = document.getElementById('p2-name');
+
     // Elemen Pairing
     const pairingScreen = document.getElementById('pairing-screen');
     const pairingStatusEl = document.getElementById('pairing-status');
@@ -434,6 +471,10 @@
     const spectatorLoadingEl = document.getElementById('spectator-loading');
     const spectatorOptionsEl = document.getElementById('spectator-options');
     const spectatorCodeInputEl = document.getElementById('spectator-code-input');
+    const p1SpectatorInfo = document.getElementById('p1-spectator-info');
+    const p2SpectatorInfo = document.getElementById('p2-spectator-info');
+    const p1SpectatorName = document.getElementById('p1-spectator-name');
+    const p2SpectatorName = document.getElementById('p2-spectator-name');
     const p1ScoreDisplay = document.getElementById('p1-score-display');
     const p2ScoreDisplay = document.getElementById('p2-score-display');
 
@@ -445,6 +486,7 @@
     let gameIsOver = false;
     let currentGameMode = '+'; // mode soal (+, -, x, dll)
     let currentAppMode = 'local'; // 'local', 'online', atau 'spectator'
+    let playerNickname = "Tamu"; // BARU
     
     let localDifficultyParams = null; // State kesulitan lokal
     
@@ -508,37 +550,61 @@
       currentAppMode = 'local'; // Default
       deviceModeSelectionScreen.classList.remove('hidden');
       localGameModeScreen.classList.add('hidden');
+      nicknameScreen.classList.add('hidden'); // Sembunyikan layar nama
       onlineGameModeScreen.classList.add('hidden');
       pairingScreen.classList.add('hidden');
-      spectatorScreen.classList.add('hidden'); // Sembunyikan layar penonton
+      spectatorScreen.classList.add('hidden');
       gameContainerWrapper.classList.add('hidden');
       newGameBtn.classList.add('hidden');
 
-      // Reset state online
       stopPolling();
       onlineRoomCode = null;
       onlinePlayerId = null;
       isWaitingForOpponent = false;
     }
     
-    function showGameModeScreen(mode) { // 'local' atau 'online'
+    function showGameModeScreen(mode) { // 'local'
       deviceModeSelectionScreen.classList.add('hidden');
       if (mode === 'local') {
         currentAppMode = 'local';
         localGameModeScreen.classList.remove('hidden');
-      } else {
-        currentAppMode = 'online';
-        onlineGameModeScreen.classList.remove('hidden');
       }
+      // 'online' case removed, now goes to nickname
     }
     
-    // PERUBAHAN: Menerima gameMode
+    // BARU: Tampilkan layar nickname
+    function showNicknameScreen() {
+      currentAppMode = 'online';
+      deviceModeSelectionScreen.classList.add('hidden');
+      nicknameScreen.classList.remove('hidden');
+    }
+
+    // BARU: Tampilkan layar mode game online
+    function showOnlineGameModeScreen() {
+        nicknameScreen.classList.add('hidden');
+        pairingScreen.classList.add('hidden');
+        onlineGameModeScreen.classList.remove('hidden');
+        // Sapa pemain
+        onlineModeGreeting.textContent = `Hai ${playerNickname}, Pilih Mode Permainan!`;
+    }
+
+    // BARU: Proses nama & lanjut ke pemilihan mode online
+    function submitNickname() {
+      let name = nicknameInput.value.trim();
+      if (name === "") {
+        name = "Tamu";
+      }
+      playerNickname = name.substring(0, 12); // Ambil maks 12 karakter
+      
+      // Lanjut ke layar pemilihan mode online
+      showOnlineGameModeScreen();
+    }
+    
     function showPairingScreen(gameMode) {
       onlineGameMode = gameMode; // Simpan mode game yg dipilih
       onlineGameModeScreen.classList.add('hidden');
       pairingScreen.classList.remove('hidden');
       
-      // Reset UI Pairing
       pairingStatusEl.textContent = `Mode ${gameMode}. Main dengan teman.`;
       pairingLoadingEl.classList.add('hidden');
       pairingOptionsEl.classList.remove('hidden');
@@ -547,13 +613,11 @@
       joinCodeInputEl.value = '';
     }
 
-    // BARU: Tampilkan layar penonton
     function showSpectatorScreen() {
       currentAppMode = 'spectator';
       deviceModeSelectionScreen.classList.add('hidden');
       spectatorScreen.classList.remove('hidden');
 
-      // Reset UI Penonton
       spectatorStatusEl.textContent = 'Masukkan kode room untuk menonton';
       spectatorLoadingEl.classList.add('hidden');
       spectatorOptionsEl.classList.remove('hidden');
@@ -578,7 +642,7 @@
           credentials: 'omit',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(payload),
-          signal: AbortSignal.timeout(10000) // Timeout 10 detik
+          signal: AbortSignal.timeout(10000)
         });
 
         if (!response.ok) throw new Error(`Server error: ${response.statusText} (${response.status})`);
@@ -590,17 +654,12 @@
         console.error('GAS API Call Error:', error);
         let errorMsg = error.message;
         
-        if (error.name === "AbortError") {
-            errorMsg = "Server tidak merespon (Timeout). Cek koneksi Anda.";
-        } else if (error.message.includes("Failed to fetch")) {
-            if (gasWebAppUrl.includes("/dev")) {
-                errorMsg = "Error: Anda menggunakan URL '/dev'. Harap gunakan URL '/exec'.";
-            } else {
-                errorMsg = "Error: Gagal terhubung (CORS). Pastikan deployment diatur ke 'Siapa saja'.";
-            }
+        if (error.name === "AbortError") { errorMsg = "Server tidak merespon (Timeout)."; }
+        else if (error.message.includes("Failed to fetch")) {
+            if (gasWebAppUrl.includes("/dev")) { errorMsg = "Error: Anda menggunakan URL '/dev'. Harap gunakan URL '/exec'."; }
+            else { errorMsg = "Error: Gagal terhubung (CORS). Pastikan deployment diatur ke 'Siapa saja'."; }
         }
         
-        // Tampilkan error di layar yang sesuai
         if (currentAppMode === 'spectator') {
             spectatorStatusEl.textContent = errorMsg;
             spectatorLoadingEl.classList.add('hidden');
@@ -625,8 +684,12 @@
       roomCodeWrapperEl.classList.add('hidden');
 
       try {
-        // PERUBAHAN: Kirim mode game yg dipilih
-        const result = await callGasApi({ action: 'create', gameMode: onlineGameMode });
+        // PERUBAHAN: Kirim mode game dan nama
+        const result = await callGasApi({ 
+          action: 'create', 
+          gameMode: onlineGameMode, 
+          nickname: playerNickname 
+        });
         
         if (result.status === 'created') {
           onlineRoomCode = result.roomCode;
@@ -659,7 +722,12 @@
       roomCodeWrapperEl.classList.add('hidden');
 
       try {
-        const result = await callGasApi({ action: 'join', roomCode: code });
+        // PERUBAHAN: Kirim kode dan nama
+        const result = await callGasApi({ 
+          action: 'join', 
+          roomCode: code,
+          nickname: playerNickname
+        });
         
         if (result.status === 'joined') {
           onlineRoomCode = code;
@@ -676,7 +744,6 @@
       }
     }
 
-    // BARU: Fungsi untuk penonton
     async function startSpectating() {
       const code = spectatorCodeInputEl.value.toUpperCase().trim();
       if (!code) {
@@ -690,7 +757,6 @@
       spectatorOptionsEl.classList.add('hidden');
       
       try {
-        // Panggil getState sekali untuk memastikan room ada
         const result = await callGasApi({ action: 'getState', roomCode: onlineRoomCode });
         
         if (result.status === 'polled') {
@@ -702,8 +768,8 @@
           player2Card.classList.add('hidden');
           
           // Tampilkan panel skor
-          p1ScoreDisplay.classList.remove('hidden');
-          p2ScoreDisplay.classList.remove('hidden');
+          p1SpectatorInfo.classList.remove('hidden');
+          p2SpectatorInfo.classList.remove('hidden');
           
           messageEl.textContent = `Menonton Room: ${onlineRoomCode}`;
           
@@ -711,7 +777,6 @@
           startPolling(); // Mulai polling
         }
       } catch (error) {
-        // Error sudah ditangani callGasApi, UI di-reset
         onlineRoomCode = null;
       }
     }
@@ -731,7 +796,6 @@
           if (result.status === 'polled') {
             const gameState = result.gameState;
             
-            // Logika untuk P1 menunggu
             if (currentAppMode === 'online' && isWaitingForOpponent && gameState.player2) {
               isWaitingForOpponent = false;
               stopPolling();
@@ -741,22 +805,24 @@
                 startOnlineGame(gameState);
               });
             } 
-            // Logika untuk game berjalan (Pemain & Penonton)
             else if (gameState.gameStarted) {
               updateUiFromState(gameState);
             }
           }
         } catch (error) {
           console.error("Poll error:", error.message);
+          let errorTargetEl = messageEl; // Default
           if (currentAppMode === 'online' && isWaitingForOpponent) {
-            pairingStatusEl.textContent = `Koneksi polling error. Coba lagi.`;
-            pairingLoadingEl.classList.add('hidden');
-            backFromPairingBtn.classList.remove('hidden');
-          } else if (currentAppMode === 'spectator' && !gameIsOver) {
-             messageEl.textContent = "Koneksi ke server terputus."
-          } else if (currentAppMode === 'online' && !gameIsOver) {
-            messageEl.textContent = "Koneksi ke server terputus."
+             errorTargetEl = pairingStatusEl;
+             pairingLoadingEl.classList.add('hidden');
+             backFromPairingBtn.classList.remove('hidden');
+          } else if (currentAppMode === 'spectator') {
+             errorTargetEl = spectatorStatusEl;
+             gameContainerWrapper.classList.add('hidden'); // Sembunyikan game
+             spectatorScreen.classList.remove('hidden'); // Tampilkan layar penonton
+             spectatorOptionsEl.classList.remove('hidden');
           }
+          if (!gameIsOver) errorTargetEl.textContent = "Koneksi ke server terputus."
           stopPolling();
         }
       }, 2000);
@@ -766,6 +832,19 @@
       if (pollInterval) {
         clearInterval(pollInterval);
         pollInterval = null;
+      }
+    }
+
+    /**
+     * PERUBAHAN: Sembunyikan panel lawan
+     */
+    function setupOnlinePlayerUI() {
+      if (onlinePlayerId === 'p1') {
+        player1Card.classList.remove('hidden');
+        player2Card.classList.add('hidden'); // Sembunyikan P2
+      } else if (onlinePlayerId === 'p2') {
+        player1Card.classList.add('hidden'); // Sembunyikan P1
+        player2Card.classList.remove('hidden');
       }
     }
 
@@ -784,34 +863,16 @@
 
       gameContainerWrapper.classList.remove('hidden');
       
-      // Tampilkan panel input pemain
-      player1Card.classList.remove('hidden');
-      player2Card.classList.remove('hidden');
+      // Sembunyikan info penonton
+      p1SpectatorInfo.classList.add('hidden');
+      p2SpectatorInfo.classList.add('hidden');
       
-      // Sembunyikan skor (hanya untuk penonton)
-      p1ScoreDisplay.classList.add('hidden');
-      p2ScoreDisplay.classList.add('hidden');
+      // PERUBAHAN: Panggil UI setup
+      setupOnlinePlayerUI();
       
-      toggleOpponentControls(true); // Nonaktifkan tombol lawan
       updateUiFromState(initialState); // Atur UI dari server
       startPolling(); // Mulai polling
     }
-
-    /**
-     * Nonaktifkan tombol lawan
-     */
-    function toggleOpponentControls(disable) {
-      const myPlayerNum = onlinePlayerId === 'p1' ? 1 : 2;
-      const opponentPlayerNum = onlinePlayerId === 'p1' ? 2 : 1;
-      
-      document.querySelectorAll(`.calc-btn[data-player="${myPlayerNum}"]`).forEach(btn => {
-        btn.disabled = false;
-      });
-      document.querySelectorAll(`.calc-btn[data-player="${opponentPlayerNum}"]`).forEach(btn => {
-        btn.disabled = disable;
-      });
-    }
-
 
     /**
      * Sinkronkan UI dengan state dari server
@@ -821,15 +882,25 @@
 
       ropePercent = gameState.ropePercent;
       ropeMarkerEl.style.left = `${ropePercent}%`;
+      
+      const p1Name = (gameState.player1 && gameState.player1.name) ? gameState.player1.name : "Pemain 1";
+      const p1Score = (gameState.player1) ? gameState.player1.score : 0;
+      const p2Name = (gameState.player2 && gameState.player2.name) ? gameState.player2.name : "Menunggu...";
+      const p2Score = (gameState.player2) ? gameState.player2.score : 0;
 
       // Update skor (untuk penonton)
       if (currentAppMode === 'spectator') {
-          if (gameState.player1) p1ScoreDisplay.textContent = gameState.player1.score;
-          if (gameState.player2) p2ScoreDisplay.textContent = gameState.player2.score;
+          p1SpectatorName.textContent = p1Name;
+          p1ScoreDisplay.textContent = p1Score;
+          p2SpectatorName.textContent = p2Name;
+          p2ScoreDisplay.textContent = p2Score;
       }
 
-      // Update soal (jika kita pemain)
+      // Update panel pemain (jika pemain)
       if (currentAppMode === 'online') {
+        p1NameEl.textContent = p1Name;
+        p2NameEl.textContent = p2Name;
+        
         if (gameState.problems.p1) {
           const p1p = gameState.problems.p1;
           player1ProblemEl.textContent = `${p1p.a} ${p1p.op} ${p1p.b} = ?`;
@@ -869,7 +940,6 @@
 
     /**
      * Memulai hitung mundur 3 detik
-     * @param {function} onComplete - Callback setelah hitung mundur selesai
      */
     function startCountdown(onComplete) {
       let count = 3;
@@ -889,7 +959,7 @@
           countdownTextEl.style.fontSize = '8rem';
           
           if (onComplete) {
-            onComplete(); // Panggil callback (newGame() atau startOnlineGame())
+            onComplete();
           }
         }
       }, 1000);
@@ -897,7 +967,6 @@
 
     // --- ================================== ---
     // --- LOGIKA KESULITAN (LOKAL)         ---
-    // --- (HARUS SAMA DENGAN Code.gs)      ---
     // --- ================================== ---
     
     function rand(min, max) {
@@ -977,7 +1046,7 @@
     function updateRopeVisual() {
       ropePercent = Math.max(0, Math.min(100, ropePercent));
       ropeMarkerEl.style.left = `${ropePercent}%`;
-      checkWin(); // Cek kemenangan (hanya lokal)
+      checkWin();
     }
 
     /**
@@ -1021,11 +1090,11 @@
      * Menangani input dari tombol (Dipanggil oleh multi-touch)
      */
     function handleInput(playerNum, value) {
-      if (gameIsOver || currentAppMode === 'spectator') return; // Penonton tidak bisa input
+      if (gameIsOver || currentAppMode === 'spectator') return;
 
       if (currentAppMode === 'online' && onlinePlayerId) {
          const myPlayerNum = onlinePlayerId === 'p1' ? 1 : 2;
-         if (playerNum !== myPlayerNum) return; // Tombol lawan
+         if (playerNum !== myPlayerNum) return;
       }
 
       const answerEl = (playerNum === 1) ? player1AnswerEl : player2AnswerEl;
@@ -1033,7 +1102,7 @@
       if (value === 'C') {
         answerEl.value = '';
       } else if (value === 'Go') {
-        handleSubmit(playerNum); // Kirim jawaban
+        handleSubmit(playerNum);
       } else {
         if (answerEl.value.length < 4) {
           answerEl.value += value;
@@ -1085,23 +1154,19 @@
       else {
         const problem = (playerNum === 1) ? player1Problem : player2Problem;
         if (submittedAnswer === problem.answer) {
-          // Benar
           if (playerNum === 1) ropePercent += ROPE_PULL_AMOUNT;
           else ropePercent -= ROPE_PULL_AMOUNT;
           
           updateRopeVisual();
           
           if (!gameIsOver) {
-            // Tentukan kesulitan baru jika campuran
             if (currentGameMode === 'campuran') {
                 localDifficultyParams = getDifficultyParams('campuran');
             }
-            // Panggil nextRound untuk kedua pemain
             nextRound(1);
             nextRound(2);
           }
         } else {
-          // Salah
           shakeInput(answerEl);
         }
       }
@@ -1134,9 +1199,13 @@
       player1Card.classList.remove('hidden');
       player2Card.classList.remove('hidden');
       
-      // Sembunyikan skor
-      p1ScoreDisplay.classList.add('hidden');
-      p2ScoreDisplay.classList.add('hidden');
+      // Sembunyikan info penonton
+      p1SpectatorInfo.classList.add('hidden');
+      p2SpectatorInfo.classList.add('hidden');
+      
+      // Set nama default untuk lokal
+      p1NameEl.textContent = "Pemain 1";
+      p2NameEl.textContent = "Pemain 2";
       
       explosionP1El.classList.add('hidden');
       explosionP2El.classList.add('hidden');
@@ -1145,12 +1214,11 @@
       
       allCalcButtons.forEach(btn => btn.disabled = false);
       
-      // Tentukan satu tingkat kesulitan untuk ronde ini
       localDifficultyParams = getDifficultyParams(currentGameMode);
       
       updateRopeVisual();
-      nextRound(1); // Akan menggunakan localDifficultyParams
-      nextRound(2); // Akan menggunakan localDifficultyParams
+      nextRound(1);
+      nextRound(2);
     }
     
     /**
@@ -1159,6 +1227,12 @@
     function backToMenu() {
       showDeviceModeScreen(); // Kembali ke layar paling awal
       
+      // Reset tampilan panel (penting!)
+      player1Card.classList.remove('hidden');
+      player2Card.classList.remove('hidden');
+      p1SpectatorInfo.classList.add('hidden');
+      p2SpectatorInfo.classList.add('hidden');
+
       // Sembunyikan ledakan
       explosionP1El.classList.add('hidden');
       explosionP2El.classList.add('hidden');
@@ -1213,11 +1287,8 @@
     `;
     document.head.appendChild(styleSheet);
 
-    // Panggil fungsi setup multi-touch
     setupCalculatorTouch();
-    
-    // Tampilkan layar awal saat dimuat
-    showDeviceModeScreen();
+    showDeviceModeScreen(); // Tampilkan layar awal saat dimuat
 
   </script>
 </body>
