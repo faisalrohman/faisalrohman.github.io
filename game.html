@@ -18,12 +18,12 @@
     #rope-marker {
       transition: left 0.3s ease-in-out;
       transform: translate(-50%, -50%);
-      /* Gaya agar terlihat seperti di gambar (kuning) */
-      width: 2.5rem; /* 40px */
-      height: 2.5rem; /* 40px */
+      /* Ukuran diperkecil */
+      width: 2rem; /* 32px */
+      height: 2rem; /* 32px */
       border-radius: 9999px; /* Bulat penuh */
       background-color: #facc15; /* yellow-400 */
-      border: 4px solid #ca8a04; /* yellow-600 */
+      border: 3px solid #ca8a04; /* yellow-600 */
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       z-index: 10;
     }
@@ -31,103 +31,179 @@
     /* Style untuk area tali */
     #rope-container {
       background-color: #967259; /* Warna coklat tali */
-      height: 10px;
+      height: 8px;
       border-radius: 5px;
       position: relative;
     }
     
-    /* Karakter pemain (emoji) */
+    /* Karakter pemain (emoji) - ukuran diperkecil */
     .player-avatar {
-      font-size: 5rem; /* 80px */
+      font-size: 4rem; /* 64px */
       line-height: 1;
+    }
+    
+    /* Media query untuk layar lebih besar (sm) */
+    @media (min-width: 640px) {
+      .player-avatar {
+        font-size: 5rem; /* 80px */
+      }
+      #rope-marker {
+        width: 2.5rem; /* 40px */
+        height: 2.5rem; /* 40px */
+      }
+    }
+
+    /* Overlay untuk hitung mundur */
+    #countdown-overlay {
+      background-color: rgba(255, 255, 255, 0.9);
+      z-index: 50;
+    }
+    #countdown-text {
+      font-size: 8rem;
+      font-weight: bold;
+      color: #1d4ed8; /* blue-700 */
+      animation: pulse-fade 1s ease-in-out infinite;
+    }
+    @keyframes pulse-fade {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.8; }
     }
   </style>
 </head>
-<body class="bg-sky-100 min-h-screen flex items-center justify-center p-4 font-inter">
+<body class="bg-sky-100 min-h-screen flex flex-col justify-between p-4 font-inter">
 
-  <div class="bg-white w-full max-w-5xl p-6 sm:p-8 rounded-2xl shadow-xl text-center">
-    
-    <!-- Judul Game -->
-    <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-4">
-      Tarik Tambang Matematika
-    </h1>
-    <p id="message-area" class="text-lg text-gray-600 mb-6">
-      Jawab soal untuk menarik tali!
-    </p>
+  <!-- Kontainer Utama -->
+  <main class="flex-grow flex items-center justify-center">
 
-    <!-- Kontainer Utama Game -->
-    <div id="game-container" class="flex flex-col lg:flex-row items-center justify-around w-full gap-8">
-
-      <!-- Pemain 1 (Kiri) -->
-      <div id="player1-card" class="bg-blue-800 p-5 rounded-2xl shadow-lg w-full max-w-xs sm:w-72">
-        <!-- Soal -->
-        <div id="player1-problem" class="text-white text-3xl font-bold mb-4 h-10">
-          ? + ? = ?
-        </div>
-        <!-- Input Jawaban -->
-        <input type="text" id="player1-answer" class="w-full p-3 rounded-lg text-right text-3xl text-black mb-4 pointer-events-none bg-gray-100" readonly>
-        <!-- Tombol Angka -->
-        <div class="grid grid-cols-3 gap-3">
-          <button onclick="handleInput(1, '1')" class="calc-btn p-4 rounded-lg text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300">1</button>
-          <button onclick="handleInput(1, '2')" class="calc-btn p-4 rounded-lg text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300">2</button>
-          <button onclick="handleInput(1, '3')" class="calc-btn p-4 rounded-lg text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300">3</button>
-          <button onclick="handleInput(1, '4')" class="calc-btn p-4 rounded-lg text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300">4</button>
-          <button onclick="handleInput(1, '5')" class="calc-btn p-4 rounded-lg text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300">5</button>
-          <button onclick="handleInput(1, '6')" class="calc-btn p-4 rounded-lg text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300">6</button>
-          <button onclick="handleInput(1, '7')" class="calc-btn p-4 rounded-lg text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300">7</button>
-          <button onclick="handleInput(1, '8')" class="calc-btn p-4 rounded-lg text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300">8</button>
-          <button onclick="handleInput(1, '9')" class="calc-btn p-4 rounded-lg text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300">9</button>
-          <button onclick="handleInput(1, 'C')" class="calc-btn p-4 rounded-lg text-2xl font-bold bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">C</button>
-          <button onclick="handleInput(1, '0')" class="calc-btn p-4 rounded-lg text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300">0</button>
-          <button onclick="handleInput(1, 'Go')" class="calc-btn go-btn p-4 rounded-lg text-2xl font-bold bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Go</button>
-        </div>
+    <!-- 1. Layar Pilihan Mode (Tampil di awal) -->
+    <div id="mode-selection-screen" class="bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
+        Tarik Tambang Matematika
+      </h1>
+      <h2 class="text-xl sm:text-2xl font-semibold text-gray-600 mb-6 sm:mb-8">
+        Pilih Mode Permainan
+      </h2>
+      <div class="grid grid-cols-3 gap-3 sm:gap-4">
+        <button onclick="selectMode('+')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400">
+          <span class="text-4xl sm:text-5xl font-bold text-blue-600">+</span>
+          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Tambah</span>
+        </button>
+        <button onclick="selectMode('-')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-400">
+          <span class="text-4xl sm:text-5xl font-bold text-red-600">−</span>
+          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Kurang</span>
+        </button>
+        <button onclick="selectMode('x')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-400">
+          <span class="text-4xl sm:text-5xl font-bold text-green-600">×</span>
+          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Kali</span>
+        </button>
+        <button onclick="selectMode('÷')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-400">
+          <span class="text-4xl sm:text-5xl font-bold text-yellow-600">÷</span>
+          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Bagi</span>
+        </button>
+        <button onclick="selectMode('campuran')" class="mode-btn col-span-2 p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+          <span class="text-4xl sm:text-5xl font-bold text-indigo-600">?</span>
+          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Campuran</span>
+        </button>
       </div>
-
-      <!-- Visual Tarik Tambang -->
-      <div id="game-visual" class="flex items-center justify-center w-full lg:w-auto px-4 my-6 lg:my-0">
-        <span class="player-avatar">🧍‍♂️</span>
-        <div id="rope-container" class="w-48 sm:w-64 mx-[-10px] relative">
-          <div id="rope-marker" class="absolute top-1/2" style="left: 50%;"></div>
-        </div>
-        <!-- Karakter kedua diputar horizontal -->
-        <span class="player-avatar transform -scale-x-100">🧍‍♂️</span> 
-      </div>
-
-      <!-- Pemain 2 (Kanan) -->
-      <div id="player2-card" class="bg-red-800 p-5 rounded-2xl shadow-lg w-full max-w-xs sm:w-72">
-        <!-- Soal -->
-        <div id="player2-problem" class="text-white text-3xl font-bold mb-4 h-10">
-          ? + ? = ?
-        </div>
-        <!-- Input Jawaban -->
-        <input type="text" id="player2-answer" class="w-full p-3 rounded-lg text-right text-3xl text-black mb-4 pointer-events-none bg-gray-100" readonly>
-        <!-- Tombol Angka -->
-        <div class="grid grid-cols-3 gap-3">
-          <button onclick="handleInput(2, '1')" class="calc-btn p-4 rounded-lg text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-red-300">1</button>
-          <button onclick="handleInput(2, '2')" class="calc-btn p-4 rounded-lg text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-red-300">2</button>
-          <button onclick="handleInput(2, '3')" class="calc-btn p-4 rounded-lg text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-red-300">3</button>
-          <button onclick="handleInput(2, '4')" class="calc-btn p-4 rounded-lg text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-red-300">4</button>
-          <button onclick="handleInput(2, '5')" class="calc-btn p-4 rounded-lg text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-red-300">5</button>
-          <button onclick="handleInput(2, '6')" class="calc-btn p-4 rounded-lg text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-red-300">6</button>
-          <button onclick="handleInput(2, '7')" class="calc-btn p-4 rounded-lg text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-red-300">7</button>
-          <button onclick="handleInput(2, '8')" class="calc-btn p-4 rounded-lg text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-red-300">8</button>
-          <button onclick="handleInput(2, '9')" class="calc-btn p-4 rounded-lg text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-red-300">9</button>
-          <button onclick="handleInput(2, 'C')" class="calc-btn p-4 rounded-lg text-2xl font-bold bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">C</button>
-          <button onclick="handleInput(2, '0')" class="calc-btn p-4 rounded-lg text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-red-300">0</button>
-          <button onclick="handleInput(2, 'Go')" class="calc-btn go-btn p-4 rounded-lg text-2xl font-bold bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Go</button>
-        </div>
-      </div>
-
     </div>
 
-    <!-- Tombol Mulai Game Baru -->
-    <button id="new-game-btn" 
-            onclick="newGame()" 
-            class="hidden mt-8 px-6 py-3 bg-blue-600 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
-      Mulai Game Baru
-    </button>
+    <!-- 2. Overlay Hitung Mundur (Default tersembunyi) -->
+    <div id="countdown-overlay" class="hidden fixed inset-0 flex items-center justify-center">
+      <div id="countdown-text">3</div>
+    </div>
 
-  </div>
+    <!-- 3. Wrapper Kontainer Game (Default tersembunyi) -->
+    <div id="game-container-wrapper" class="hidden w-full">
+      <div class="bg-white w-full max-w-5xl p-4 sm:p-8 rounded-2xl shadow-xl text-center mx-auto">
+        
+        <!-- Judul Game -->
+        <h1 class="text-2xl sm:text-4xl font-bold text-gray-800 mb-2">
+          Tarik Tambang Matematika
+        </h1>
+        <p id="message-area" class="text-base sm:text-lg text-gray-600 mb-4 sm:mb-6">
+          Jawab soal untuk menarik tali!
+        </p>
+
+        <!-- Kontainer Utama Game -->
+        <div id="game-container" class="flex flex-col lg:flex-row items-center justify-around w-full gap-4 sm:gap-8">
+
+          <!-- Pemain 1 (Kiri) -->
+          <div id="player1-card" class="bg-blue-800 p-3 sm:p-4 rounded-2xl shadow-lg w-full max-w-[280px] sm:max-w-xs">
+            <!-- Soal -->
+            <div id="player1-problem" class="text-white text-2xl sm:text-3xl font-bold mb-3 h-9 sm:h-10 flex items-center justify-center">
+              ? + ? = ?
+            </div>
+            <!-- Input Jawaban -->
+            <input type="text" id="player1-answer" class="w-full p-2 sm:p-3 rounded-lg text-right text-2xl sm:text-3xl text-black mb-3 pointer-events-none bg-gray-100" readonly>
+            <!-- Tombol Angka (diperkecil) -->
+            <div class="grid grid-cols-3 gap-2 sm:gap-3">
+              <button onclick="handleInput(1, '1')" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300">1</button>
+              <button onclick="handleInput(1, '2')" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300">2</button>
+              <button onclick="handleInput(1, '3')" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300">3</button>
+              <button onclick="handleInput(1, '4')" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300">4</button>
+              <button onclick="handleInput(1, '5')" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300">5</button>
+              <button onclick="handleInput(1, '6')" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300">6</button>
+              <button onclick="handleInput(1, '7')" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300">7</button>
+              <button onclick="handleInput(1, '8')" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300">8</button>
+              <button onclick="handleInput(1, '9')" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300">9</button>
+              <button onclick="handleInput(1, 'C')" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">C</button>
+              <button onclick="handleInput(1, '0')" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300">0</button>
+              <button onclick="handleInput(1, 'Go')" class="calc-btn go-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Go</button>
+            </div>
+          </div>
+
+          <!-- Visual Tarik Tambang -->
+          <div id="game-visual" class="flex items-center justify-center w-full lg:w-auto px-4 my-4 lg:my-0">
+            <span class="player-avatar">🧍‍♂️</span>
+            <div id="rope-container" class="w-32 sm:w-48 lg:w-64 mx-[-8px] relative">
+              <div id="rope-marker" class="absolute top-1/2" style="left: 50%;"></div>
+            </div>
+            <!-- Karakter kedua diputar horizontal -->
+            <span class="player-avatar transform -scale-x-100">🧍‍♂️</span> 
+          </div>
+
+          <!-- Pemain 2 (Kanan) -->
+          <div id="player2-card" class="bg-red-800 p-3 sm:p-4 rounded-2xl shadow-lg w-full max-w-[280px] sm:max-w-xs">
+            <!-- Soal -->
+            <div id="player2-problem" class="text-white text-2xl sm:text-3xl font-bold mb-3 h-9 sm:h-10 flex items-center justify-center">
+              ? + ? = ?
+            </div>
+            <!-- Input Jawaban -->
+            <input type="text" id="player2-answer" class="w-full p-2 sm:p-3 rounded-lg text-right text-2xl sm:text-3xl text-black mb-3 pointer-events-none bg-gray-100" readonly>
+            <!-- Tombol Angka (diperkecil) -->
+            <div class="grid grid-cols-3 gap-2 sm:gap-3">
+              <button onclick="handleInput(2, '1')" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-red-300">1</button>
+              <button onclick="handleInput(2, '2')" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-red-300">2</button>
+              <button onclick="handleInput(2, '3')" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-red-300">3</button>
+              <button onclick="handleInput(2, '4')" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-red-300">4</button>
+              <button onclick="handleInput(2, '5')" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-red-300">5</button>
+              <button onclick="handleInput(2, '6')" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-red-300">6</button>
+              <button onclick="handleInput(2, '7')" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-red-300">7</button>
+              <button onclick="handleInput(2, '8')" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-red-300">8</button>
+              <button onclick="handleInput(2, '9')" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-red-300">9</button>
+              <button onclick="handleInput(2, 'C')" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">C</button>
+              <button onclick="handleInput(2, '0')" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-red-300">0</button>
+              <button onclick="handleInput(2, 'Go')" class="calc-btn go-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Go</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tombol Mulai Game Baru -->
+        <button id="new-game-btn" 
+                onclick="backToMenu()" 
+                class="hidden mt-6 sm:mt-8 px-5 py-2.5 sm:px-6 sm:py-3 bg-blue-600 text-white text-base sm:text-lg font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
+          Pilih Mode Lain
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- 4. Footer -->
+  <footer class="w-full text-center p-4 mt-8">
+    <p class="text-sm text-gray-600">
+      dibuat oleh Faisal Rohman, S.Pd. (@hanyauntukmu)
+    </p>
+  </footer>
 
   <script>
     // --- Referensi Elemen DOM ---
@@ -140,26 +216,105 @@
     const messageEl = document.getElementById('message-area');
     const newGameBtn = document.getElementById('new-game-btn');
     const allCalcButtons = document.querySelectorAll('.calc-btn');
-    const allGoButtons = document.querySelectorAll('.go-btn');
+    
+    // Elemen baru
+    const modeSelectionScreen = document.getElementById('mode-selection-screen');
+    const countdownOverlay = document.getElementById('countdown-overlay');
+    const countdownTextEl = document.getElementById('countdown-text');
+    const gameContainerWrapper = document.getElementById('game-container-wrapper');
+
 
     // --- State Game ---
-    let player1Problem = { a: 0, b: 0, answer: 0 };
-    let player2Problem = { a: 0, b: 0, answer: 0 };
+    let player1Problem = { a: 0, b: 0, answer: 0, op: '+' };
+    let player2Problem = { a: 0, b: 0, answer: 0, op: '+' };
     let ropePercent = 50; // Posisi awal tali (50%)
     let gameIsOver = false;
+    let currentGameMode = '+'; // Mode default
     
     const ROPE_PULL_AMOUNT = 10; // Tarikan per jawaban benar (10%)
-    const MAX_NUMBER = 10; // Angka maksimum untuk soal (misal: 1-10)
+    const MAX_NUMBER_ADD_SUB = 20; // Angka maks untuk tambah/kurang (1-20)
+    const MAX_NUMBER_MULT = 12; // Angka maks untuk kali (1-12)
+    const MAX_ANSWER_DIV = 12; // Angka maks untuk hasil bagi (1-12)
+
     const WIN_THRESHOLD_P1 = 5; // Batas menang P1 (misal 5%)
     const WIN_THRESHOLD_P2 = 95; // Batas menang P2 (misal 95%)
 
     /**
-     * Menghasilkan soal matematika sederhana (penjumlahan)
+     * Memilih mode dan memulai hitung mundur
+     */
+    function selectMode(mode) {
+      currentGameMode = mode;
+      modeSelectionScreen.classList.add('hidden');
+      countdownOverlay.classList.remove('hidden');
+      startCountdown();
+    }
+
+    /**
+     * Memulai hitung mundur 3 detik
+     */
+    function startCountdown() {
+      let count = 3;
+      countdownTextEl.textContent = count;
+      
+      const interval = setInterval(() => {
+        count--;
+        if (count > 0) {
+          countdownTextEl.textContent = count;
+        } else if (count === 0) {
+          countdownTextEl.textContent = 'Mulai!';
+          countdownTextEl.style.fontSize = '5rem'; // Perkecil teks "Mulai!"
+        } else {
+          clearInterval(interval);
+          countdownOverlay.classList.add('hidden');
+          gameContainerWrapper.classList.remove('hidden');
+          countdownTextEl.textContent = '3'; // Reset untuk game selanjutnya
+          countdownTextEl.style.fontSize = '8rem';
+          newGame(); // Memulai game setelah hitung mundur
+        }
+      }, 1000);
+    }
+
+    /**
+     * Menghasilkan soal matematika berdasarkan mode
      */
     function generateProblem() {
-      const a = Math.floor(Math.random() * MAX_NUMBER) + 1;
-      const b = Math.floor(Math.random() * MAX_NUMBER) + 1;
-      return { a, b, answer: a + b };
+      let a = 0, b = 0, answer = 0, op = '+';
+      let mode = currentGameMode;
+
+      if (mode === 'campuran') {
+        const modes = ['+', '-', 'x', '÷'];
+        mode = modes[Math.floor(Math.random() * modes.length)];
+      }
+
+      switch (mode) {
+        case '+':
+          a = Math.floor(Math.random() * MAX_NUMBER_ADD_SUB) + 1;
+          b = Math.floor(Math.random() * MAX_NUMBER_ADD_SUB) + 1;
+          answer = a + b;
+          op = '+';
+          break;
+        case '-':
+          // Pastikan a >= b agar tidak negatif
+          a = Math.floor(Math.random() * MAX_NUMBER_ADD_SUB) + 1;
+          b = Math.floor(Math.random() * a) + 1; // b <= a
+          answer = a - b;
+          op = '−'; // Karakter minus
+          break;
+        case 'x':
+          a = Math.floor(Math.random() * MAX_NUMBER_MULT) + 1;
+          b = Math.floor(Math.random() * MAX_NUMBER_MULT) + 1;
+          answer = a * b;
+          op = '×'; // Karakter kali
+          break;
+        case '÷':
+          // Buat jawaban non-nol terlebih dahulu
+          b = Math.floor(Math.random() * MAX_ANSWER_DIV) + 1; // Pembagi (1-12)
+          answer = Math.floor(Math.random() * MAX_ANSWER_DIV) + 1; // Hasil (1-12)
+          a = b * answer; // Pastikan bisa dibagi habis
+          op = '÷'; // Karakter bagi
+          break;
+      }
+      return { a, b, answer, op };
     }
 
     /**
@@ -167,14 +322,16 @@
      */
     function nextRound(playerNum) {
       if (gameIsOver) return;
+      
+      const problem = generateProblem();
 
       if (playerNum === 1) {
-        player1Problem = generateProblem();
-        player1ProblemEl.textContent = `${player1Problem.a} + ${player1Problem.b} = ?`;
+        player1Problem = problem;
+        player1ProblemEl.textContent = `${problem.a} ${problem.op} ${problem.b} = ?`;
         player1AnswerEl.value = '';
       } else {
-        player2Problem = generateProblem();
-        player2ProblemEl.textContent = `${player2Problem.a} + ${player2Problem.b} = ?`;
+        player2Problem = problem;
+        player2ProblemEl.textContent = `${problem.a} ${problem.op} ${problem.b} = ?`;
         player2AnswerEl.value = '';
       }
     }
@@ -215,7 +372,7 @@
         ropeMarkerEl.style.left = '100%';
       }
       
-      // Tampilkan tombol "Mulai Game Baru"
+      // Tampilkan tombol "Pilih Mode Lain"
       newGameBtn.classList.remove('hidden');
 
       // Nonaktifkan tombol
@@ -235,8 +392,8 @@
       } else if (value === 'Go') {
         handleSubmit(playerNum);
       } else {
-        // Batasi panjang input
-        if (answerEl.value.length < 3) {
+        // Batasi panjang input (misal 4 digit)
+        if (answerEl.value.length < 4) {
           answerEl.value += value;
         }
       }
@@ -253,6 +410,8 @@
       
       const submittedAnswer = parseInt(answerEl.value, 10);
 
+      if (isNaN(submittedAnswer)) return; // Abaikan jika input kosong
+
       if (submittedAnswer === problem.answer) {
         // Jawaban benar
         if (playerNum === 1) {
@@ -267,7 +426,7 @@
       } else {
         // Jawaban salah, goyangkan input
         answerEl.classList.add('animate-shake');
-        // Hapus animasi setelah selesai
+        // Hapus animasi after selesai
         setTimeout(() => {
           answerEl.classList.remove('animate-shake');
           answerEl.value = ''; // Kosongkan jawaban salah
@@ -276,7 +435,7 @@
     }
 
     /**
-     * Memulai game baru
+     * Memulai game baru (dipanggil setelah hitung mundur)
      */
     function newGame() {
       gameIsOver = false;
@@ -292,8 +451,17 @@
       nextRound(2);
     }
     
-    // --- Inisialisasi Game ---
-    // Menambahkan animasi shake sederhana (opsional, tapi bagus)
+    /**
+     * Kembali ke menu pilihan mode
+     */
+    function backToMenu() {
+      gameContainerWrapper.classList.add('hidden');
+      modeSelectionScreen.classList.remove('hidden');
+      newGameBtn.classList.add('hidden'); // Sembunyikan tombol "Pilih Mode"
+    }
+    
+    // --- Inisialisasi ---
+    // Menambahkan animasi shake
     const styleSheet = document.createElement("style");
     styleSheet.type = "text/css";
     styleSheet.innerText = `
@@ -308,8 +476,8 @@
     `;
     document.head.appendChild(styleSheet);
 
-    // Mulai game saat halaman dimuat
-    document.addEventListener('DOMContentLoaded', newGame);
+    // Game tidak dimulai otomatis, menunggu pilihan mode.
   </script>
 </body>
 </html>
+
