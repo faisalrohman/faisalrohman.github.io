@@ -149,11 +149,11 @@
       </h2>
       <div class="grid grid-cols-1 gap-4">
         <button onclick="showGameModeScreen('local')" class="mode-btn p-6 rounded-xl bg-gray-100 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400">
-          <span class="text-4xl sm:text-5xl font-bold text-blue-600">​🕵️‍♂️</span>
+          <span class="text-4xl sm:text-5xl font-bold text-blue-600">👤</span>
           <span class="block text-base sm:text-lg font-medium text-gray-700 mt-2">1 Device (Lokal)</span>
         </button>
         <button onclick="showNicknameScreen()" class="mode-btn p-6 rounded-xl bg-gray-100 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-400">
-          <span class="text-4xl sm:text-5xl font-bold text-purple-600">​🤼</span>
+          <span class="text-4xl sm:text-5xl font-bold text-purple-600">👥</span>
           <span class="block text-base sm:text-lg font-medium text-gray-700 mt-2">2 Device (Online)</span>
         </button>
         <button onclick="showSpectatorScreen()" class="mode-btn p-6 rounded-xl bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400">
@@ -165,7 +165,7 @@
     
     <!-- ======================================================= -->
     <!-- Layar Pilihan Mode Game (LOKAL)                       -->
-    <!-- PERUBAHAN: Layout grid-cols-2 & tombol baru           -->
+    <!-- PERUBAHAN: Layout grid-cols-3 & tombol baru           -->
     <!-- ======================================================= -->
     <div id="local-game-mode-screen" class="hidden bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
       <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
@@ -174,46 +174,57 @@
       <h2 class="text-xl sm:text-2xl font-semibold text-gray-600 mb-6 sm:mb-8">
         Pilih Mode Permainan
       </h2>
-      <!-- PERUBAHAN: grid-cols-2 -->
-      <div class="grid grid-cols-2 gap-3 sm:gap-4">
-        <button onclick="selectLocalMode('+')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400">
-          <span class="text-4xl sm:text-5xl font-bold text-blue-600">+</span>
-          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Tambah</span>
+      <!-- PERUBAHAN: grid-cols-3, col-span-2 dihapus -->
+      <div class="grid grid-cols-3 gap-3 sm:gap-4">
+        <button onclick="selectLocalMode('+')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400">
+          <span class="text-2xl sm:text-4xl font-bold text-blue-600">+</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">Tambah</span>
         </button>
-        <button onclick="selectLocalMode('-')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-400">
-          <span class="text-4xl sm:text-5xl font-bold text-red-600">−</span>
-          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Kurang</span>
+        <button onclick="selectLocalMode('-')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-400">
+          <span class="text-2xl sm:text-4xl font-bold text-red-600">−</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">Kurang</span>
         </button>
-        <button onclick="selectLocalMode('x')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-400">
-          <span class="text-4xl sm:text-5xl font-bold text-green-600">×</span>
-          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Kali</span>
+        <button onclick="selectLocalMode('x')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-400">
+          <span class="text-2xl sm:text-4xl font-bold text-green-600">×</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">Kali</span>
         </button>
-        <button onclick="selectLocalMode('÷')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-400">
-          <span class="text-4xl sm:text-5xl font-bold text-yellow-600">÷</span>
-          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Bagi</span>
+        <button onclick="selectLocalMode('÷')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-400">
+          <span class="text-2xl sm:text-4xl font-bold text-yellow-600">÷</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">Bagi</span>
         </button>
-        <!-- BARU: Tombol KPK & FPB -->
-        <button onclick="selectLocalMode('kpk')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-teal-400">
+        <button onclick="selectLocalMode('kpk')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-teal-400">
           <span class="text-2xl sm:text-3xl font-bold text-teal-600">KPK</span>
-          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">KPK</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">KPK</span>
         </button>
-        <button onclick="selectLocalMode('fpb')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-cyan-100 focus:outline-none focus:ring-2 focus:ring-cyan-400">
+        <button onclick="selectLocalMode('fpb')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-cyan-100 focus:outline-none focus:ring-2 focus:ring-cyan-400">
           <span class="text-2xl sm:text-3xl font-bold text-cyan-600">FPB</span>
-          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">FPB</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">FPB</span>
         </button>
-        <!-- BARU: Tombol Gradien -->
-        <button onclick="selectLocalMode('gradien-persamaan')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-400">
-          <span class="text-2xl sm:text-3xl font-bold text-orange-600">y=mx+c</span>
-          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Gradien (Pers)</span>
+        <button onclick="selectLocalMode('gradien-persamaan')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-400">
+          <span class="text-xl sm:text-2xl font-bold text-orange-600">y=mx+c</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">Gradien (Pers)</span>
         </button>
-        <button onclick="selectLocalMode('gradien-titik')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-400">
-          <span class="text-2xl sm:text-3xl font-bold text-amber-600">(x,y)</span>
-          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Gradien (Titik)</span>
+        <button onclick="selectLocalMode('gradien-titik')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-400">
+          <span class="text-xl sm:text-2xl font-bold text-amber-600">(x,y)</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">Gradien (Titik)</span>
+        </button>
+        <!-- BARU: 3 Mode Baru -->
+        <button onclick="selectLocalMode('konversi-satuan')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-lime-100 focus:outline-none focus:ring-2 focus:ring-lime-400">
+          <span class="text-xl sm:text-2xl font-bold text-lime-600">km/m</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">Konversi</span>
+        </button>
+        <button onclick="selectLocalMode('pola-aritmatika')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-pink-100 focus:outline-none focus:ring-2 focus:ring-pink-400">
+          <span class="text-xl sm:text-2xl font-bold text-pink-600">1,3,5..</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">Pola Bilangan</span>
+        </button>
+        <button onclick="selectLocalMode('deret-aritmatika')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-fuchsia-100 focus:outline-none focus:ring-2 focus:ring-fuchsia-400">
+          <span class="text-xl sm:text-2xl font-bold text-fuchsia-600">S(n)</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">Deret Bilangan</span>
         </button>
         <!-- Tombol Campuran -->
-        <button onclick="selectLocalMode('campuran')" class="mode-btn col-span-2 p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-400">
-          <span class="text-4xl sm:text-5xl font-bold text-indigo-600">?</span>
-          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Campuran</span>
+        <button onclick="selectLocalMode('campuran')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+          <span class="text-2xl sm:text-4xl font-bold text-indigo-600">?</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">Campuran</span>
         </button>
       </div>
       <button onclick="showDeviceModeScreen()" class="mt-8 text-sm text-gray-600 hover:text-blue-600 hover:underline">
@@ -244,7 +255,7 @@
     
     <!-- ======================================================= -->
     <!-- Layar Pilihan Mode Game (ONLINE)                      -->
-    <!-- PERUBAHAN: Layout grid-cols-2 & tombol baru           -->
+    <!-- PERUBAHAN: Layout grid-cols-3 & tombol baru           -->
     <!-- ======================================================= -->
     <div id="online-game-mode-screen" class="hidden bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
       <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
@@ -253,46 +264,57 @@
       <h2 id="online-mode-greeting" class="text-xl sm:text-2xl font-semibold text-gray-600 mb-6 sm:mb-8">
         Pilih Mode Permainan
       </h2>
-      <!-- PERUBAHAN: grid-cols-2 -->
-      <div class="grid grid-cols-2 gap-3 sm:gap-4">
-        <button onclick="showPairingScreen('+')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400">
-          <span class="text-4xl sm:text-5xl font-bold text-blue-600">+</span>
-          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Tambah</span>
+      <!-- PERUBAHAN: grid-cols-3, col-span-2 dihapus -->
+      <div class="grid grid-cols-3 gap-3 sm:gap-4">
+        <button onclick="showPairingScreen('+')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400">
+          <span class="text-2xl sm:text-4xl font-bold text-blue-600">+</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">Tambah</span>
         </button>
-        <button onclick="showPairingScreen('-')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-400">
-          <span class="text-4xl sm:text-5xl font-bold text-red-600">−</span>
-          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Kurang</span>
+        <button onclick="showPairingScreen('-')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-400">
+          <span class="text-2xl sm:text-4xl font-bold text-red-600">−</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">Kurang</span>
         </button>
-        <button onclick="showPairingScreen('x')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-400">
-          <span class="text-4xl sm:text-5xl font-bold text-green-600">×</span>
-          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Kali</span>
+        <button onclick="showPairingScreen('x')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-400">
+          <span class="text-2xl sm:text-4xl font-bold text-green-600">×</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">Kali</span>
         </button>
-        <button onclick="showPairingScreen('÷')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-400">
-          <span class="text-4xl sm:text-5xl font-bold text-yellow-600">÷</span>
-          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Bagi</span>
+        <button onclick="showPairingScreen('÷')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-400">
+          <span class="text-2xl sm:text-4xl font-bold text-yellow-600">÷</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">Bagi</span>
         </button>
-        <!-- BARU: Tombol KPK & FPB -->
-        <button onclick="showPairingScreen('kpk')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-teal-400">
+        <button onclick="showPairingScreen('kpk')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-teal-400">
           <span class="text-2xl sm:text-3xl font-bold text-teal-600">KPK</span>
-          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">KPK</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">KPK</span>
         </button>
-        <button onclick="showPairingScreen('fpb')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-cyan-100 focus:outline-none focus:ring-2 focus:ring-cyan-400">
+        <button onclick="showPairingScreen('fpb')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-cyan-100 focus:outline-none focus:ring-2 focus:ring-cyan-400">
           <span class="text-2xl sm:text-3xl font-bold text-cyan-600">FPB</span>
-          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">FPB</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">FPB</span>
         </button>
-        <!-- BARU: Tombol Gradien -->
-        <button onclick="showPairingScreen('gradien-persamaan')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-400">
-          <span class="text-2xl sm:text-3xl font-bold text-orange-600">y=mx+c</span>
-          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Gradien (Pers)</span>
+        <button onclick="showPairingScreen('gradien-persamaan')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-400">
+          <span class="text-xl sm:text-2xl font-bold text-orange-600">y=mx+c</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">Gradien (Pers)</span>
         </button>
-        <button onclick="showPairingScreen('gradien-titik')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-400">
-          <span class="text-2xl sm:text-3xl font-bold text-amber-600">(x,y)</span>
-          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Gradien (Titik)</span>
+        <button onclick="showPairingScreen('gradien-titik')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-400">
+          <span class="text-xl sm:text-2xl font-bold text-amber-600">(x,y)</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">Gradien (Titik)</span>
+        </button>
+        <!-- BARU: 3 Mode Baru -->
+        <button onclick="showPairingScreen('konversi-satuan')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-lime-100 focus:outline-none focus:ring-2 focus:ring-lime-400">
+          <span class="text-xl sm:text-2xl font-bold text-lime-600">km/m</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">Konversi</span>
+        </button>
+        <button onclick="showPairingScreen('pola-aritmatika')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-pink-100 focus:outline-none focus:ring-2 focus:ring-pink-400">
+          <span class="text-xl sm:text-2xl font-bold text-pink-600">1,3,5..</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">Pola Bilangan</span>
+        </button>
+        <button onclick="showPairingScreen('deret-aritmatika')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-fuchsia-100 focus:outline-none focus:ring-2 focus:ring-fuchsia-400">
+          <span class="text-xl sm:text-2xl font-bold text-fuchsia-600">S(n)</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">Deret Bilangan</span>
         </button>
         <!-- Tombol Campuran -->
-        <button onclick="showPairingScreen('campuran')" class="mode-btn col-span-2 p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-400">
-          <span class="text-4xl sm:text-5xl font-bold text-indigo-600">?</span>
-          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Campuran</span>
+        <button onclick="showPairingScreen('campuran')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+          <span class="text-2xl sm:text-4xl font-bold text-indigo-600">?</span>
+          <span class="block text-sm font-medium text-gray-700 mt-1">Campuran</span>
         </button>
       </div>
       <button onclick="showNicknameScreen()" class="mt-8 text-sm text-gray-600 hover:text-blue-600 hover:underline">
@@ -396,9 +418,8 @@
           <!-- Pemain 1 (Kiri) -->
           <div id="player1-card" class="bg-blue-800 p-3 sm:p-4 rounded-2xl shadow-lg w-full max-w-[280px] sm:max-w-xs">
             <h2 id="p1-name" class="text-white text-xl font-semibold mb-2 truncate">Pemain 1</h2>
-            <div id="player1-problem" class="text-white text-2xl sm:text-3xl font-bold mb-3 h-9 sm:h-10 flex items-center justify-center">? + ? = ?</div>
+            <div id="player1-problem" class="text-white text-lg sm:text-2xl font-bold mb-3 h-10 sm:h-12 flex items-center justify-center px-1">? + ? = ?</div>
             
-            <!-- BARU: UI Input Wrapper -->
             <div id="p1-input-wrapper">
               <!-- Input Angka -->
               <input type="text" id="player1-answer" class="w-full p-2 sm:p-3 rounded-lg text-right text-2xl sm:text-3xl text-black mb-3 pointer-events-none bg-gray-100" readonly>
@@ -420,14 +441,12 @@
 
               <!-- BARU: UI Drag & Drop -->
               <div id="p1-dragdrop-ui" class="hidden space-y-3">
-                <!-- Zona Drop -->
-                <div id="p1-answer-zone" data-player="1" class="answer-zone text-white/70 border-white/50">Drop jawaban di sini</div>
-                <!-- Pilihan Jawaban -->
+                <div id="p1-answer-zone" data-player="1" class="answer-zone text-white/70 border-white/50 h-14 flex items-center justify-center text-lg">Drop jawaban di sini</div>
                 <div id="p1-choices" class="grid grid-cols-4 gap-2">
-                  <button data-player="1" draggable="true" class="choice-btn">1</button>
-                  <button data-player="1" draggable="true" class="choice-btn">2</button>
-                  <button data-player="1" draggable="true" class="choice-btn">3</button>
-                  <button data-player="1" draggable="true" class="choice-btn">4</button>
+                  <button data-player="1" draggable="true" class="choice-btn text-gray-800">1</button>
+                  <button data-player="1" draggable="true" class="choice-btn text-gray-800">2</button>
+                  <button data-player="1" draggable="true" class="choice-btn text-gray-800">3</button>
+                  <button data-player="1" draggable="true" class="choice-btn text-gray-800">4</button>
                 </div>
               </div>
             </div>
@@ -441,7 +460,7 @@
                 <span id="p1-spectator-name">Pemain 1</span>: 
                 <span id="p1-score-display">0</span>
               </div>
-              <span class="player-avatar">🧍🏻</span>
+              <span class="player-avatar">🧍‍♂️</span>
               <span id="explosion-p1" class="hidden player-avatar absolute inset-0 flex items-center justify-center">💥</span>
             </div>
             
@@ -462,9 +481,8 @@
           <!-- Pemain 2 (Kanan) -->
           <div id="player2-card" class="bg-red-800 p-3 sm:p-4 rounded-2xl shadow-lg w-full max-w-[280px] sm:max-w-xs">
             <h2 id="p2-name" class="text-white text-xl font-semibold mb-2 truncate">Pemain 2</h2>
-            <div id="player2-problem" class="text-white text-2xl sm:text-3xl font-bold mb-3 h-9 sm:h-10 flex items-center justify-center">? + ? = ?</div>
+            <div id="player2-problem" class="text-white text-lg sm:text-2xl font-bold mb-3 h-10 sm:h-12 flex items-center justify-center px-1">? + ? = ?</div>
             
-            <!-- BARU: UI Input Wrapper -->
             <div id="p2-input-wrapper">
               <!-- Input Angka -->
               <input type="text" id="player2-answer" class="w-full p-2 sm:p-3 rounded-lg text-right text-2xl sm:text-3xl text-black mb-3 pointer-events-none bg-gray-100" readonly>
@@ -486,14 +504,12 @@
 
               <!-- BARU: UI Drag & Drop -->
               <div id="p2-dragdrop-ui" class="hidden space-y-3">
-                <!-- Zona Drop -->
-                <div id="p2-answer-zone" data-player="2" class="answer-zone text-white/70 border-white/50">Drop jawaban di sini</div>
-                <!-- Pilihan Jawaban -->
+                <div id="p2-answer-zone" data-player="2" class="answer-zone text-white/70 border-white/50 h-14 flex items-center justify-center text-lg">Drop jawaban di sini</div>
                 <div id="p2-choices" class="grid grid-cols-4 gap-2">
-                  <button data-player="2" draggable="true" class="choice-btn">1</button>
-                  <button data-player="2" draggable="true" class="choice-btn">2</button>
-                  <button data-player="2" draggable="true" class="choice-btn">3</button>
-                  <button data-player="2" draggable="true" class="choice-btn">4</button>
+                  <button data-player="2" draggable="true" class="choice-btn text-gray-800">1</button>
+                  <button data-player="2" draggable="true" class="choice-btn text-gray-800">2</button>
+                  <button data-player="2" draggable="true" class="choice-btn text-gray-800">3</button>
+                  <button data-player="2" draggable="true" class="choice-btn text-gray-800">4</button>
                 </div>
               </div>
             </div>
@@ -522,7 +538,7 @@
     // --- ========================================================== ---
     // --- PENTING! GANTI URL INI DENGAN URL GOOGLE APPS SCRIPT ANDA ---
     // --- ========================================================== ---
-    const gasWebAppUrl = "https://script.google.com/macros/s/AKfycbzXj2dGMHSDXFaPK1ceWgWYxga56RmPoik_Gs8qUu0585594Puer0pIRWHUAfKurR3_/exec";
+    const gasWebAppUrl = "https://script.google.com/macros/s/AKfycbwaXFqRSefIzvAZXxtHPLGJ4SAhK3s9NqL9P0-qi6yGBtfN3M0899i2xcocGHnkGoPi/exec";
     // --- ========================================================== ---
 
 
@@ -1030,6 +1046,7 @@
 
     // --- ================================== ---
     // --- LOGIKA KESULITAN (LOKAL)         ---
+    // --- (HARUS SAMA DENGAN Code.gs)      ---
     // --- ================================== ---
     
     function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
@@ -1046,7 +1063,11 @@
     function getDifficultyParams(mode) {
       let op = mode;
       if (mode === 'campuran') {
-        const ops = ['+', '-', 'x', '÷', 'kpk', 'fpb', 'gradien-persamaan', 'gradien-titik'];
+        const ops = [
+          '+', '-', 'x', '÷', 'kpk', 'fpb', 
+          'gradien-persamaan', 'gradien-titik',
+          'konversi-satuan', 'pola-aritmatika', 'deret-aritmatika'
+        ];
         op = ops[rand(0, ops.length - 1)];
       }
       let params = { op: op, type: 'number' };
@@ -1061,8 +1082,13 @@
         params.minA = 1; params.maxA = 12; params.minB = 1; params.maxB = 12;
       } else if (op === 'kpk' || op === 'fpb') {
         params.minA = 2; params.maxA = 15; params.minB = 2; params.maxB = 15;
-      } else if (op === 'gradien-persamaan' || op === 'gradien-titik') {
+      } else if (op === 'gradien-persamaan') {
         params.type = 'dragdrop';
+        params.subType = rand(1, 3); // 3 tipe soal
+      } else if (op === 'gradien-titik') {
+        params.type = 'dragdrop';
+      } else if (op === 'konversi-satuan' || op === 'pola-aritmatika' || op === 'deret-aritmatika') {
+        params.type = 'number';
       }
       return params;
     }
@@ -1075,14 +1101,14 @@
         let distractor;
         if (Math.random() < 0.5) distractor = answer + rand(1, 3);
         else distractor = rand(-5, 5);
-        if (distractor === 0 && answer === 0) continue;
+        if (distractor === 0 && (answer === 0 || choices.has(0))) continue;
         choices.add(distractor);
       }
       return shuffle(Array.from(choices));
     }
 
     function generateProblemFromParams(params) {
-      let a = 0, b = 0, answer = 0, question = "", choices = [];
+      let a = 0, b = 0, c = 0, m = 0, n = 0, answer = 0, question = "", choices = [];
       let opSymbol = params.op;
       switch (params.op) {
         case '+':
@@ -1112,21 +1138,55 @@
           answer = gcd(a, b); question = `FPB(${a}, ${b}) = ?`;
           break;
         case 'gradien-persamaan':
-          let m = rand(-5, 5); let c = rand(-10, 10);
+          m = rand(-3, 3);
           answer = m;
-          let cSign = c >= 0 ? '+' : '-';
-          question = `y = ${m}x ${cSign} ${Math.abs(c)}`;
+          switch (params.subType) {
+            case 1: // y = mx + c
+              c = rand(-10, 10);
+              question = `y = ${m === 1 ? '' : m === -1 ? '-' : m}x ${c >= 0 ? '+' : '-'} ${Math.abs(c)}`;
+              if (m === 0) question = `y = ${c}`;
+              break;
+            case 2: // ax + by = c
+              b = rand(1, 3); a = -m * b; c = rand(1, 20);
+              question = `${a === 1 ? '' : a === -1 ? '-' : a}x ${b >= 0 ? '+' : '-'} ${Math.abs(b)}y = ${c}`;
+              break;
+            case 3: // ax + by + c = 0
+              b = rand(1, 3); a = -m * b; c = rand(-20, 20);
+              question = `${a === 1 ? '' : a === -1 ? '-' : a}x ${b >= 0 ? '+' : '-'} ${Math.abs(b)}y ${c >= 0 ? '+' : '-'} ${Math.abs(c)} = 0`;
+              break;
+          }
           choices = getDragDropChoices(answer);
           break;
         case 'gradien-titik':
-          let mGrad = rand(-3, 3);
+          m = rand(-3, 3);
           let x1 = rand(-5, 5); let y1 = rand(-5, 5);
           let x2 = rand(-5, 5);
           while (x1 === x2) x2 = rand(-5, 5);
-          let y2 = mGrad * (x2 - x1) + y1;
-          answer = mGrad;
+          let y2 = m * (x2 - x1) + y1;
+          answer = m;
           question = `Titik (${x1}, ${y1}) & (${x2}, ${y2})`;
           choices = getDragDropChoices(answer);
+          break;
+        case 'konversi-satuan':
+          const units = [
+            ['km', 'm', 1000], ['m', 'cm', 100], ['kg', 'g', 1000], 
+            ['l', 'ml', 1000], ['m', 'mm', 1000], ['cm', 'mm', 10]
+          ];
+          let pair = units[rand(0, units.length - 1)];
+          let val = rand(1, 50);
+          question = `${val} ${pair[0]} = ? ${pair[1]}`;
+          answer = val * pair[2];
+          break;
+        case 'pola-aritmatika':
+          a = rand(1, 20); b = rand(1, 5);
+          question = `${a}, ${a + b}, ${a + 2 * b}, ...?`;
+          answer = a + 3 * b;
+          break;
+        case 'deret-aritmatika':
+          a = rand(1, 10); b = rand(1, 5);
+          n = [4, 6][rand(0, 1)];
+          answer = (n / 2) * (2 * a + (n - 1) * b);
+          question = `Hitung ${n} suku: ${a}, ${a + b}, ...`;
           break;
       }
       return { question: question, answer: answer, type: params.type, choices: choices };
@@ -1151,7 +1211,6 @@
 
       problemEl.textContent = problem.question;
       
-      // Ganti mode UI
       toggleInputMode(playerNum, problem.type);
 
       if (problem.type === 'number') {
@@ -1198,13 +1257,11 @@
     function handleInput(playerNum, value) {
       if (gameIsOver || currentAppMode === 'spectator') return;
 
-      // Cek apakah ini tombol kita dalam mode online
       if (currentAppMode === 'online' && onlinePlayerId) {
          const myPlayerNum = onlinePlayerId === 'p1' ? 1 : 2;
          if (playerNum !== myPlayerNum) return;
       }
       
-      // Cek apakah mode inputnya 'number'
       const problem = (playerNum === 1) ? player1Problem : player2Problem;
       if (problem.type !== 'number') return; // Abaikan input keypad jika mode dragdrop
 
@@ -1215,7 +1272,8 @@
       } else if (value === 'Go') {
         handleSubmit(playerNum);
       } else {
-        if (answerEl.value.length < 4) {
+        // PERUBAHAN: Izinkan input lebih panjang untuk KPK, konversi, dll.
+        if (answerEl.value.length < 6) {
           answerEl.value += value;
         }
       }
@@ -1232,17 +1290,16 @@
       let answerType = problem.type;
       let elementToShake;
 
-      // Tentukan jawaban berdasarkan tipe
       if (answerType === 'dragdrop') {
           const answerZone = (playerNum === 1) ? p1AnswerZone : p2AnswerZone;
           submittedAnswer = answerZone.dataset.value;
           elementToShake = answerZone;
-          if (!submittedAnswer) return; // Belum drop
+          if (!submittedAnswer) return;
       } else {
           const answerEl = (playerNum === 1) ? player1AnswerEl : player2AnswerEl;
           submittedAnswer = answerEl.value;
           elementToShake = answerEl;
-          if (isNaN(parseInt(submittedAnswer, 10))) return; // Kosong
+          if (submittedAnswer === "" || isNaN(parseInt(submittedAnswer, 10))) return;
       }
 
       // --- Logika Mode Online ---
@@ -1259,14 +1316,13 @@
             roomCode: onlineRoomCode,
             player: onlinePlayerId,
             answer: submittedAnswer,
-            answerType: answerType // Kirim tipe jawaban
+            answerType: answerType
           });
 
           if (result.status === 'submitted') {
             if (!result.wasCorrect) {
               shakeInput(elementToShake, answerType);
             } else {
-              // Reset UI jika benar
               if (answerType === 'dragdrop') {
                 elementToShake.textContent = 'Drop jawaban di sini';
                 elementToShake.dataset.value = '';
@@ -1305,8 +1361,8 @@
           
           if (!gameIsOver) {
             localDifficultyParams = getDifficultyParams(currentGameMode);
-            nextRound(1); // Buat soal baru untuk P1
-            nextRound(2); // Buat soal baru untuk P2
+            nextRound(1);
+            nextRound(2);
           }
         } else {
           shakeInput(elementToShake, answerType);
@@ -1321,7 +1377,6 @@
       element.classList.add('animate-shake');
       setTimeout(() => {
         element.classList.remove('animate-shake');
-        // Reset input yang salah
         if (type === 'dragdrop') {
             element.textContent = 'Drop jawaban di sini';
             element.dataset.value = '';
@@ -1407,7 +1462,6 @@
         // Listener untuk Pilihan Jawaban
         document.querySelectorAll('.choice-btn').forEach(item => {
             item.addEventListener('dragstart', (e) => {
-                // Hanya izinkan drag jika itu tombol kita
                 const playerNum = parseInt(item.dataset.player, 10);
                  if (currentAppMode === 'online' && onlinePlayerId) {
                     const myPlayerNum = onlinePlayerId === 'p1' ? 1 : 2;
@@ -1419,19 +1473,19 @@
                 
                 draggedItem = item;
                 e.dataTransfer.setData('text/plain', item.dataset.value);
-                setTimeout(() => item.classList.add('opacity-50'), 0); // Sembunyikan saat di-drag
+                setTimeout(() => item.classList.add('opacity-50'), 0);
             });
 
             item.addEventListener('dragend', () => {
+                if (draggedItem) draggedItem.classList.remove('opacity-50');
                 draggedItem = null;
-                item.classList.remove('opacity-50');
             });
         });
 
         // Listener untuk Zona Drop Jawaban
         document.querySelectorAll('.answer-zone').forEach(zone => {
             zone.addEventListener('dragover', (e) => {
-                e.preventDefault(); // Izinkan drop
+                e.preventDefault();
                 zone.classList.add('answer-zone-hover');
             });
 
@@ -1443,7 +1497,6 @@
                 e.preventDefault();
                 zone.classList.remove('answer-zone-hover');
                 
-                // Cek apakah ini zona drop kita
                 const playerNum = parseInt(zone.dataset.player, 10);
                 if (currentAppMode === 'online' && onlinePlayerId) {
                     const myPlayerNum = onlinePlayerId === 'p1' ? 1 : 2;
@@ -1454,7 +1507,6 @@
                 if (value) {
                     zone.textContent = value;
                     zone.dataset.value = value;
-                    // Langsung submit jawaban saat di-drop
                     handleSubmit(playerNum);
                 }
             });
@@ -1477,7 +1529,7 @@
     document.head.appendChild(styleSheet);
 
     setupCalculatorTouch();
-    setupDragDrop(); // Panggil setup D&D
+    setupDragDrop();
     showDeviceModeScreen();
 
   </script>
