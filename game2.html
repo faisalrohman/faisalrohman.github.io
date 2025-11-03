@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tarik Tambang Matematika</title>
+  <title>Game Matematika</title>
   <!-- Memuat Tailwind CSS untuk styling -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -159,6 +159,18 @@
       
       <!-- Loading Indicator -->
       <div id="pairing-loading" class="hidden my-4">
+        
+        <!-- ======================================================= -->
+        <!-- PERUBAHAN DI SINI: Wrapper kode room dipindahkan ke sini -->
+        <!-- ======================================================= -->
+        <div id="room-code-wrapper" class="hidden text-lg mb-4"> <!-- Awalnya disembunyikan -->
+          Kode Anda: 
+          <span id="room-code-display" class="font-bold text-gray-800 p-2 bg-gray-100 rounded-md tracking-widest">
+            ...
+          </span>
+        </div>
+        <!-- ======================================================= -->
+
         <div class="spinner mx-auto"></div>
         <p id="pairing-loading-text" class="text-gray-600 mt-2">Menghubungi server...</p>
       </div>
@@ -171,9 +183,11 @@
           <button id="create-room-btn" onclick="createRoom()" class="w-full px-5 py-3 bg-purple-600 text-white text-base font-semibold rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-400">
             Buat Kode Room
           </button>
-          <div class="mt-3 text-lg">Kode Anda: 
-            <span id="room-code-display" class="font-bold text-gray-800 p-2 bg-gray-100 rounded-md tracking-widest">...</span>
-          </div>
+          
+          <!-- ======================================================= -->
+          <!-- Elemen "Kode Anda" dihapus dari sini -->
+          <!-- ======================================================= -->
+          
         </div>
 
         <!-- Pemisah -->
@@ -335,11 +349,14 @@
     const pairingScreen = document.getElementById('pairing-screen');
     const pairingStatusEl = document.getElementById('pairing-status');
     const pairingLoadingEl = document.getElementById('pairing-loading');
-    const pairingLoadingTextEl = document.getElementById('pairing-loading-text'); // Baru
+    const pairingLoadingTextEl = document.getElementById('pairing-loading-text'); 
     const pairingOptionsEl = document.getElementById('pairing-options');
     const roomCodeDisplayEl = document.getElementById('room-code-display');
     const joinCodeInputEl = document.getElementById('join-code-input');
-    const backFromPairingBtn = document.getElementById('back-from-pairing-btn'); // Baru
+    const backFromPairingBtn = document.getElementById('back-from-pairing-btn');
+    
+    // --- BARU: Referensi ke wrapper kode room ---
+    const roomCodeWrapperEl = document.getElementById('room-code-wrapper');
 
 
     // --- State Game ---
@@ -447,7 +464,7 @@
         console.error('GAS API Call Error:', error);
         let errorMsg = error.message;
 
-        // **BARU: Penanganan Error yang Lebih Baik**
+        // **Penanganan Error yang Lebih Baik**
         if (error.name === "AbortError") {
             errorMsg = "Server tidak merespon (Timeout). Cek koneksi Anda.";
         } else if (error.message.includes("Failed to fetch")) {
@@ -479,7 +496,7 @@
       pairingLoadingEl.classList.add('hidden');
       pairingOptionsEl.classList.remove('hidden');
       backFromPairingBtn.classList.remove('hidden');
-      roomCodeDisplayEl.textContent = '...';
+      roomCodeWrapperEl.classList.add('hidden'); // Sembunyikan wrapper kode
       joinCodeInputEl.value = '';
     }
 
@@ -497,6 +514,7 @@
       pairingLoadingTextEl.textContent = 'Menghubungi server...';
       pairingOptionsEl.classList.add('hidden');
       backFromPairingBtn.classList.add('hidden'); // Sembunyikan tombol kembali saat loading
+      roomCodeWrapperEl.classList.add('hidden'); // Pastikan wrapper kode tersembunyi
 
       try {
         const result = await callGasApi({ action: 'create' });
@@ -504,10 +522,16 @@
         if (result.status === 'created') {
           onlineRoomCode = result.roomCode;
           onlinePlayerId = result.player; // "p1"
-          roomCodeDisplayEl.textContent = onlineRoomCode;
           
+          // =======================================================
+          // PERUBAHAN DI SINI: Tampilkan kode room
+          // =======================================================
+          roomCodeDisplayEl.textContent = onlineRoomCode;
+          roomCodeWrapperEl.classList.remove('hidden'); // Tampilkan wrapper kode
+          // =======================================================
+
           pairingStatusEl.textContent = 'Room dibuat. Menunggu pemain lain bergabung...';
-          pairingLoadingTextEl.textContent = 'Mengecek pemain lain...';
+          pairingLoadingTextEl.textContent = 'Mengecek pemain lain...'; // Teks ini sekarang di bawah kode
           
           isWaitingForOpponent = true;
           startPolling(); // Mulai polling untuk mengecek P2
@@ -530,6 +554,7 @@
       pairingLoadingTextEl.textContent = 'Menghubungi server...';
       pairingOptionsEl.classList.add('hidden');
       backFromPairingBtn.classList.add('hidden');
+      roomCodeWrapperEl.classList.add('hidden'); // Sembunyikan wrapper kode saat bergabung
 
       try {
         const result = await callGasApi({ action: 'join', roomCode: code });
