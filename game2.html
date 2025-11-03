@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>2Matematika</title>
+  <title>Tarik Tambang Matematika</title>
   <!-- Memuat Tailwind CSS untuk styling -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -152,6 +152,7 @@
       <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
         Mode 2 Device
       </h1>
+      <!-- Status text (Diperbarui oleh JS) -->
       <h2 id="pairing-status" class="text-lg sm:text-xl text-gray-600 mb-6 sm:mb-8">
         Main dengan teman di device lain
       </h2>
@@ -159,7 +160,7 @@
       <!-- Loading Indicator -->
       <div id="pairing-loading" class="hidden my-4">
         <div class="spinner mx-auto"></div>
-        <p class="text-gray-600 mt-2">Menghubungi server...</p>
+        <p id="pairing-loading-text" class="text-gray-600 mt-2">Menghubungi server...</p>
       </div>
 
       <!-- Opsi Buat/Gabung (Wrapper) -->
@@ -193,7 +194,7 @@
       </div>
 
       <!-- Tombol Kembali -->
-      <button onclick="backToMenuFromPairing()" class="mt-8 text-sm text-gray-600 hover:text-blue-600 hover:underline">
+      <button id="back-from-pairing-btn" onclick="backToMenuFromPairing()" class="mt-8 text-sm text-gray-600 hover:text-blue-600 hover:underline">
         &larr; Kembali ke Menu Utama
       </button>
     </div>
@@ -334,9 +335,11 @@
     const pairingScreen = document.getElementById('pairing-screen');
     const pairingStatusEl = document.getElementById('pairing-status');
     const pairingLoadingEl = document.getElementById('pairing-loading');
+    const pairingLoadingTextEl = document.getElementById('pairing-loading-text'); // Baru
     const pairingOptionsEl = document.getElementById('pairing-options');
     const roomCodeDisplayEl = document.getElementById('room-code-display');
     const joinCodeInputEl = document.getElementById('join-code-input');
+    const backFromPairingBtn = document.getElementById('back-from-pairing-btn'); // Baru
 
 
     // --- State Game ---
@@ -410,26 +413,29 @@
      */
     async function callGasApi(payload) {
       if (gasWebAppUrl === "MASUKKAN_URL_DEPLOYMENT_APPS_SCRIPT_ANDA_DI_SINI") {
-        alert("PENTING: Anda harus memasukkan URL Google Apps Script di variabel 'gasWebAppUrl' pada kode JS.");
+        pairingStatusEl.textContent = "Error: URL Aplikasi Web belum diatur di index.html.";
         throw new Error("GAS URL not set");
       }
 
       try {
         const response = await fetch(gasWebAppUrl, {
           method: 'POST',
-          mode: 'cors', // Diperlukan untuk GAS
-          credentials: 'omit', // Diperlukan untuk GAS
+          mode: 'cors',
+          credentials: 'omit',
           headers: {
-            'Content-Type': 'text/plain;charset=utf-8', // GAS menerima 'text/plain' untuk JSON
+            'Content-Type': 'text/plain;charset=utf-8',
           },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          // Tambahkan sinyal abort untuk timeout
+          signal: AbortSignal.timeout(10000) // Timeout 10 detik
         });
 
         if (!response.ok) {
-          throw new Error(`Server error: ${response.statusText}`);
+           // Jika server merespon dengan error (spt 404, 500)
+          throw new Error(`Server error: ${response.statusText} (${response.status})`);
         }
 
-        const result = await response.json(); // GAS mengembalikan JSON
+        const result = await response.json();
         
         if (result.status === 'error') {
           throw new Error(result.message);
@@ -439,10 +445,27 @@
 
       } catch (error) {
         console.error('GAS API Call Error:', error);
-        pairingStatusEl.textContent = `Error: ${error.message}`;
+        let errorMsg = error.message;
+
+        // **BARU: Penanganan Error yang Lebih Baik**
+        if (error.name === "AbortError") {
+            errorMsg = "Server tidak merespon (Timeout). Cek koneksi Anda.";
+        } else if (error.message.includes("Failed to fetch")) {
+            // Ini adalah error CORS (karena redirect) atau error jaringan
+            if (gasWebAppUrl.includes("/dev")) {
+                errorMsg = "Error: Anda menggunakan URL '/dev'. Harap gunakan URL '/exec' dari deployment.";
+            } else {
+                errorMsg = "Error: Gagal terhubung (CORS). Pastikan deployment diatur ke 'Siapa saja'.";
+            }
+        }
+        
+        // Tampilkan error di UI pairing
+        pairingStatusEl.textContent = errorMsg;
         pairingLoadingEl.classList.add('hidden');
-        pairingOptionsEl.classList.remove('hidden');
-        throw error; // Lempar error agar fungsi pemanggil bisa menangani
+        pairingOptionsEl.classList.remove('hidden'); // Tampilkan opsi lagi
+        backFromPairingBtn.classList.remove('hidden'); // Tampilkan tombol kembali
+        
+        throw new Error(errorMsg); // Lempar error agar fungsi pemanggil berhenti
       }
     }
 
@@ -450,9 +473,12 @@
       currentAppMode = 'online';
       modeSelectionScreen.classList.add('hidden');
       pairingScreen.classList.remove('hidden');
+      
+      // Reset UI Pairing
       pairingStatusEl.textContent = 'Main dengan teman di device lain';
       pairingLoadingEl.classList.add('hidden');
       pairingOptionsEl.classList.remove('hidden');
+      backFromPairingBtn.classList.remove('hidden');
       roomCodeDisplayEl.textContent = '...';
       joinCodeInputEl.value = '';
     }
@@ -468,7 +494,9 @@
     async function createRoom() {
       pairingStatusEl.textContent = 'Membuat room...';
       pairingLoadingEl.classList.remove('hidden');
+      pairingLoadingTextEl.textContent = 'Menghubungi server...';
       pairingOptionsEl.classList.add('hidden');
+      backFromPairingBtn.classList.add('hidden'); // Sembunyikan tombol kembali saat loading
 
       try {
         const result = await callGasApi({ action: 'create' });
@@ -477,17 +505,21 @@
           onlineRoomCode = result.roomCode;
           onlinePlayerId = result.player; // "p1"
           roomCodeDisplayEl.textContent = onlineRoomCode;
-          pairingStatusEl.textContent = 'Menunggu pemain lain bergabung...';
+          
+          pairingStatusEl.textContent = 'Room dibuat. Menunggu pemain lain bergabung...';
+          pairingLoadingTextEl.textContent = 'Mengecek pemain lain...';
+          
           isWaitingForOpponent = true;
           startPolling(); // Mulai polling untuk mengecek P2
         }
       } catch (error) {
-        // Error sudah ditangani di callGasApi
+        // Error sudah ditangani dan ditampilkan oleh callGasApi
+        // UI (opsi dan tombol kembali) juga sudah di-reset oleh callGasApi
       }
     }
 
     async function joinRoom() {
-      const code = joinCodeInputEl.value.toUpperCase();
+      const code = joinCodeInputEl.value.toUpperCase().trim();
       if (!code) {
         alert("Masukkan kode room terlebih dahulu.");
         return;
@@ -495,7 +527,9 @@
 
       pairingStatusEl.textContent = `Bergabung ke room ${code}...`;
       pairingLoadingEl.classList.remove('hidden');
+      pairingLoadingTextEl.textContent = 'Menghubungi server...';
       pairingOptionsEl.classList.add('hidden');
+      backFromPairingBtn.classList.add('hidden');
 
       try {
         const result = await callGasApi({ action: 'join', roomCode: code });
@@ -513,7 +547,7 @@
           });
         }
       } catch (error) {
-         // Error sudah ditangani di callGasApi
+         // Error sudah ditangani dan ditampilkan oleh callGasApi
          joinCodeInputEl.value = '';
       }
     }
@@ -528,6 +562,7 @@
         }
 
         try {
+          // Jangan tampilkan error polling di UI utama, cukup log di console
           const result = await callGasApi({ action: 'getState', roomCode: onlineRoomCode });
           
           if (result.status === 'polled') {
@@ -537,8 +572,10 @@
             if (isWaitingForOpponent && gameState.player2) {
               isWaitingForOpponent = false;
               stopPolling(); // Berhenti polling sementara
-              pairingScreen.classList.add('hidden');
-              countdownOverlay.classList.remove('hidden');
+              
+              pairingScreen.classList.add('hidden'); // Sembunyikan layar pairing
+              countdownOverlay.classList.remove('hidden'); // Tampilkan countdown
+              
               // P1 (host) memulai countdown setelah P2 bergabung
               startCountdown(() => {
                 startOnlineGame(gameState); // Mulai game dengan state dari P2
@@ -550,11 +587,18 @@
             }
           }
         } catch (error) {
-          console.error("Poll error:", error);
-          pairingStatusEl.textContent = `Koneksi error. Coba lagi.`;
+          // Jika polling gagal (misal server mati), log error
+          console.error("Poll error:", error.message);
+          // Jika P1 sedang menunggu, tampilkan error di layar pairing
+          if (isWaitingForOpponent) {
+            pairingStatusEl.textContent = `Koneksi polling error. Coba lagi.`;
+            pairingLoadingEl.classList.add('hidden');
+            backFromPairingBtn.classList.remove('hidden');
+          } else if (!gameIsOver) {
+            // Jika game sedang berjalan, tampilkan di message area
+            messageEl.textContent = "Koneksi ke server terputus."
+          }
           stopPolling();
-          // Mungkin kembali ke menu utama
-          // backToMenu(); 
         }
       }, 2000); // Poll setiap 2 detik
     }
@@ -964,10 +1008,13 @@
         btn.addEventListener('touchstart', (e) => {
           e.preventDefault(); // Mencegah 'click' & zoom
           
+          // Cek jika tombol di-disable (penting untuk mode online)
+          if (btn.disabled) return;
+          
           const playerNum = parseInt(btn.dataset.player, 10);
           const value = btn.dataset.value;
 
-          // Cek apakah tombol ini boleh ditekan
+          // Cek apakah ini tombol kita dalam mode online
           if (currentAppMode === 'online' && onlinePlayerId) {
              const myPlayerNum = onlinePlayerId === 'p1' ? 1 : 2;
              if (playerNum !== myPlayerNum) return; // Tombol lawan, abaikan
@@ -1012,3 +1059,4 @@
   </script>
 </body>
 </html>
+
