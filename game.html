@@ -14,18 +14,12 @@
     /* Memastikan font Inter dimuat */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
-    /* Custom style untuk penanda tali */
+    /* Custom style untuk penanda tali (BOM) */
     #rope-marker {
       transition: left 0.3s ease-in-out;
       transform: translate(-50%, -50%);
-      /* Ukuran diperkecil */
-      width: 2rem; /* 32px */
-      height: 2rem; /* 32px */
-      border-radius: 9999px; /* Bulat penuh */
-      background-color: #facc15; /* yellow-400 */
-      border: 3px solid #ca8a04; /* yellow-600 */
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       z-index: 10;
+      /* Ukuran bom diatur oleh class text- di HTML */
     }
 
     /* Style untuk area tali */
@@ -48,8 +42,7 @@
         font-size: 5rem; /* 80px */
       }
       #rope-marker {
-        width: 2.5rem; /* 40px */
-        height: 2.5rem; /* 40px */
+         /* Ukuran bom disesuaikan di HTML */
       }
     }
 
@@ -67,6 +60,16 @@
     @keyframes pulse-fade {
       0%, 100% { transform: scale(1); opacity: 1; }
       50% { transform: scale(1.1); opacity: 0.8; }
+    }
+    
+    /* Animasi Ledakan */
+    @keyframes kaboom {
+      0% { transform: scale(0); opacity: 0; }
+      50% { transform: scale(1.5); opacity: 1; }
+      100% { transform: scale(1.2); opacity: 0; }
+    }
+    .animate-kaboom {
+      animation: kaboom 0.5s ease-out;
     }
   </style>
 </head>
@@ -121,7 +124,7 @@
           Tarik Tambang Matematika
         </h1>
         <p id="message-area" class="text-base sm:text-lg text-gray-600 mb-4 sm:mb-6">
-          Jawab soal untuk menarik tali!
+          Jawab soal untuk mendorong bom!
         </p>
 
         <!-- Kontainer Utama Game -->
@@ -154,12 +157,22 @@
 
           <!-- Visual Tarik Tambang -->
           <div id="game-visual" class="flex items-center justify-center w-full lg:w-auto px-4 my-4 lg:my-0">
-            <span class="player-avatar">🧍‍♂️</span>
-            <div id="rope-container" class="w-32 sm:w-48 lg:w-64 mx-[-8px] relative">
-              <div id="rope-marker" class="absolute top-1/2" style="left: 50%;"></div>
+            <!-- Kontainer Relatif untuk Pemain 1 dan Ledakan 1 -->
+            <div class="relative">
+              <span class="player-avatar">🧍‍♂️</span>
+              <span id="explosion-p1" class="hidden player-avatar absolute inset-0 flex items-center justify-center">💥</span>
             </div>
-            <!-- Karakter kedua diputar horizontal -->
-            <span class="player-avatar transform -scale-x-100">🧍‍♂️</span> 
+            
+            <div id="rope-container" class="w-32 sm:w-48 lg:w-64 mx-[-8px] relative">
+              <!-- BOM menggantikan lingkaran kuning -->
+              <div id="rope-marker" class="absolute top-1/2 text-3xl sm:text-4xl" style="left: 50%;">💣</div>
+            </div>
+            
+            <!-- Kontainer Relatif untuk Pemain 2 dan Ledakan 2 -->
+            <div class="relative">
+              <span class="player-avatar transform -scale-x-100">🧍‍♂️</span> 
+              <span id="explosion-p2" class="hidden player-avatar absolute inset-0 flex items-center justify-center">💥</span>
+            </div>
           </div>
 
           <!-- Pemain 2 (Kanan) -->
@@ -222,6 +235,8 @@
     const countdownOverlay = document.getElementById('countdown-overlay');
     const countdownTextEl = document.getElementById('countdown-text');
     const gameContainerWrapper = document.getElementById('game-container-wrapper');
+    const explosionP1El = document.getElementById('explosion-p1'); // Baru
+    const explosionP2El = document.getElementById('explosion-p2'); // Baru
 
 
     // --- State Game ---
@@ -231,18 +246,74 @@
     let gameIsOver = false;
     let currentGameMode = '+'; // Mode default
     
-    const ROPE_PULL_AMOUNT = 10; // Tarikan per jawaban benar (10%)
+    const ROPE_PULL_AMOUNT = 10; // Dorongan per jawaban benar (10%)
     const MAX_NUMBER_ADD_SUB = 20; // Angka maks untuk tambah/kurang (1-20)
     const MAX_NUMBER_MULT = 12; // Angka maks untuk kali (1-12)
     const MAX_ANSWER_DIV = 12; // Angka maks untuk hasil bagi (1-12)
 
-    const WIN_THRESHOLD_P1 = 5; // Batas menang P1 (misal 5%)
-    const WIN_THRESHOLD_P2 = 95; // Batas menang P2 (misal 95%)
+    // Logika batas dibalik: 5% adalah sisi P1, 95% adalah sisi P2
+    const WIN_THRESHOLD_P1_LOSES = 5; // Jika bom di <= 5%, P1 kalah
+    const WIN_THRESHOLD_P2_LOSES = 95; // Jika bom di >= 95%, P2 kalah
+    
+    // --- Audio Context untuk Suara ---
+    let audioCtx;
+    
+    function initAudio() {
+      // Inisialisasi AudioContext saat interaksi pertama (penting untuk browser)
+      if (!audioCtx) {
+        try {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+          console.error("Web Audio API is not supported in this browser");
+        }
+      }
+    }
+
+    function playExplosionSound() {
+      if (!audioCtx) return; // Jangan lakukan apa-apa jika audio gagal
+      
+      try {
+        // Membuat white noise
+        const bufferSize = audioCtx.sampleRate * 0.5; // 0.5 detik
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const output = buffer.getChannelData(0);
+
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = Math.random() * 2 - 1; // Noise
+        }
+
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+
+        // Kontrol volume (fade out)
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+
+        // Filter untuk efek "boom" (low-pass)
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1000, audioCtx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        noise.start(audioCtx.currentTime);
+        noise.stop(audioCtx.currentTime + 0.5);
+      } catch (e) {
+        console.error("Error playing sound:", e);
+      }
+    }
+    // --- Akhir Audio Context ---
+
 
     /**
      * Memilih mode dan memulai hitung mundur
      */
     function selectMode(mode) {
+      initAudio(); // Inisialisasi audio saat pengguna klik mode
       currentGameMode = mode;
       modeSelectionScreen.classList.add('hidden');
       countdownOverlay.classList.remove('hidden');
@@ -347,29 +418,44 @@
     }
 
     /**
-     * Memeriksa kondisi kemenangan
+     * Memeriksa kondisi kemenangan (sekarang kondisi KALAH)
      */
     function checkWin() {
       if (gameIsOver) return;
 
-      if (ropePercent <= WIN_THRESHOLD_P1) {
-        showWinner(1);
-      } else if (ropePercent >= WIN_THRESHOLD_P2) {
+      // P1 (kiri) akan mendorong bom ke kanan (menambah ropePercent)
+      // P2 (kanan) akan mendorong bom ke kiri (mengurangi ropePercent)
+
+      if (ropePercent <= WIN_THRESHOLD_P1_LOSES) {
+        // Bom ada di sisi P1. P1 Kalah. P2 Menang.
         showWinner(2);
+      } else if (ropePercent >= WIN_THRESHOLD_P2_LOSES) {
+        // Bom ada di sisi P2. P2 Kalah. P1 Menang.
+        showWinner(1);
       }
     }
 
     /**
-     * Menampilkan pemenang dan mengakhiri game
+     * Menampilkan pemenang dan Memicu Ledakan pada yang Kalah
+     * @param {number} playerNum - Nomor pemain yang MENANG
      */
     function showWinner(playerNum) {
       gameIsOver = true;
+      playExplosionSound(); // Mainkan suara ledakan
+
       if (playerNum === 1) {
+        // P1 Menang, P2 Kalah (Meledak)
         messageEl.textContent = 'Pemain 1 (Biru) Menang!';
-        ropeMarkerEl.style.left = '0%';
+        ropeMarkerEl.style.left = '100%'; // Pindahkan bom ke sisi P2
+        explosionP2El.classList.remove('hidden'); // Tampilkan ledakan P2
+        explosionP2El.classList.add('animate-kaboom');
+        
       } else {
+        // P2 Menang, P1 Kalah (Meledak)
         messageEl.textContent = 'Pemain 2 (Merah) Menang!';
-        ropeMarkerEl.style.left = '100%';
+        ropeMarkerEl.style.left = '0%'; // Pindahkan bom ke sisi P1
+        explosionP1El.classList.remove('hidden'); // Tampilkan ledakan P1
+        explosionP1El.classList.add('animate-kaboom');
       }
       
       // Tampilkan tombol "Pilih Mode Lain"
@@ -415,9 +501,11 @@
       if (submittedAnswer === problem.answer) {
         // Jawaban benar
         if (playerNum === 1) {
-          ropePercent -= ROPE_PULL_AMOUNT;
-        } else {
+          // P1 (kiri) mendorong bom ke KANAN (menjauh)
           ropePercent += ROPE_PULL_AMOUNT;
+        } else {
+          // P2 (kanan) mendorong bom ke KIRI (menjauh)
+          ropePercent -= ROPE_PULL_AMOUNT;
         }
         updateRopeVisual();
         if (!gameIsOver) {
@@ -440,8 +528,14 @@
     function newGame() {
       gameIsOver = false;
       ropePercent = 50;
-      messageEl.textContent = 'Jawab soal untuk menarik tali!';
+      messageEl.textContent = 'Jawab soal untuk mendorong bom!';
       newGameBtn.classList.add('hidden');
+      
+      // Sembunyikan dan reset ledakan
+      explosionP1El.classList.add('hidden');
+      explosionP2El.classList.add('hidden');
+      explosionP1El.classList.remove('animate-kaboom');
+      explosionP2El.classList.remove('animate-kaboom');
       
       // Aktifkan kembali semua tombol
       allCalcButtons.forEach(btn => btn.disabled = false);
@@ -458,6 +552,12 @@
       gameContainerWrapper.classList.add('hidden');
       modeSelectionScreen.classList.remove('hidden');
       newGameBtn.classList.add('hidden'); // Sembunyikan tombol "Pilih Mode"
+      
+      // Sembunyikan dan reset ledakan
+      explosionP1El.classList.add('hidden');
+      explosionP2El.classList.add('hidden');
+      explosionP1El.classList.remove('animate-kaboom');
+      explosionP2El.classList.remove('animate-kaboom');
     }
     
     // --- Inisialisasi ---
