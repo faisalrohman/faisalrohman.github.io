@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tarik Tambang Matematika</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Menggunakan font Inter */
+    body {
+      font-family: 'Inter', sans-serif;
+      /* Mencegah zoom/scroll saat disentuh (penting untuk multi-touch) */
+      touch-action: manipulation;
+    }
+    /* Memastikan font Inter dimuat */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+    /* Custom style untuk penanda tali (BOM) */
+    #rope-marker {
+      transition: left 0.3s ease-in-out;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      /* Ukuran bom diatur oleh class text- di HTML */
+    }
+
+    /* Style untuk area tali */
+    #rope-container {
+      background-color: #967259; /* Warna coklat tali */
+      height: 8px;
+      border-radius: 5px;
+      position: relative;
+    }
+    
+    /* Karakter pemain (emoji) - ukuran diperkecil */
+    .player-avatar {
+      font-size: 4rem; /* 64px */
+      line-height: 1;
+    }
+    
+    /* Media query untuk layar lebih besar (sm) */
+    @media (min-width: 640px) {
+      .player-avatar {
+        font-size: 5rem; /* 80px */
+      }
+      #rope-marker {
+        /* Ukuran bom disesuaikan di HTML */
+      }
+    }
+
+    /* Overlay untuk hitung mundur */
+    #countdown-overlay {
+      background-color: rgba(255, 255, 255, 0.9);
+      z-index: 50;
+    }
+    #countdown-text {
+      font-size: 8rem;
+      font-weight: bold;
+      color: #1d4ed8; /* blue-700 */
+      animation: pulse-fade 1s ease-in-out infinite;
+    }
+    @keyframes pulse-fade {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+    
+    /* Animasi Ledakan */
+    @keyframes kaboom {
+      0% { transform: scale(0); opacity: 0; }
+      50% { transform: scale(1.5); opacity: 1; }
+      100% { transform: scale(1.2); opacity: 0; }
+    }
+    .animate-kaboom {
+      animation: kaboom 0.5s ease-out;
+    }
+
+    /* Umpan balik visual untuk tombol multi-touch */
+    .calc-btn {
+      transition: transform 0.05s ease-out;
+      /* Mencegah seleksi teks saat tombol ditekan cepat */
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+    }
+    .calc-btn-active {
+       transform: scale(0.92);
+       background-color: #d1d5db; /* gray-300 */
+    }
+
+  </style>
+</head>
+<body class="bg-sky-100 min-h-screen flex flex-col justify-between p-4 font-inter">
+
+  <main class="flex-grow flex items-center justify-center">
+
+    <div id="mode-selection-screen" class="bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
+        Tarik Tambang Matematika
+      </h1>
+      <h2 class="text-xl sm:text-2xl font-semibold text-gray-600 mb-6 sm:mb-8">
+        Pilih Mode Permainan
+      </h2>
+      <div class="grid grid-cols-2 gap-3 sm:gap-4">
+        <button onclick="selectMode('+')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400">
+          <span class="text-4xl sm:text-5xl font-bold text-blue-600">+</span>
+          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Tambah</span>
+        </button>
+        <button onclick="selectMode('-')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-400">
+          <span class="text-4xl sm:text-5xl font-bold text-red-600">−</span>
+          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Kurang</span>
+        </button>
+        <button onclick="selectMode('x')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-400">
+          <span class="text-4xl sm:text-5xl font-bold text-green-600">×</span>
+          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Kali</span>
+        </button>
+        <button onclick="selectMode('÷')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-400">
+          <span class="text-4xl sm:text-5xl font-bold text-yellow-600">÷</span>
+          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Bagi</span>
+        </button>
+        <button onclick="selectMode('campuran')" class="mode-btn col-span-2 p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+          <span class="text-4xl sm:text-5xl font-bold text-indigo-600">?</span>
+          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Campuran</span>
+        </button>
+        <button onclick="showPairingScreen()" class="mode-btn col-span-2 p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-400">
+          <span class="text-4xl sm:text-5xl font-bold text-purple-600">👥</span>
+          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">2 Device (Online)</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="pairing-screen" class="hidden bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
+        Mode 2 Device
+      </h1>
+      <h2 class="text-lg sm:text-xl text-gray-600 mb-6 sm:mb-8">
+        Main dengan teman di device lain
+      </h2>
+      
+      <div class="mb-6">
+        <h3 class="text-xl font-semibold text-gray-700 mb-3">Buat Room Baru</h3>
+        <button onclick="createRoom()" class="w-full px-5 py-3 bg-purple-600 text-white text-base font-semibold rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-400">
+          Buat Kode Room
+        </button>
+        <div class="mt-3 text-lg">Kode Anda: 
+          <span id="room-code-display" class="font-bold text-gray-800 p-2 bg-gray-100 rounded-md">...</span>
+        </div>
+      </div>
+
+      <div class="relative flex py-2 items-center">
+        <div class="flex-grow border-t border-gray-300"></div>
+        <span class="flex-shrink mx-4 text-gray-500 font-medium">ATAU</span>
+        <div class="flex-grow border-t border-gray-300"></div>
+      </div>
+
+      <div class="mt-4">
+        <h3 class="text-xl font-semibold text-gray-700 mb-3">Gabung Room</h3>
+        <input type="text" id="join-code-input" placeholder="Masukkan Kode Room" class="w-full p-3 border border-gray-300 rounded-lg text-center text-lg text-black mb-3 focus:ring-2 focus:ring-purple-400 focus:outline-none">
+        <button onclick="joinRoom()" class="w-full px-5 py-3 bg-green-600 text-white text-base font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400">
+          Gabung
+        </button>
+      </div>
+
+      <button onclick="backToMenuFromPairing()" class="mt-8 text-sm text-gray-600 hover:text-blue-600 hover:underline">
+        &larr; Kembali ke Menu Utama
+      </button>
+    </div>
+
+    <div id="countdown-overlay" class="hidden fixed inset-0 flex items-center justify-center">
+      <div id="countdown-text">3</div>
+    </div>
+
+    <div id="game-container-wrapper" class="hidden w-full">
+      <div class="bg-white w-full max-w-5xl p-4 sm:p-8 rounded-2xl shadow-xl text-center mx-auto">
+        
+        <h1 class="text-2xl sm:text-4xl font-bold text-gray-800 mb-2">
+          Tarik Tambang Matematika
+        </h1>
+        <p id="message-area" class="text-base sm:text-lg text-gray-600 mb-4 sm:mb-6">
+          Jawab soal untuk mendorong bom!
+        </p>
+
+        <div id="game-container" class="flex flex-col lg:flex-row items-center justify-around w-full gap-4 sm:gap-8">
+
+          <div id="player1-card" class="bg-blue-800 p-3 sm:p-4 rounded-2xl shadow-lg w-full max-w-[280px] sm:max-w-xs">
+            <div id="player1-problem" class="text-white text-2xl sm:text-3xl font-bold mb-3 h-9 sm:h-10 flex items-center justify-center">
+              ? + ? = ?
+            </div>
+            <input type="text" id="player1-answer" class="w-full p-2 sm:p-3 rounded-lg text-right text-2xl sm:text-3xl text-black mb-3 pointer-events-none bg-gray-100" readonly>
+            <div class="grid grid-cols-3 gap-2 sm:gap-3">
+              <button data-player="1" data-value="1" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">1</button>
+              <button data-player="1" data-value="2" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">2</button>
+              <button data-player="1" data-value="3" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">3</button>
+              <button data-player="1" data-value="4" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">4</button>
+              <button data-player="1" data-value="5" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">5</button>
+              <button data-player="1" data-value="6" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">6</button>
+              <button data-player="1" data-value="7" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">7</button>
+              <button data-player="1" data-value="8" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">8</button>
+              <button data-player="1" data-value="9" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">9</button>
+              <button data-player="1" data-value="C" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-red-600 text-white focus:outline-none">C</button>
+              <button data-player="1" data-value="0" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">0</button>
+              <button data-player="1" data-value="Go" class="calc-btn go-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-green-600 text-white focus:outline-none">Go</button>
+            </div>
+          </div>
+
+          <div id="game-visual" class="flex items-center justify-center w-full lg:w-auto px-4 my-4 lg:my-0">
+            <div class="relative">
+              <span class="player-avatar">🧍‍♂️</span>
+              <span id="explosion-p1" class="hidden player-avatar absolute inset-0 flex items-center justify-center">💥</span>
+            </div>
+            
+            <div id="rope-container" class="w-32 sm:w-48 lg:w-64 mx-[-8px] relative">
+              <div id="rope-marker" class="absolute top-1/2 text-3xl sm:text-4xl" style="left: 50%;">💣</div>
+            </div>
+            
+            <div class="relative">
+              <span class="player-avatar transform -scale-x-100">🧍‍♂️</span> 
+              <span id="explosion-p2" class="hidden player-avatar absolute inset-0 flex items-center justify-center">💥</span>
+            </div>
+          </div>
+
+          <div id="player2-card" class="bg-red-800 p-3 sm:p-4 rounded-2xl shadow-lg w-full max-w-[280px] sm:max-w-xs">
+            <div id="player2-problem" class="text-white text-2xl sm:text-3xl font-bold mb-3 h-9 sm:h-10 flex items-center justify-center">
+              ? + ? = ?
+            </div>
+            <input type="text" id="player2-answer" class="w-full p-2 sm:p-3 rounded-lg text-right text-2xl sm:text-3xl text-black mb-3 pointer-events-none bg-gray-100" readonly>
+            <div class="grid grid-cols-3 gap-2 sm:gap-3">
+              <button data-player="2" data-value="1" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">1</button>
+              <button data-player="2" data-value="2" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">2</button>
+              <button data-player="2" data-value="3" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">3</button>
+              <button data-player="2" data-value="4" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">4</button>
+              <button data-player="2" data-value="5" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">5</button>
+              <button data-player="2" data-value="6" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">6</button>
+              <button data-player="2" data-value="7" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">7</button>
+              <button data-player="2" data-value="8" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">8</button>
+              <button data-player="2" data-value="9" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">9</button>
+              <button data-player="2" data-value="C" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-red-600 text-white focus:outline-none">C</button>
+              <button data-player="2" data-value="0" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">0</button>
+              <button data-player="2" data-value="Go" class="calc-btn go-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-green-600 text-white focus:outline-none">Go</button>
+            </div>
+          </div>
+        </div>
+
+        <button id="new-game-btn" 
+                onclick="backToMenu()" 
+                class="hidden mt-6 sm:mt-8 px-5 py-2.5 sm:px-6 sm:py-3 bg-blue-600 text-white text-base sm:text-lg font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
+          Pilih Mode Lain
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="w-full text-center p-4 mt-8">
+    <p class="text-sm text-gray-600">
+      dibuat oleh Faisal Rohman, S.Pd. (@hanyauntukmu)
+    </p>
+  </footer>
+
+  <script>
+    // --- Referensi Elemen DOM ---
+    const player1ProblemEl = document.getElementById('player1-problem');
+    const player1AnswerEl = document.getElementById('player1-answer');
+    const player2ProblemEl = document.getElementById('player2-problem');
+    const player2AnswerEl = document.getElementById('player2-answer');
+    
+    const ropeMarkerEl = document.getElementById('rope-marker');
+    const messageEl = document.getElementById('message-area');
+    const newGameBtn = document.getElementById('new-game-btn');
+    const allCalcButtons = document.querySelectorAll('.calc-btn'); // Tetap digunakan untuk menonaktifkan
+    
+    // Elemen baru
+    const modeSelectionScreen = document.getElementById('mode-selection-screen');
+    const countdownOverlay = document.getElementById('countdown-overlay');
+    const countdownTextEl = document.getElementById('countdown-text');
+    const gameContainerWrapper = document.getElementById('game-container-wrapper');
+    const explosionP1El = document.getElementById('explosion-p1'); // Baru
+    const explosionP2El = document.getElementById('explosion-p2'); // Baru
+    const pairingScreen = document.getElementById('pairing-screen'); // BARU
+    const roomCodeDisplayEl = document.getElementById('room-code-display'); // BARU
+    const joinCodeInputEl = document.getElementById('join-code-input'); // BARU
+
+
+    // --- State Game ---
+    let player1Problem = { a: 0, b: 0, answer: 0, op: '+' };
+    let player2Problem = { a: 0, b: 0, answer: 0, op: '+' };
+    let ropePercent = 50; // Posisi awal tali (50%)
+    let gameIsOver = false;
+    let currentGameMode = '+'; // Mode default
+    
+    const ROPE_PULL_AMOUNT = 10; // Dorongan per jawaban benar (10%)
+    const MAX_NUMBER_ADD_SUB = 20; // Angka maks untuk tambah/kurang (1-20)
+    const MAX_NUMBER_MULT = 12; // Angka maks untuk kali (1-12)
+    const MAX_ANSWER_DIV = 12; // Angka maks untuk hasil bagi (1-12)
+
+    // Logika batas dibalik: 5% adalah sisi P1, 95% adalah sisi P2
+    const WIN_THRESHOLD_P1_LOSES = 5; // Jika bom di <= 5%, P1 kalah
+    const WIN_THRESHOLD_P2_LOSES = 95; // Jika bom di >= 95%, P2 kalah
+    
+    // --- Audio Context untuk Suara ---
+    let audioCtx;
+    
+    function initAudio() {
+      // Inisialisasi AudioContext saat interaksi pertama (penting untuk browser)
+      if (!audioCtx) {
+        try {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+          console.error("Web Audio API is not supported in this browser");
+        }
+      }
+    }
+
+    function playExplosionSound() {
+      if (!audioCtx) return; // Jangan lakukan apa-apa jika audio gagal
+      
+      try {
+        // Membuat white noise
+        const bufferSize = audioCtx.sampleRate * 0.5; // 0.5 detik
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const output = buffer.getChannelData(0);
+
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = Math.random() * 2 - 1; // Noise
+        }
+
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+
+        // Kontrol volume (fade out)
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+
+        // Filter untuk efek "boom" (low-pass)
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1000, audioCtx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        noise.start(audioCtx.currentTime);
+        noise.stop(audioCtx.currentTime + 0.5);
+      } catch (e) {
+        console.error("Error playing sound:", e);
+      }
+    }
+    // --- Akhir Audio Context ---
+
+
+    // --- BARU: Logika Layar Pairing (Placeholder) ---
+    function showPairingScreen() {
+      modeSelectionScreen.classList.add('hidden');
+      pairingScreen.classList.remove('hidden');
+    }
+
+    function backToMenuFromPairing() {
+      pairingScreen.classList.add('hidden');
+      modeSelectionScreen.classList.remove('hidden');
+    }
+
+    function createRoom() {
+      // TODO: Ini adalah placeholder.
+      // Di sini Anda perlu memanggil server backend Anda (misal Firebase)
+      // untuk membuat ID room unik.
+      const fakeRoomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+      roomCodeDisplayEl.textContent = fakeRoomCode;
+      alert(`(Placeholder) Room ${fakeRoomCode} dibuat. Fitur ini memerlukan backend.`);
+      // Setelah room dibuat, Anda akan menunggu pemain lain bergabung via backend.
+    }
+
+    function joinRoom() {
+      // TODO: Ini adalah placeholder.
+      // Di sini Anda perlu memanggil server backend Anda
+      // untuk bergabung ke room dengan kode dari 'joinCodeInputEl.value'.
+      const code = joinCodeInputEl.value;
+      if (!code) {
+        alert("Masukkan kode room terlebih dahulu.");
+        return;
+      }
+      alert(`(Placeholder) Mencoba bergabung ke room ${code}. Fitur ini memerlukan backend.`);
+      // Jika berhasil, backend akan memberi sinyal untuk memulai game.
+      // Anda bisa memanggil startCountdown() dari sini.
+    }
+    // --- Akhir Logika Layar Pairing ---
+
+
+    /**
+     * Memilih mode dan memulai hitung mundur
+     */
+    function selectMode(mode) {
+      initAudio(); // Inisialisasi audio saat pengguna klik mode
+      currentGameMode = mode;
+      modeSelectionScreen.classList.add('hidden');
+      countdownOverlay.classList.remove('hidden');
+      startCountdown();
+    }
+
+    /**
+     * Memulai hitung mundur 3 detik
+     */
+    function startCountdown() {
+      let count = 3;
+      countdownTextEl.textContent = count;
+      
+      const interval = setInterval(() => {
+        count--;
+        if (count > 0) {
+          countdownTextEl.textContent = count;
+        } else if (count === 0) {
+          countdownTextEl.textContent = 'Mulai!';
+          countdownTextEl.style.fontSize = '5rem'; // Perkecil teks "Mulai!"
+        } else {
+          clearInterval(interval);
+          countdownOverlay.classList.add('hidden');
+          gameContainerWrapper.classList.remove('hidden');
+          countdownTextEl.textContent = '3'; // Reset untuk game selanjutnya
+          countdownTextEl.style.fontSize = '8rem';
+          newGame(); // Memulai game setelah hitung mundur
+        }
+      }, 1000);
+    }
+
+    /**
+     * Menghasilkan soal matematika berdasarkan mode
+     */
+    function generateProblem() {
+      let a = 0, b = 0, answer = 0, op = '+';
+      let mode = currentGameMode;
+
+      if (mode === 'campuran') {
+        const modes = ['+', '-', 'x', '÷'];
+        mode = modes[Math.floor(Math.random() * modes.length)];
+      }
+
+      switch (mode) {
+        case '+':
+          a = Math.floor(Math.random() * MAX_NUMBER_ADD_SUB) + 1;
+          b = Math.floor(Math.random() * MAX_NUMBER_ADD_SUB) + 1;
+          answer = a + b;
+          op = '+';
+          break;
+        case '-':
+          // Pastikan a >= b agar tidak negatif
+          a = Math.floor(Math.random() * MAX_NUMBER_ADD_SUB) + 1;
+          b = Math.floor(Math.random() * a) + 1; // b <= a
+          answer = a - b;
+          op = '−'; // Karakter minus
+          break;
+        case 'x':
+          a = Math.floor(Math.random() * MAX_NUMBER_MULT) + 1;
+          b = Math.floor(Math.random() * MAX_NUMBER_MULT) + 1;
+          answer = a * b;
+          op = '×'; // Karakter kali
+          break;
+        case '÷':
+          // Buat jawaban non-nol terlebih dahulu
+          b = Math.floor(Math.random() * MAX_ANSWER_DIV) + 1; // Pembagi (1-12)
+          answer = Math.floor(Math.random() * MAX_ANSWER_DIV) + 1; // Hasil (1-12)
+          a = b * answer; // Pastikan bisa dibagi habis
+          op = '÷'; // Karakter bagi
+          break;
+      }
+      return { a, b, answer, op };
+    }
+
+    /**
+     * Memperbarui UI soal untuk pemain
+     */
+    function nextRound(playerNum) {
+      if (gameIsOver) return;
+      
+      const problem = generateProblem();
+
+      if (playerNum === 1) {
+        player1Problem = problem;
+        player1ProblemEl.textContent = `${problem.a} ${problem.op} ${problem.b} = ?`;
+        player1AnswerEl.value = '';
+      } else {
+        player2Problem = problem;
+        player2ProblemEl.textContent = `${problem.a} ${problem.op} ${problem.b} = ?`;
+        player2AnswerEl.value = '';
+      }
+    }
+
+    /**
+     * Memperbarui posisi visual penanda tali
+     */
+    function updateRopeVisual() {
+      // Membatasi posisi tali antara 0% dan 100%
+      ropePercent = Math.max(0, Math.min(100, ropePercent));
+      ropeMarkerEl.style.left = `${ropePercent}%`;
+      checkWin();
+    }
+
+    /**
+     * Memeriksa kondisi kemenangan (sekarang kondisi KALAH)
+     */
+    function checkWin() {
+      if (gameIsOver) return;
+
+      // P1 (kiri) akan mendorong bom ke kanan (menambah ropePercent)
+      // P2 (kanan) akan mendorong bom ke kiri (mengurangi ropePercent)
+
+      if (ropePercent <= WIN_THRESHOLD_P1_LOSES) {
+        // Bom ada di sisi P1. P1 Kalah. P2 Menang.
+        showWinner(2);
+      } else if (ropePercent >= WIN_THRESHOLD_P2_LOSES) {
+        // Bom ada di sisi P2. P2 Kalah. P1 Menang.
+        showWinner(1);
+      }
+    }
+
+    /**
+     * Menampilkan pemenang dan Memicu Ledakan pada yang Kalah
+     * @param {number} playerNum - Nomor pemain yang MENANG
+     */
+    function showWinner(playerNum) {
+      gameIsOver = true;
+      playExplosionSound(); // Mainkan suara ledakan
+
+      if (playerNum === 1) {
+        // P1 Menang, P2 Kalah (Meledak)
+        messageEl.textContent = 'Pemain 1 (Biru) Menang!';
+        ropeMarkerEl.style.left = '100%'; // Pindahkan bom ke sisi P2
+        explosionP2El.classList.remove('hidden'); // Tampilkan ledakan P2
+        explosionP2El.classList.add('animate-kaboom');
+        
+      } else {
+        // P2 Menang, P1 Kalah (Meledak)
+        messageEl.textContent = 'Pemain 2 (Merah) Menang!';
+        ropeMarkerEl.style.left = '0%'; // Pindahkan bom ke sisi P1
+        explosionP1El.classList.remove('hidden'); // Tampilkan ledakan P1
+        explosionP1El.classList.add('animate-kaboom');
+      }
+      
+      // Tampilkan tombol "Pilih Mode Lain"
+      newGameBtn.classList.remove('hidden');
+
+      // Nonaktifkan tombol
+      allCalcButtons.forEach(btn => btn.disabled = true);
+    }
+
+    /**
+     * Menangani input dari tombol kalkulator (dipanggil oleh touch listener)
+     */
+    function handleInput(playerNum, value) {
+      if (gameIsOver) return;
+
+      const answerEl = (playerNum === 1) ? player1AnswerEl : player2AnswerEl;
+
+      if (value === 'C') {
+        answerEl.value = '';
+      } else if (value === 'Go') {
+        handleSubmit(playerNum);
+      } else {
+        // Batasi panjang input (misal 4 digit)
+        if (answerEl.value.length < 4) {
+          answerEl.value += value;
+        }
+      }
+    }
+
+    /**
+     * Menangani saat pemain menekan "Go" (Jawab)
+     */
+    function handleSubmit(playerNum) {
+      if (gameIsOver) return;
+
+      const answerEl = (playerNum === 1) ? player1AnswerEl : player2AnswerEl;
+      const problem = (playerNum === 1) ? player1Problem : player2Problem;
+      
+      const submittedAnswer = parseInt(answerEl.value, 10);
+
+      if (isNaN(submittedAnswer)) return; // Abaikan jika input kosong
+
+      if (submittedAnswer === problem.answer) {
+        // Jawaban benar
+        if (playerNum === 1) {
+          // P1 (kiri) mendorong bom ke KANAN (menjauh)
+          ropePercent += ROPE_PULL_AMOUNT;
+        } else {
+          // P2 (kanan) mendorong bom ke KIRI (menjauh)
+          ropePercent -= ROPE_PULL_AMOUNT;
+        }
+        updateRopeVisual();
+        if (!gameIsOver) {
+          nextRound(playerNum); // Beri soal baru ke pemain yang benar
+        }
+      } else {
+        // Jawaban salah, goyangkan input
+        answerEl.classList.add('animate-shake');
+        // Hapus animasi after selesai
+        setTimeout(() => {
+          answerEl.classList.remove('animate-shake');
+          answerEl.value = ''; // Kosongkan jawaban salah
+        }, 500);
+      }
+    }
+
+    /**
+     * Memulai game baru (dipanggil setelah hitung mundur)
+     */
+    function newGame() {
+      gameIsOver = false;
+      ropePercent = 50;
+      messageEl.textContent = 'Jawab soal untuk mendorong bom!';
+      newGameBtn.classList.add('hidden');
+      
+      // Sembunyikan dan reset ledakan
+      explosionP1El.classList.add('hidden');
+      explosionP2El.classList.add('hidden');
+      explosionP1El.classList.remove('animate-kaboom');
+      explosionP2El.classList.remove('animate-kaboom');
+      
+      // Aktifkan kembali semua tombol
+      allCalcButtons.forEach(btn => btn.disabled = false);
+      
+      updateRopeVisual();
+      nextRound(1);
+      nextRound(2);
+    }
+    
+    /**
+     * Kembali ke menu pilihan mode
+     */
+    function backToMenu() {
+      gameContainerWrapper.classList.add('hidden');
+      modeSelectionScreen.classList.remove('hidden');
+      newGameBtn.classList.add('hidden'); // Sembunyikan tombol "Pilih Mode"
+      
+      // Sembunyikan dan reset ledakan
+      explosionP1El.classList.add('hidden');
+      explosionP2El.classList.add('hidden');
+      explosionP1El.classList.remove('animate-kaboom');
+      explosionP2El.classList.remove('animate-kaboom');
+    }
+    
+    // --- BARU: Inisialisasi Listener Multi-Touch ---
+    function setupCalculatorTouch() {
+      const buttons = document.querySelectorAll('.calc-btn');
+
+      buttons.forEach(btn => {
+        // Event saat jari MENYENTUH tombol
+        btn.addEventListener('touchstart', (e) => {
+          // Mencegah 'click' event dan zoom/scroll
+          e.preventDefault(); 
+          
+          // Beri umpan balik visual
+          btn.classList.add('calc-btn-active');
+          
+          // Panggil fungsi handleInput jika game belum selesai
+          if (!gameIsOver) {
+            const player = parseInt(btn.dataset.player, 10);
+            const value = btn.dataset.value;
+            handleInput(player, value);
+          }
+        }, { passive: false }); // {passive: false} diperlukan untuk e.preventDefault()
+
+        // Event saat jari DIANGKAT dari tombol
+        const releaseButton = () => {
+          btn.classList.remove('calc-btn-active');
+        };
+        
+        btn.addEventListener('touchend', releaseButton);
+        btn.addEventListener('touchcancel', releaseButton); // Jika sentuhan dibatalkan (misal oleh sistem)
+      });
+    }
+
+    // --- Inisialisasi ---
+    // Menambahkan animasi shake
+    const styleSheet = document.createElement("style");
+    styleSheet.type = "text/css";
+    styleSheet.innerText = `
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+      }
+      .animate-shake {
+        animation: shake 0.5s ease-in-out;
+      }
+    `;
+    document.head.appendChild(styleSheet);
+
+    // BARU: Panggil fungsi setup multi-touch
+    setupCalculatorTouch();
+
+    // Game tidak dimulai otomatis, menunggu pilihan mode.
+  </script>
+</body>
+</html>
