@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tarik Tambang Matematika</title>
+  <!-- Memuat Tailwind CSS untuk styling -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     /* Menggunakan font Inter */
@@ -20,7 +21,6 @@
       transition: left 0.3s ease-in-out;
       transform: translate(-50%, -50%);
       z-index: 10;
-      /* Ukuran bom diatur oleh class text- di HTML */
     }
 
     /* Style untuk area tali */
@@ -31,7 +31,7 @@
       position: relative;
     }
     
-    /* Karakter pemain (emoji) - ukuran diperkecil */
+    /* Karakter pemain (emoji) */
     .player-avatar {
       font-size: 4rem; /* 64px */
       line-height: 1;
@@ -41,9 +41,6 @@
     @media (min-width: 640px) {
       .player-avatar {
         font-size: 5rem; /* 80px */
-      }
-      #rope-marker {
-        /* Ukuran bom disesuaikan di HTML */
       }
     }
 
@@ -86,12 +83,33 @@
        background-color: #d1d5db; /* gray-300 */
     }
 
+    /* Style untuk tombol yang dinonaktifkan (online mode) */
+    .calc-btn:disabled {
+      opacity: 0.5;
+      background-color: #6b7280;
+    }
+
+    /* Animasi loading spinner sederhana */
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+    }
   </style>
 </head>
 <body class="bg-sky-100 min-h-screen flex flex-col justify-between p-4 font-inter">
 
+  <!-- Kontainer Utama -->
   <main class="flex-grow flex items-center justify-center">
 
+    <!-- 1. Layar Pilihan Mode (Tampil di awal) -->
     <div id="mode-selection-screen" class="bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
       <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
         Tarik Tambang Matematika
@@ -100,26 +118,28 @@
         Pilih Mode Permainan
       </h2>
       <div class="grid grid-cols-2 gap-3 sm:gap-4">
-        <button onclick="selectMode('+')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <!-- Tombol mode lokal -->
+        <button onclick="selectMode('+', 'local')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400">
           <span class="text-4xl sm:text-5xl font-bold text-blue-600">+</span>
           <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Tambah</span>
         </button>
-        <button onclick="selectMode('-')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-400">
+        <button onclick="selectMode('-', 'local')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-400">
           <span class="text-4xl sm:text-5xl font-bold text-red-600">−</span>
           <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Kurang</span>
         </button>
-        <button onclick="selectMode('x')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-400">
+        <button onclick="selectMode('x', 'local')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-400">
           <span class="text-4xl sm:text-5xl font-bold text-green-600">×</span>
           <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Kali</span>
         </button>
-        <button onclick="selectMode('÷')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-400">
+        <button onclick="selectMode('÷', 'local')" class="mode-btn p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-400">
           <span class="text-4xl sm:text-5xl font-bold text-yellow-600">÷</span>
           <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Bagi</span>
         </button>
-        <button onclick="selectMode('campuran')" class="mode-btn col-span-2 p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+        <button onclick="selectMode('campuran', 'local')" class="mode-btn col-span-2 p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-400">
           <span class="text-4xl sm:text-5xl font-bold text-indigo-600">?</span>
-          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Campuran</span>
+          <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">Campuran (1 Device)</span>
         </button>
+        <!-- Tombol mode 2 Device -->
         <button onclick="showPairingScreen()" class="mode-btn col-span-2 p-4 sm:p-6 rounded-xl bg-gray-100 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-400">
           <span class="text-4xl sm:text-5xl font-bold text-purple-600">👥</span>
           <span class="block text-sm sm:text-base font-medium text-gray-700 mt-1">2 Device (Online)</span>
@@ -127,50 +147,67 @@
       </div>
     </div>
 
+    <!-- 1.5. Layar Pairing (Default tersembunyi) -->
     <div id="pairing-screen" class="hidden bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
       <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
         Mode 2 Device
       </h1>
-      <h2 class="text-lg sm:text-xl text-gray-600 mb-6 sm:mb-8">
+      <h2 id="pairing-status" class="text-lg sm:text-xl text-gray-600 mb-6 sm:mb-8">
         Main dengan teman di device lain
       </h2>
       
-      <div class="mb-6">
-        <h3 class="text-xl font-semibold text-gray-700 mb-3">Buat Room Baru</h3>
-        <button onclick="createRoom()" class="w-full px-5 py-3 bg-purple-600 text-white text-base font-semibold rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-400">
-          Buat Kode Room
-        </button>
-        <div class="mt-3 text-lg">Kode Anda: 
-          <span id="room-code-display" class="font-bold text-gray-800 p-2 bg-gray-100 rounded-md">...</span>
+      <!-- Loading Indicator -->
+      <div id="pairing-loading" class="hidden my-4">
+        <div class="spinner mx-auto"></div>
+        <p class="text-gray-600 mt-2">Menghubungi server...</p>
+      </div>
+
+      <!-- Opsi Buat/Gabung (Wrapper) -->
+      <div id="pairing-options">
+        <!-- Opsi Buat Room -->
+        <div class="mb-6">
+          <h3 class="text-xl font-semibold text-gray-700 mb-3">Buat Room Baru</h3>
+          <button id="create-room-btn" onclick="createRoom()" class="w-full px-5 py-3 bg-purple-600 text-white text-base font-semibold rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-400">
+            Buat Kode Room
+          </button>
+          <div class="mt-3 text-lg">Kode Anda: 
+            <span id="room-code-display" class="font-bold text-gray-800 p-2 bg-gray-100 rounded-md tracking-widest">...</span>
+          </div>
+        </div>
+
+        <!-- Pemisah -->
+        <div class="relative flex py-2 items-center">
+          <div class="flex-grow border-t border-gray-300"></div>
+          <span class="flex-shrink mx-4 text-gray-500 font-medium">ATAU</span>
+          <div class="flex-grow border-t border-gray-300"></div>
+        </div>
+
+        <!-- Opsi Gabung Room -->
+        <div class="mt-4">
+          <h3 class="text-xl font-semibold text-gray-700 mb-3">Gabung Room</h3>
+          <input type="text" id="join-code-input" placeholder="Masukkan Kode Room" class="w-full p-3 border border-gray-300 rounded-lg text-center text-lg text-black mb-3 focus:ring-2 focus:ring-purple-400 focus:outline-none uppercase tracking-widest">
+          <button id="join-room-btn" onclick="joinRoom()" class="w-full px-5 py-3 bg-green-600 text-white text-base font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400">
+            Gabung
+          </button>
         </div>
       </div>
 
-      <div class="relative flex py-2 items-center">
-        <div class="flex-grow border-t border-gray-300"></div>
-        <span class="flex-shrink mx-4 text-gray-500 font-medium">ATAU</span>
-        <div class="flex-grow border-t border-gray-300"></div>
-      </div>
-
-      <div class="mt-4">
-        <h3 class="text-xl font-semibold text-gray-700 mb-3">Gabung Room</h3>
-        <input type="text" id="join-code-input" placeholder="Masukkan Kode Room" class="w-full p-3 border border-gray-300 rounded-lg text-center text-lg text-black mb-3 focus:ring-2 focus:ring-purple-400 focus:outline-none">
-        <button onclick="joinRoom()" class="w-full px-5 py-3 bg-green-600 text-white text-base font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400">
-          Gabung
-        </button>
-      </div>
-
+      <!-- Tombol Kembali -->
       <button onclick="backToMenuFromPairing()" class="mt-8 text-sm text-gray-600 hover:text-blue-600 hover:underline">
         &larr; Kembali ke Menu Utama
       </button>
     </div>
 
+    <!-- 2. Overlay Hitung Mundur (Default tersembunyi) -->
     <div id="countdown-overlay" class="hidden fixed inset-0 flex items-center justify-center">
       <div id="countdown-text">3</div>
     </div>
 
+    <!-- 3. Wrapper Kontainer Game (Default tersembunyi) -->
     <div id="game-container-wrapper" class="hidden w-full">
       <div class="bg-white w-full max-w-5xl p-4 sm:p-8 rounded-2xl shadow-xl text-center mx-auto">
         
+        <!-- Judul Game -->
         <h1 class="text-2xl sm:text-4xl font-bold text-gray-800 mb-2">
           Tarik Tambang Matematika
         </h1>
@@ -178,13 +215,18 @@
           Jawab soal untuk mendorong bom!
         </p>
 
+        <!-- Kontainer Utama Game -->
         <div id="game-container" class="flex flex-col lg:flex-row items-center justify-around w-full gap-4 sm:gap-8">
 
+          <!-- Pemain 1 (Kiri) -->
           <div id="player1-card" class="bg-blue-800 p-3 sm:p-4 rounded-2xl shadow-lg w-full max-w-[280px] sm:max-w-xs">
+            <!-- Soal -->
             <div id="player1-problem" class="text-white text-2xl sm:text-3xl font-bold mb-3 h-9 sm:h-10 flex items-center justify-center">
               ? + ? = ?
             </div>
+            <!-- Input Jawaban -->
             <input type="text" id="player1-answer" class="w-full p-2 sm:p-3 rounded-lg text-right text-2xl sm:text-3xl text-black mb-3 pointer-events-none bg-gray-100" readonly>
+            <!-- Tombol Angka (Multi-touch) -->
             <div class="grid grid-cols-3 gap-2 sm:gap-3">
               <button data-player="1" data-value="1" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">1</button>
               <button data-player="1" data-value="2" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">2</button>
@@ -201,6 +243,7 @@
             </div>
           </div>
 
+          <!-- Visual Tarik Tambang -->
           <div id="game-visual" class="flex items-center justify-center w-full lg:w-auto px-4 my-4 lg:my-0">
             <div class="relative">
               <span class="player-avatar">🧍‍♂️</span>
@@ -217,11 +260,15 @@
             </div>
           </div>
 
+          <!-- Pemain 2 (Kanan) -->
           <div id="player2-card" class="bg-red-800 p-3 sm:p-4 rounded-2xl shadow-lg w-full max-w-[280px] sm:max-w-xs">
+            <!-- Soal -->
             <div id="player2-problem" class="text-white text-2xl sm:text-3xl font-bold mb-3 h-9 sm:h-10 flex items-center justify-center">
               ? + ? = ?
             </div>
+            <!-- Input Jawaban -->
             <input type="text" id="player2-answer" class="w-full p-2 sm:p-3 rounded-lg text-right text-2xl sm:text-3xl text-black mb-3 pointer-events-none bg-gray-100" readonly>
+            <!-- Tombol Angka (Multi-touch) -->
             <div class="grid grid-cols-3 gap-2 sm:gap-3">
               <button data-player="2" data-value="1" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">1</button>
               <button data-player="2" data-value="2" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">2</button>
@@ -239,6 +286,7 @@
           </div>
         </div>
 
+        <!-- Tombol Mulai Game Baru -->
         <button id="new-game-btn" 
                 onclick="backToMenu()" 
                 class="hidden mt-6 sm:mt-8 px-5 py-2.5 sm:px-6 sm:py-3 bg-blue-600 text-white text-base sm:text-lg font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
@@ -248,6 +296,7 @@
     </div>
   </main>
 
+  <!-- 4. Footer -->
   <footer class="w-full text-center p-4 mt-8">
     <p class="text-sm text-gray-600">
       dibuat oleh Faisal Rohman, S.Pd. (@hanyauntukmu)
@@ -255,6 +304,13 @@
   </footer>
 
   <script>
+    // --- ========================================================== ---
+    // --- PENTING! GANTI URL INI DENGAN URL GOOGLE APPS SCRIPT ANDA ---
+    // --- ========================================================== ---
+    const gasWebAppUrl = "https://script.google.com/macros/s/AKfycbzAFgJQKOBxkqeDBqbxJ6RMUEboqm-59fnpHUi8Wrg4kLM5fQXNOGh8DmCuxl6KmNI/exec";
+    // --- ========================================================== ---
+
+
     // --- Referensi Elemen DOM ---
     const player1ProblemEl = document.getElementById('player1-problem');
     const player1AnswerEl = document.getElementById('player1-answer');
@@ -264,41 +320,50 @@
     const ropeMarkerEl = document.getElementById('rope-marker');
     const messageEl = document.getElementById('message-area');
     const newGameBtn = document.getElementById('new-game-btn');
-    const allCalcButtons = document.querySelectorAll('.calc-btn'); // Tetap digunakan untuk menonaktifkan
+    const allCalcButtons = document.querySelectorAll('.calc-btn');
     
-    // Elemen baru
+    // Elemen Layar
     const modeSelectionScreen = document.getElementById('mode-selection-screen');
     const countdownOverlay = document.getElementById('countdown-overlay');
     const countdownTextEl = document.getElementById('countdown-text');
     const gameContainerWrapper = document.getElementById('game-container-wrapper');
-    const explosionP1El = document.getElementById('explosion-p1'); // Baru
-    const explosionP2El = document.getElementById('explosion-p2'); // Baru
-    const pairingScreen = document.getElementById('pairing-screen'); // BARU
-    const roomCodeDisplayEl = document.getElementById('room-code-display'); // BARU
-    const joinCodeInputEl = document.getElementById('join-code-input'); // BARU
+    const explosionP1El = document.getElementById('explosion-p1');
+    const explosionP2El = document.getElementById('explosion-p2');
+    
+    // Elemen Pairing
+    const pairingScreen = document.getElementById('pairing-screen');
+    const pairingStatusEl = document.getElementById('pairing-status');
+    const pairingLoadingEl = document.getElementById('pairing-loading');
+    const pairingOptionsEl = document.getElementById('pairing-options');
+    const roomCodeDisplayEl = document.getElementById('room-code-display');
+    const joinCodeInputEl = document.getElementById('join-code-input');
 
 
     // --- State Game ---
     let player1Problem = { a: 0, b: 0, answer: 0, op: '+' };
     let player2Problem = { a: 0, b: 0, answer: 0, op: '+' };
-    let ropePercent = 50; // Posisi awal tali (50%)
+    let ropePercent = 50;
     let gameIsOver = false;
-    let currentGameMode = '+'; // Mode default
+    let currentGameMode = '+'; // mode soal (+, -, x, dll)
+    let currentAppMode = 'local'; // 'local' atau 'online'
     
-    const ROPE_PULL_AMOUNT = 10; // Dorongan per jawaban benar (10%)
-    const MAX_NUMBER_ADD_SUB = 20; // Angka maks untuk tambah/kurang (1-20)
-    const MAX_NUMBER_MULT = 12; // Angka maks untuk kali (1-12)
-    const MAX_ANSWER_DIV = 12; // Angka maks untuk hasil bagi (1-12)
-
-    // Logika batas dibalik: 5% adalah sisi P1, 95% adalah sisi P2
-    const WIN_THRESHOLD_P1_LOSES = 5; // Jika bom di <= 5%, P1 kalah
-    const WIN_THRESHOLD_P2_LOSES = 95; // Jika bom di >= 95%, P2 kalah
+    // State Online
+    let onlineRoomCode = null;
+    let onlinePlayerId = null; // "p1" atau "p2"
+    let pollInterval = null;
+    let isWaitingForOpponent = false; // Flag untuk P1 menunggu P2
     
-    // --- Audio Context untuk Suara ---
+    const ROPE_PULL_AMOUNT = 10;
+    const MAX_NUMBER_ADD_SUB = 20;
+    const MAX_NUMBER_MULT = 12;
+    const MAX_ANSWER_DIV = 12;
+    const WIN_THRESHOLD_P1_LOSES = 5;
+    const WIN_THRESHOLD_P2_LOSES = 95;
+    
+    // --- Audio Context ---
     let audioCtx;
     
     function initAudio() {
-      // Inisialisasi AudioContext saat interaksi pertama (penting untuk browser)
       if (!audioCtx) {
         try {
           audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -309,97 +374,299 @@
     }
 
     function playExplosionSound() {
-      if (!audioCtx) return; // Jangan lakukan apa-apa jika audio gagal
-      
+      if (!audioCtx) return;
       try {
-        // Membuat white noise
-        const bufferSize = audioCtx.sampleRate * 0.5; // 0.5 detik
+        const bufferSize = audioCtx.sampleRate * 0.5;
         const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
         const output = buffer.getChannelData(0);
-
         for (let i = 0; i < bufferSize; i++) {
-          output[i] = Math.random() * 2 - 1; // Noise
+          output[i] = Math.random() * 2 - 1;
         }
-
         const noise = audioCtx.createBufferSource();
         noise.buffer = buffer;
-
-        // Kontrol volume (fade out)
         const gain = audioCtx.createGain();
         gain.gain.setValueAtTime(1, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-
-        // Filter untuk efek "boom" (low-pass)
         const filter = audioCtx.createBiquadFilter();
         filter.type = 'lowpass';
         filter.frequency.setValueAtTime(1000, audioCtx.currentTime);
         filter.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
-
         noise.connect(filter);
         filter.connect(gain);
         gain.connect(audioCtx.destination);
-        
         noise.start(audioCtx.currentTime);
         noise.stop(audioCtx.currentTime + 0.5);
       } catch (e) {
         console.error("Error playing sound:", e);
       }
     }
-    // --- Akhir Audio Context ---
+    
+    // --- ======================= ---
+    // --- LOGIKA ONLINE (BARU)    ---
+    // --- ======================= ---
 
+    /**
+     * Helper untuk memanggil Google Apps Script Web App
+     */
+    async function callGasApi(payload) {
+      if (gasWebAppUrl === "MASUKKAN_URL_DEPLOYMENT_APPS_SCRIPT_ANDA_DI_SINI") {
+        alert("PENTING: Anda harus memasukkan URL Google Apps Script di variabel 'gasWebAppUrl' pada kode JS.");
+        throw new Error("GAS URL not set");
+      }
 
-    // --- BARU: Logika Layar Pairing (Placeholder) ---
+      try {
+        const response = await fetch(gasWebAppUrl, {
+          method: 'POST',
+          mode: 'cors', // Diperlukan untuk GAS
+          credentials: 'omit', // Diperlukan untuk GAS
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8', // GAS menerima 'text/plain' untuk JSON
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.statusText}`);
+        }
+
+        const result = await response.json(); // GAS mengembalikan JSON
+        
+        if (result.status === 'error') {
+          throw new Error(result.message);
+        }
+
+        return result;
+
+      } catch (error) {
+        console.error('GAS API Call Error:', error);
+        pairingStatusEl.textContent = `Error: ${error.message}`;
+        pairingLoadingEl.classList.add('hidden');
+        pairingOptionsEl.classList.remove('hidden');
+        throw error; // Lempar error agar fungsi pemanggil bisa menangani
+      }
+    }
+
     function showPairingScreen() {
+      currentAppMode = 'online';
       modeSelectionScreen.classList.add('hidden');
       pairingScreen.classList.remove('hidden');
+      pairingStatusEl.textContent = 'Main dengan teman di device lain';
+      pairingLoadingEl.classList.add('hidden');
+      pairingOptionsEl.classList.remove('hidden');
+      roomCodeDisplayEl.textContent = '...';
+      joinCodeInputEl.value = '';
     }
 
     function backToMenuFromPairing() {
+      currentAppMode = 'local';
       pairingScreen.classList.add('hidden');
       modeSelectionScreen.classList.remove('hidden');
+      stopPolling(); // Hentikan polling jika P1 sedang menunggu
+      isWaitingForOpponent = false;
     }
 
-    function createRoom() {
-      // TODO: Ini adalah placeholder.
-      // Di sini Anda perlu memanggil server backend Anda (misal Firebase)
-      // untuk membuat ID room unik.
-      const fakeRoomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-      roomCodeDisplayEl.textContent = fakeRoomCode;
-      alert(`(Placeholder) Room ${fakeRoomCode} dibuat. Fitur ini memerlukan backend.`);
-      // Setelah room dibuat, Anda akan menunggu pemain lain bergabung via backend.
+    async function createRoom() {
+      pairingStatusEl.textContent = 'Membuat room...';
+      pairingLoadingEl.classList.remove('hidden');
+      pairingOptionsEl.classList.add('hidden');
+
+      try {
+        const result = await callGasApi({ action: 'create' });
+        
+        if (result.status === 'created') {
+          onlineRoomCode = result.roomCode;
+          onlinePlayerId = result.player; // "p1"
+          roomCodeDisplayEl.textContent = onlineRoomCode;
+          pairingStatusEl.textContent = 'Menunggu pemain lain bergabung...';
+          isWaitingForOpponent = true;
+          startPolling(); // Mulai polling untuk mengecek P2
+        }
+      } catch (error) {
+        // Error sudah ditangani di callGasApi
+      }
     }
 
-    function joinRoom() {
-      // TODO: Ini adalah placeholder.
-      // Di sini Anda perlu memanggil server backend Anda
-      // untuk bergabung ke room dengan kode dari 'joinCodeInputEl.value'.
-      const code = joinCodeInputEl.value;
+    async function joinRoom() {
+      const code = joinCodeInputEl.value.toUpperCase();
       if (!code) {
         alert("Masukkan kode room terlebih dahulu.");
         return;
       }
-      alert(`(Placeholder) Mencoba bergabung ke room ${code}. Fitur ini memerlukan backend.`);
-      // Jika berhasil, backend akan memberi sinyal untuk memulai game.
-      // Anda bisa memanggil startCountdown() dari sini.
+
+      pairingStatusEl.textContent = `Bergabung ke room ${code}...`;
+      pairingLoadingEl.classList.remove('hidden');
+      pairingOptionsEl.classList.add('hidden');
+
+      try {
+        const result = await callGasApi({ action: 'join', roomCode: code });
+        
+        if (result.status === 'joined') {
+          onlineRoomCode = code;
+          onlinePlayerId = result.player; // "p2"
+          
+          // P2 berhasil bergabung, langsung mulai countdown
+          pairingScreen.classList.add('hidden');
+          countdownOverlay.classList.remove('hidden');
+          // Mulai game online dengan state awal dari server
+          startCountdown(() => {
+            startOnlineGame(result.initialState);
+          });
+        }
+      } catch (error) {
+         // Error sudah ditangani di callGasApi
+         joinCodeInputEl.value = '';
+      }
     }
-    // --- Akhir Logika Layar Pairing ---
+
+    function startPolling() {
+      if (pollInterval) clearInterval(pollInterval); // Hentikan polling lama
+
+      pollInterval = setInterval(async () => {
+        if (gameIsOver || !onlineRoomCode) {
+          stopPolling();
+          return;
+        }
+
+        try {
+          const result = await callGasApi({ action: 'getState', roomCode: onlineRoomCode });
+          
+          if (result.status === 'polled') {
+            const gameState = result.gameState;
+            
+            // Cek jika P1 sedang menunggu dan P2 baru saja bergabung
+            if (isWaitingForOpponent && gameState.player2) {
+              isWaitingForOpponent = false;
+              stopPolling(); // Berhenti polling sementara
+              pairingScreen.classList.add('hidden');
+              countdownOverlay.classList.remove('hidden');
+              // P1 (host) memulai countdown setelah P2 bergabung
+              startCountdown(() => {
+                startOnlineGame(gameState); // Mulai game dengan state dari P2
+              });
+            } 
+            // Jika game sudah berjalan, update UI
+            else if (!isWaitingForOpponent && gameState.gameStarted) {
+              updateUiFromState(gameState);
+            }
+          }
+        } catch (error) {
+          console.error("Poll error:", error);
+          pairingStatusEl.textContent = `Koneksi error. Coba lagi.`;
+          stopPolling();
+          // Mungkin kembali ke menu utama
+          // backToMenu(); 
+        }
+      }, 2000); // Poll setiap 2 detik
+    }
+
+    function stopPolling() {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+      }
+    }
+
+    /**
+     * Memulai game online setelah countdown
+     */
+    function startOnlineGame(initialState) {
+      gameIsOver = false;
+      messageEl.textContent = 'Jawab soal untuk mendorong bom!';
+      newGameBtn.classList.add('hidden');
+      
+      // Sembunyikan ledakan
+      explosionP1El.classList.add('hidden');
+      explosionP2El.classList.add('hidden');
+      explosionP1El.classList.remove('animate-kaboom');
+      explosionP2El.classList.remove('animate-kaboom');
+
+      // Tampilkan game
+      gameContainerWrapper.classList.remove('hidden');
+      
+      // Nonaktifkan tombol lawan
+      toggleOpponentControls(true);
+
+      // Atur UI berdasarkan state dari server
+      updateUiFromState(initialState);
+      
+      // Mulai polling untuk update game
+      startPolling();
+    }
+
+    /**
+     * Nonaktifkan tombol lawan
+     */
+    function toggleOpponentControls(disable) {
+      const myPlayerNum = onlinePlayerId === 'p1' ? 1 : 2;
+      const opponentPlayerNum = onlinePlayerId === 'p1' ? 2 : 1;
+      
+      // Aktifkan semua tombol saya
+      document.querySelectorAll(`.calc-btn[data-player="${myPlayerNum}"]`).forEach(btn => {
+        btn.disabled = false;
+      });
+      // Nonaktifkan semua tombol lawan
+      document.querySelectorAll(`.calc-btn[data-player="${opponentPlayerNum}"]`).forEach(btn => {
+        btn.disabled = disable;
+      });
+    }
 
 
     /**
-     * Memilih mode dan memulai hitung mundur
+     * Sinkronkan UI dengan state dari server
      */
-    function selectMode(mode) {
-      initAudio(); // Inisialisasi audio saat pengguna klik mode
+    function updateUiFromState(gameState) {
+      if (gameIsOver) return;
+
+      // Update posisi tali
+      ropePercent = gameState.ropePercent;
+      ropeMarkerEl.style.left = `${ropePercent}%`;
+
+      // Update soal P1
+      if (gameState.problems.p1) {
+        const p1p = gameState.problems.p1;
+        player1ProblemEl.textContent = `${p1p.a} ${p1p.op} ${p1p.b} = ?`;
+        player1Problem = p1p; // Simpan problem state
+      }
+
+      // Update soal P2
+      if (gameState.problems.p2) {
+        const p2p = gameState.problems.p2;
+        player2ProblemEl.textContent = `${p2p.a} ${p2p.op} ${p2p.b} = ?`;
+        player2Problem = p2p; // Simpan problem state
+      }
+      
+      // Cek pemenang
+      if (gameState.winner) {
+        gameIsOver = true;
+        stopPolling();
+        const winnerNum = gameState.winner === 'p1' ? 1 : 2;
+        showWinner(winnerNum);
+      }
+    }
+
+    // --- ======================= ---
+    // --- AKHIR LOGIKA ONLINE     ---
+    // --- ======================= ---
+
+
+    /**
+     * Memilih mode dan memulai hitung mundur (Lokal)
+     */
+    function selectMode(mode, appMode) {
+      initAudio();
       currentGameMode = mode;
+      currentAppMode = appMode; // 'local'
+      
       modeSelectionScreen.classList.add('hidden');
       countdownOverlay.classList.remove('hidden');
-      startCountdown();
+      startCountdown(newGame); // Mulai game lokal setelah countdown
     }
 
     /**
      * Memulai hitung mundur 3 detik
+     * @param {function} onComplete - Callback setelah hitung mundur selesai
      */
-    function startCountdown() {
+    function startCountdown(onComplete) {
       let count = 3;
       countdownTextEl.textContent = count;
       
@@ -409,20 +676,22 @@
           countdownTextEl.textContent = count;
         } else if (count === 0) {
           countdownTextEl.textContent = 'Mulai!';
-          countdownTextEl.style.fontSize = '5rem'; // Perkecil teks "Mulai!"
+          countdownTextEl.style.fontSize = '5rem';
         } else {
           clearInterval(interval);
           countdownOverlay.classList.add('hidden');
-          gameContainerWrapper.classList.remove('hidden');
-          countdownTextEl.textContent = '3'; // Reset untuk game selanjutnya
+          countdownTextEl.textContent = '3'; // Reset
           countdownTextEl.style.fontSize = '8rem';
-          newGame(); // Memulai game setelah hitung mundur
+          
+          if (onComplete) {
+            onComplete(); // Panggil callback (newGame() atau startOnlineGame())
+          }
         }
       }, 1000);
     }
 
     /**
-     * Menghasilkan soal matematika berdasarkan mode
+     * Menghasilkan soal (HANYA UNTUK MODE LOKAL)
      */
     function generateProblem() {
       let a = 0, b = 0, answer = 0, op = '+';
@@ -441,31 +710,29 @@
           op = '+';
           break;
         case '-':
-          // Pastikan a >= b agar tidak negatif
           a = Math.floor(Math.random() * MAX_NUMBER_ADD_SUB) + 1;
           b = Math.floor(Math.random() * a) + 1; // b <= a
           answer = a - b;
-          op = '−'; // Karakter minus
+          op = '−';
           break;
         case 'x':
           a = Math.floor(Math.random() * MAX_NUMBER_MULT) + 1;
           b = Math.floor(Math.random() * MAX_NUMBER_MULT) + 1;
           answer = a * b;
-          op = '×'; // Karakter kali
+          op = '×';
           break;
         case '÷':
-          // Buat jawaban non-nol terlebih dahulu
-          b = Math.floor(Math.random() * MAX_ANSWER_DIV) + 1; // Pembagi (1-12)
-          answer = Math.floor(Math.random() * MAX_ANSWER_DIV) + 1; // Hasil (1-12)
-          a = b * answer; // Pastikan bisa dibagi habis
-          op = '÷'; // Karakter bagi
+          b = Math.floor(Math.random() * MAX_ANSWER_DIV) + 1;
+          answer = Math.floor(Math.random() * MAX_ANSWER_DIV) + 1;
+          a = b * answer;
+          op = '÷';
           break;
       }
       return { a, b, answer, op };
     }
 
     /**
-     * Memperbarui UI soal untuk pemain
+     * Memperbarui UI soal (HANYA LOKAL)
      */
     function nextRound(playerNum) {
       if (gameIsOver) return;
@@ -484,77 +751,71 @@
     }
 
     /**
-     * Memperbarui posisi visual penanda tali
+     * Memperbarui visual tali (HANYA LOKAL)
      */
     function updateRopeVisual() {
-      // Membatasi posisi tali antara 0% dan 100%
       ropePercent = Math.max(0, Math.min(100, ropePercent));
       ropeMarkerEl.style.left = `${ropePercent}%`;
-      checkWin();
+      checkWin(); // Cek kemenangan (hanya lokal)
     }
 
     /**
-     * Memeriksa kondisi kemenangan (sekarang kondisi KALAH)
+     * Cek kemenangan (HANYA LOKAL)
      */
     function checkWin() {
-      if (gameIsOver) return;
-
-      // P1 (kiri) akan mendorong bom ke kanan (menambah ropePercent)
-      // P2 (kanan) akan mendorong bom ke kiri (mengurangi ropePercent)
+      if (gameIsOver || currentAppMode === 'online') return;
 
       if (ropePercent <= WIN_THRESHOLD_P1_LOSES) {
-        // Bom ada di sisi P1. P1 Kalah. P2 Menang.
         showWinner(2);
       } else if (ropePercent >= WIN_THRESHOLD_P2_LOSES) {
-        // Bom ada di sisi P2. P2 Kalah. P1 Menang.
         showWinner(1);
       }
     }
 
     /**
-     * Menampilkan pemenang dan Memicu Ledakan pada yang Kalah
-     * @param {number} playerNum - Nomor pemain yang MENANG
+     * Menampilkan pemenang (LOKAL & ONLINE)
      */
     function showWinner(playerNum) {
       gameIsOver = true;
-      playExplosionSound(); // Mainkan suara ledakan
+      playExplosionSound();
+      stopPolling(); // Pastikan polling berhenti
 
       if (playerNum === 1) {
-        // P1 Menang, P2 Kalah (Meledak)
         messageEl.textContent = 'Pemain 1 (Biru) Menang!';
-        ropeMarkerEl.style.left = '100%'; // Pindahkan bom ke sisi P2
-        explosionP2El.classList.remove('hidden'); // Tampilkan ledakan P2
+        ropeMarkerEl.style.left = '100%';
+        explosionP2El.classList.remove('hidden');
         explosionP2El.classList.add('animate-kaboom');
-        
       } else {
-        // P2 Menang, P1 Kalah (Meledak)
         messageEl.textContent = 'Pemain 2 (Merah) Menang!';
-        ropeMarkerEl.style.left = '0%'; // Pindahkan bom ke sisi P1
-        explosionP1El.classList.remove('hidden'); // Tampilkan ledakan P1
+        ropeMarkerEl.style.left = '0%';
+        explosionP1El.classList.remove('hidden');
         explosionP1El.classList.add('animate-kaboom');
       }
       
-      // Tampilkan tombol "Pilih Mode Lain"
       newGameBtn.classList.remove('hidden');
-
-      // Nonaktifkan tombol
+      // Nonaktifkan semua tombol kalkulator
       allCalcButtons.forEach(btn => btn.disabled = true);
     }
 
     /**
-     * Menangani input dari tombol kalkulator (dipanggil oleh touch listener)
+     * Menangani input dari tombol (Dipanggil oleh multi-touch)
      */
     function handleInput(playerNum, value) {
       if (gameIsOver) return;
+
+      // Cek apakah ini tombol kita dalam mode online
+      if (currentAppMode === 'online' && onlinePlayerId) {
+         const myPlayerNum = onlinePlayerId === 'p1' ? 1 : 2;
+         if (playerNum !== myPlayerNum) return; // Tombol lawan
+      }
 
       const answerEl = (playerNum === 1) ? player1AnswerEl : player2AnswerEl;
 
       if (value === 'C') {
         answerEl.value = '';
       } else if (value === 'Go') {
-        handleSubmit(playerNum);
+        handleSubmit(playerNum); // Kirim jawaban
       } else {
-        // Batasi panjang input (misal 4 digit)
         if (answerEl.value.length < 4) {
           answerEl.value += value;
         }
@@ -562,58 +823,108 @@
     }
 
     /**
-     * Menangani saat pemain menekan "Go" (Jawab)
+     * Menangani submit jawaban (LOKAL & ONLINE)
      */
-    function handleSubmit(playerNum) {
+    async function handleSubmit(playerNum) {
       if (gameIsOver) return;
 
       const answerEl = (playerNum === 1) ? player1AnswerEl : player2AnswerEl;
-      const problem = (playerNum === 1) ? player1Problem : player2Problem;
-      
       const submittedAnswer = parseInt(answerEl.value, 10);
+      if (isNaN(submittedAnswer)) return;
 
-      if (isNaN(submittedAnswer)) return; // Abaikan jika input kosong
+      // --- Logika Mode Online ---
+      if (currentAppMode === 'online') {
+        // Tampilkan loading di tombol "Go"
+        const goButton = document.querySelector(`.calc-btn.go-btn[data-player="${playerNum}"]`);
+        goButton.innerHTML = `<span class="spinner mx-auto"></span>`;
+        goButton.disabled = true;
 
-      if (submittedAnswer === problem.answer) {
-        // Jawaban benar
-        if (playerNum === 1) {
-          // P1 (kiri) mendorong bom ke KANAN (menjauh)
-          ropePercent += ROPE_PULL_AMOUNT;
+        try {
+          const result = await callGasApi({
+            action: 'submitAnswer',
+            roomCode: onlineRoomCode,
+            player: onlinePlayerId, // "p1" atau "p2"
+            answer: submittedAnswer
+          });
+
+          // Server merespon dengan state baru
+          if (result.status === 'submitted') {
+            if (!result.wasCorrect) {
+              // Jawaban salah, goyangkan
+              shakeInput(answerEl);
+            } else {
+              // Jawaban benar, server sudah update, polling akan ambil
+              // Kosongkan input
+              answerEl.value = '';
+            }
+            // Update UI segera berdasarkan state baru
+            updateUiFromState(result.newState);
+          }
+        } catch (error) {
+          console.error("Submit error:", error);
+          messageEl.textContent = "Error kirim jawaban."
+        } finally {
+          // Kembalikan tombol "Go"
+          goButton.innerHTML = `Go`;
+          // Tombol akan di-enable/disable oleh updateUiFromState atau toggleOpponentControls
+          // Tapi kita enable di sini untuk jaga-jaga
+          if (!gameIsOver) goButton.disabled = false;
+        }
+      } 
+      // --- Logika Mode Lokal ---
+      else {
+        const problem = (playerNum === 1) ? player1Problem : player2Problem;
+        if (submittedAnswer === problem.answer) {
+          // Benar
+          if (playerNum === 1) {
+            ropePercent += ROPE_PULL_AMOUNT;
+          } else {
+            ropePercent -= ROPE_PULL_AMOUNT;
+          }
+          updateRopeVisual(); // Ini akan cek kemenangan
+          if (!gameIsOver) {
+            nextRound(playerNum);
+          }
         } else {
-          // P2 (kanan) mendorong bom ke KIRI (menjauh)
-          ropePercent -= ROPE_PULL_AMOUNT;
+          // Salah
+          shakeInput(answerEl);
         }
-        updateRopeVisual();
-        if (!gameIsOver) {
-          nextRound(playerNum); // Beri soal baru ke pemain yang benar
-        }
-      } else {
-        // Jawaban salah, goyangkan input
-        answerEl.classList.add('animate-shake');
-        // Hapus animasi after selesai
-        setTimeout(() => {
-          answerEl.classList.remove('animate-shake');
-          answerEl.value = ''; // Kosongkan jawaban salah
-        }, 500);
       }
     }
 
     /**
-     * Memulai game baru (dipanggil setelah hitung mundur)
+     * Helper untuk menggoyangkan input
+     */
+    function shakeInput(answerEl) {
+      answerEl.classList.add('animate-shake');
+      setTimeout(() => {
+        answerEl.classList.remove('animate-shake');
+        answerEl.value = '';
+      }, 500);
+    }
+
+    /**
+     * Memulai game baru (HANYA LOKAL)
      */
     function newGame() {
+      // Fungsi ini sekarang hanya untuk game LOKAL
+      if (currentAppMode !== 'local') return;
+
       gameIsOver = false;
       ropePercent = 50;
       messageEl.textContent = 'Jawab soal untuk mendorong bom!';
       newGameBtn.classList.add('hidden');
       
-      // Sembunyikan dan reset ledakan
+      // Tampilkan game
+      gameContainerWrapper.classList.remove('hidden');
+      
+      // Sembunyikan ledakan
       explosionP1El.classList.add('hidden');
       explosionP2El.classList.add('hidden');
       explosionP1El.classList.remove('animate-kaboom');
       explosionP2El.classList.remove('animate-kaboom');
       
-      // Aktifkan kembali semua tombol
+      // Aktifkan semua tombol (untuk lokal)
       allCalcButtons.forEach(btn => btn.disabled = false);
       
       updateRopeVisual();
@@ -622,53 +933,65 @@
     }
     
     /**
-     * Kembali ke menu pilihan mode
+     * Kembali ke menu pilihan mode (LOKAL & ONLINE)
      */
     function backToMenu() {
       gameContainerWrapper.classList.add('hidden');
       modeSelectionScreen.classList.remove('hidden');
-      newGameBtn.classList.add('hidden'); // Sembunyikan tombol "Pilih Mode"
+      newGameBtn.classList.add('hidden');
       
-      // Sembunyikan dan reset ledakan
+      // Reset state online
+      stopPolling();
+      currentAppMode = 'local';
+      onlineRoomCode = null;
+      onlinePlayerId = null;
+      isWaitingForOpponent = false;
+      
+      // Sembunyikan ledakan
       explosionP1El.classList.add('hidden');
       explosionP2El.classList.add('hidden');
       explosionP1El.classList.remove('animate-kaboom');
       explosionP2El.classList.remove('animate-kaboom');
+
+      // Aktifkan semua tombol (jaga-jaga)
+      allCalcButtons.forEach(btn => btn.disabled = false);
     }
     
-    // --- BARU: Inisialisasi Listener Multi-Touch ---
+    // --- Inisialisasi Listener Multi-Touch ---
     function setupCalculatorTouch() {
-      const buttons = document.querySelectorAll('.calc-btn');
-
-      buttons.forEach(btn => {
+      allCalcButtons.forEach(btn => {
         // Event saat jari MENYENTUH tombol
         btn.addEventListener('touchstart', (e) => {
-          // Mencegah 'click' event dan zoom/scroll
-          e.preventDefault(); 
+          e.preventDefault(); // Mencegah 'click' & zoom
           
-          // Beri umpan balik visual
-          btn.classList.add('calc-btn-active');
-          
-          // Panggil fungsi handleInput jika game belum selesai
-          if (!gameIsOver) {
-            const player = parseInt(btn.dataset.player, 10);
-            const value = btn.dataset.value;
-            handleInput(player, value);
+          const playerNum = parseInt(btn.dataset.player, 10);
+          const value = btn.dataset.value;
+
+          // Cek apakah tombol ini boleh ditekan
+          if (currentAppMode === 'online' && onlinePlayerId) {
+             const myPlayerNum = onlinePlayerId === 'p1' ? 1 : 2;
+             if (playerNum !== myPlayerNum) return; // Tombol lawan, abaikan
           }
-        }, { passive: false }); // {passive: false} diperlukan untuk e.preventDefault()
+
+          // Jika game belum selesai, proses input
+          if (!gameIsOver) {
+            btn.classList.add('calc-btn-active');
+            handleInput(playerNum, value);
+          }
+        }, { passive: false });
 
         // Event saat jari DIANGKAT dari tombol
-        const releaseButton = () => {
+        const releaseButton = (e) => {
+          e.preventDefault();
           btn.classList.remove('calc-btn-active');
         };
         
         btn.addEventListener('touchend', releaseButton);
-        btn.addEventListener('touchcancel', releaseButton); // Jika sentuhan dibatalkan (misal oleh sistem)
+        btn.addEventListener('touchcancel', releaseButton);
       });
     }
 
     // --- Inisialisasi ---
-    // Menambahkan animasi shake
     const styleSheet = document.createElement("style");
     styleSheet.type = "text/css";
     styleSheet.innerText = `
@@ -683,10 +1006,9 @@
     `;
     document.head.appendChild(styleSheet);
 
-    // BARU: Panggil fungsi setup multi-touch
+    // Panggil fungsi setup multi-touch
     setupCalculatorTouch();
 
-    // Game tidak dimulai otomatis, menunggu pilihan mode.
   </script>
 </body>
 </html>
