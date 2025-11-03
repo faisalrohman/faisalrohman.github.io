@@ -149,11 +149,11 @@
       </h2>
       <div class="grid grid-cols-1 gap-4">
         <button onclick="showGameModeScreen('local')" class="mode-btn p-6 rounded-xl bg-gray-100 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400">
-          <span class="text-4xl sm:text-5xl font-bold text-blue-600">​🕵️‍♂️</span>
+          <span class="text-4xl sm:text-5xl font-bold text-blue-600">👤</span>
           <span class="block text-base sm:text-lg font-medium text-gray-700 mt-2">1 Device (Lokal)</span>
         </button>
         <button onclick="showNicknameScreen()" class="mode-btn p-6 rounded-xl bg-gray-100 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-400">
-          <span class="text-4xl sm:text-5xl font-bold text-purple-600">​🤼</span>
+          <span class="text-4xl sm:text-5xl font-bold text-purple-600">👥</span>
           <span class="block text-base sm:text-lg font-medium text-gray-700 mt-2">2 Device (Online)</span>
         </button>
         <button onclick="showSpectatorScreen()" class="mode-btn p-6 rounded-xl bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400">
@@ -460,7 +460,7 @@
                 <span id="p1-spectator-name">Pemain 1</span>: 
                 <span id="p1-score-display">0</span>
               </div>
-              <span class="player-avatar">🧍🏻</span>
+              <span class="player-avatar">🧍‍♂️</span>
               <span id="explosion-p1" class="hidden player-avatar absolute inset-0 flex items-center justify-center">💥</span>
             </div>
             
@@ -1361,8 +1361,9 @@
           
           if (!gameIsOver) {
             localDifficultyParams = getDifficultyParams(currentGameMode);
-            nextRound(1);
-            nextRound(2);
+            // nextRound(1); // <-- KESALAHAN ADA DI SINI
+            // nextRound(2); // <-- DAN DI SINI
+            nextRound(playerNum); // PERBAIKAN: Hanya ganti soal untuk pemain yang menjawab
           }
         } else {
           shakeInput(elementToShake, answerType);
@@ -1535,4 +1536,5 @@
   </script>
 </body>
 </html>
+
 
