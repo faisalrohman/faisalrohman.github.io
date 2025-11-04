@@ -172,11 +172,11 @@
       <div class="grid grid-cols-1 gap-4">
         <!-- PERUBAHAN: Teks tombol diganti -->
         <button onclick="showGameModeScreen('pvp-local')" class="mode-btn p-6 rounded-xl bg-gray-100 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400">
-          <span class="text-4xl sm:text-5xl font-bold text-blue-600">👤</span>
+          <span class="text-4xl sm:text-5xl font-bold text-blue-600">🕵️‍♂️</span>
           <span class="block text-base sm:text-lg font-medium text-gray-700 mt-2">Battle Offline (Lokal)</span>
         </button>
         <button onclick="showNicknameScreen()" class="mode-btn p-6 rounded-xl bg-gray-100 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-400">
-          <span class="text-4xl sm:text-5xl font-bold text-purple-600">👥</span>
+          <span class="text-4xl sm:text-5xl font-bold text-purple-600">🤼​</span>
           <span class="block text-base sm:text-lg font-medium text-gray-700 mt-2">Battle Online</span>
         </button>
         <button onclick="showSpectatorScreen()" class="mode-btn p-6 rounded-xl bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400">
@@ -514,7 +514,7 @@
                 <span id="p1-spectator-name">Pemain 1</span>: 
                 <span id="p1-score-display">0</span>
               </div>
-              <span class="player-avatar">🧍‍♂️</span>
+              <span class="player-avatar">🧍🏻</span>
               <span id="explosion-p1" class="hidden player-avatar absolute inset-0 flex items-center justify-center">💥</span>
             </div>
             
@@ -1540,7 +1540,9 @@
     // --- Inisialisasi Listener Multi-Touch ---
     function setupCalculatorTouch() {
       allCalcButtons.forEach(btn => {
-        btn.addEventListener('touchstart', (e) => {
+        
+        // Buat fungsi terpisah untuk menekan
+        const pressButton = (e) => {
           e.preventDefault();
           if (btn.disabled) return;
           const playerNum = parseInt(btn.dataset.player, 10);
@@ -1553,10 +1555,25 @@
             btn.classList.add('calc-btn-active');
             handleInput(playerNum, value);
           }
-        }, { passive: false });
-        const releaseButton = (e) => { e.preventDefault(); btn.classList.remove('calc-btn-active'); };
+        };
+
+        // Buat fungsi terpisah untuk melepas
+        const releaseButton = (e) => {
+          e.preventDefault();
+          btn.classList.remove('calc-btn-active');
+        };
+
+        // Event saat jari MENYENTUH tombol
+        btn.addEventListener('touchstart', pressButton, { passive: false });
+        // Event saat jari DIANGKAT dari tombol
         btn.addEventListener('touchend', releaseButton);
         btn.addEventListener('touchcancel', releaseButton);
+        
+        // BARU: Tambahkan event listener untuk MOUSE
+        btn.addEventListener('mousedown', pressButton, { passive: false });
+        btn.addEventListener('mouseup', releaseButton);
+        btn.addEventListener('mouseleave', releaseButton); // Jika mouse ditarik keluar saat menekan
+
       });
     }
 
@@ -1635,4 +1652,5 @@
   </script>
 </body>
 </html>
+
 
