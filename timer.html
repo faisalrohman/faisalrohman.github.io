@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timer Fullscreen</title>
+    <style>
+        :root {
+            --primary-color: #007aff;
+            --background-color: #f0f2f5;
+            --container-bg: #ffffff;
+            --text-color: #1c1c1e;
+            --secondary-text: #666;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--background-color);
+            margin: 0;
+            color: var(--text-color);
+        }
+
+        .timer-app {
+            width: 95%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        /* --- Tampilan Waktu Utama --- */
+        .timer-display-wrapper {
+            position: relative;
+            background-color: var(--container-bg);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #timerDisplay {
+            font-size: 6rem; /* Ukuran default */
+            font-weight: 700;
+            color: var(--primary-color);
+            font-variant-numeric: tabular-nums;
+            transition: font-size 0.2s ease-in-out;
+        }
+        
+        #fullscreenBtn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+        
+        #fullscreenBtn:hover {
+            opacity: 1;
+        }
+
+        #fullscreenBtn svg {
+            width: 28px;
+            height: 28px;
+            fill: #8e8e93;
+        }
+
+        /* --- Panel Kontrol di Bawah --- */
+        .controls-panel {
+            background-color: var(--container-bg);
+            padding: 1.5rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .inputs {
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .inputs input {
+            width: 50px;
+            padding: 0.4rem;
+            font-size: 1rem;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        
+        .inputs label {
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+            color: var(--secondary-text);
+            display: block;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .controls button {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .controls button:active { transform: scale(0.98); }
+        #startStopBtn { background-color: #34c759; color: white; }
+        #startStopBtn.pause { background-color: #ff9500; }
+        #resetBtn { background-color: #8e8e93; color: white; }
+        #muteBtn { background-color: #5856d6; color: white; }
+        #muteBtn.muted { background-color: #ff3b30; }
+
+        .settings {
+            border-top: 1px solid #e5e5e5;
+            padding-top: 1.5rem;
+        }
+        .settings label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        #fontSizeSlider { width: 100%; cursor: pointer; }
+
+        /* --- Gaya Saat Fullscreen Aktif --- */
+        .timer-app:-webkit-full-screen {
+            background-color: var(--container-bg);
+        }
+        .timer-app:fullscreen {
+            background-color: var(--container-bg);
+        }
+        
+        .timer-app:fullscreen .timer-display-wrapper {
+            height: 100vh;
+            width: 100vw;
+            border-radius: 0;
+            box-shadow: none;
+        }
+        
+        .timer-app:fullscreen .controls-panel {
+            display: none; /* Sembunyikan panel kontrol */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="timer-app" id="timerApp">
+        <div class="timer-display-wrapper">
+            <div id="timerDisplay">00:00:00</div>
+            <button id="fullscreenBtn" title="Mode Layar Penuh">
+                <svg id="icon-fullscreen-enter" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                <svg id="icon-fullscreen-exit" viewBox="0 0 24 24" style="display:none;"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>
+            </button>
+        </div>
+
+        <div class="controls-panel">
+            <div class="inputs">
+                <div>
+                    <label for="hours">Jam</label>
+                    <input type="number" id="hours" min="0" max="99" placeholder="0">
+                </div>
+                <div>
+                    <label for="minutes">Menit</label>
+                    <input type="number" id="minutes" min="0" max="59" placeholder="0">
+                </div>
+                <div>
+                    <label for="seconds">Detik</label>
+                    <input type="number" id="seconds" min="0" max="59" placeholder="0">
+                </div>
+            </div>
+
+            <div class="controls">
+                <button id="startStopBtn">Mulai</button>
+                <button id="resetBtn">Reset</button>
+                <button id="muteBtn">Suara</button>
+            </div>
+
+            <div class="settings">
+                <label for="fontSizeSlider">Ukuran Font Tampilan</label>
+                <input type="range" id="fontSizeSlider" min="32" max="250" value="96">
+            </div>
+        </div>
+    </div>
+
+    <audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/digital_alarm.ogg" preload="auto"></audio>
+
+    <script>
+        // --- Elemen DOM ---
+        const timerApp = document.getElementById('timerApp');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const hoursInput = document.getElementById('hours');
+        const minutesInput = document.getElementById('minutes');
+        const secondsInput = document.getElementById('seconds');
+        const startStopBtn = document.getElementById('startStopBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const muteBtn = document.getElementById('muteBtn');
+        const fontSizeSlider = document.getElementById('fontSizeSlider');
+        const alarmSound = document.getElementById('alarmSound');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const iconEnter = document.getElementById('icon-fullscreen-enter');
+        const iconExit = document.getElementById('icon-fullscreen-exit');
+
+        // --- Variabel Status ---
+        let countdown;
+        let totalSeconds = 0;
+        let isRunning = false;
+        let isMuted = false;
+
+        // --- Fungsi Timer (Sama seperti sebelumnya) ---
+        function startTimer() {
+            if (isRunning) {
+                clearInterval(countdown);
+                isRunning = false;
+                startStopBtn.textContent = 'Lanjut';
+                startStopBtn.classList.remove('pause');
+            } else {
+                if (totalSeconds === 0) {
+                    const hours = parseInt(hoursInput.value) || 0;
+                    const minutes = parseInt(minutesInput.value) || 0;
+                    const seconds = parseInt(secondsInput.value) || 0;
+                    totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
+                }
+                if (totalSeconds <= 0) return;
+                isRunning = true;
+                startStopBtn.textContent = 'Jeda';
+                startStopBtn.classList.add('pause');
+                toggleInputFields(false);
+                countdown = setInterval(() => {
+                    totalSeconds--;
+                    updateDisplay();
+                    if (totalSeconds <= 0) {
+                        clearInterval(countdown);
+                        playAlarm();
+                        resetTimer(false);
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetTimer(clearInputs = true) {
+            clearInterval(countdown);
+            isRunning = false;
+            totalSeconds = 0;
+            updateDisplay();
+            startStopBtn.textContent = 'Mulai';
+            startStopBtn.classList.remove('pause');
+            toggleInputFields(true);
+            if (clearInputs) {
+                hoursInput.value = '';
+                minutesInput.value = '';
+                secondsInput.value = '';
+            }
+        }
+
+        function updateDisplay() {
+            const h = Math.floor(totalSeconds / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = totalSeconds % 60;
+            timerDisplay.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+        
+        function toggleInputFields(enabled) {
+            hoursInput.disabled = !enabled;
+            minutesInput.disabled = !enabled;
+            secondsInput.disabled = !enabled;
+        }
+        
+        // --- Fungsi Kontrol Suara & Font ---
+        function playAlarm() {
+            if (!isMuted) {
+                alarmSound.currentTime = 0;
+                alarmSound.play();
+            }
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            muteBtn.textContent = isMuted ? 'Suara (Mati)' : 'Suara';
+            muteBtn.classList.toggle('muted', isMuted);
+        }
+
+        function changeFontSize() {
+            timerDisplay.style.fontSize = `${fontSizeSlider.value}px`;
+        }
+
+        // --- Fungsi Fullscreen BARU ---
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                timerApp.requestFullscreen().catch(err => {
+                    alert(`Error: Tidak bisa masuk mode layar penuh: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function updateFullscreenIcon() {
+            if (document.fullscreenElement) {
+                iconEnter.style.display = 'none';
+                iconExit.style.display = 'block';
+            } else {
+                iconEnter.style.display = 'block';
+                iconExit.style.display = 'none';
+            }
+        }
+
+        // --- Event Listeners ---
+        startStopBtn.addEventListener('click', startTimer);
+        resetBtn.addEventListener('click', () => resetTimer(true));
+        muteBtn.addEventListener('click', toggleMute);
+        fontSizeSlider.addEventListener('input', changeFontSize);
+        fullscreenBtn.addEventListener('click', toggleFullScreen);
+        document.addEventListener('fullscreenchange', updateFullscreenIcon); // Untuk deteksi keluar dgn tombol Esc
+
+        // --- Inisialisasi Tampilan ---
+        updateDisplay();
+        changeFontSize();
+    </script>
+
+</body>
+</html>
