@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Game Matematika</title>
+  <title>Tarik Tambang Matematika</title>
   <!-- Memuat Tailwind CSS untuk styling -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -138,106 +138,157 @@
   <main class="flex-grow flex items-center justify-center">
 
     <!-- ======================================================= -->
-    <!-- Layar Pilihan Device (Tampil di awal)                 -->
+    <!-- Layar Menu Utama (BARU)                               -->
     <!-- ======================================================= -->
-    <div id="device-mode-selection-screen" class="bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
+    <div id="main-menu-screen" class="bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
       <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
-        Game Matematika created by FR
+        Tarik Tambang Matematika
       </h1>
       <h2 class="text-xl sm:text-2xl font-semibold text-gray-600 mb-6 sm:mb-8">
-        Pilih Mode
+        Pilih Tipe Permainan
       </h2>
       <div class="grid grid-cols-1 gap-4">
-        <button onclick="showGameModeScreen('local')" class="mode-btn p-6 rounded-xl bg-gray-100 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400">
-          <span class="text-4xl sm:text-5xl font-bold text-blue-600">​🕵️‍♂️</span>
-          <span class="block text-base sm:text-lg font-medium text-gray-700 mt-2">1 Device (Lokal)</span>
+        <button onclick="showPvpDeviceModeScreen()" class="mode-btn p-6 rounded-xl bg-gray-100 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-400">
+          <span class="text-4xl sm:text-5xl font-bold text-red-600">⚔️</span>
+          <span class="block text-base sm:text-lg font-medium text-gray-700 mt-2">PvP (Player vs Player)</span>
+        </button>
+        <button onclick="showMandiriGameModeScreen()" class="mode-btn p-6 rounded-xl bg-gray-100 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-400">
+          <span class="text-4xl sm:text-5xl font-bold text-green-600">💪</span>
+          <span class="block text-base sm:text-lg font-medium text-gray-700 mt-2">Mandiri (Latihan)</span>
+        </button>
+      </div>
+    </div>
+    
+    <!-- ======================================================= -->
+    <!-- Layar Pilihan Device (Diganti nama)                   -->
+    <!-- ======================================================= -->
+    <div id="pvp-device-mode-screen" class="hidden bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
+        Mode PvP
+      </h1>
+      <h2 class="text-xl sm:text-2xl font-semibold text-gray-600 mb-6 sm:mb-8">
+        Pilih Mode Battle
+      </h2>
+      <div class="grid grid-cols-1 gap-4">
+        <!-- PERUBAHAN: Teks tombol diganti -->
+        <button onclick="showGameModeScreen('pvp-local')" class="mode-btn p-6 rounded-xl bg-gray-100 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400">
+          <span class="text-4xl sm:text-5xl font-bold text-blue-600">👤</span>
+          <span class="block text-base sm:text-lg font-medium text-gray-700 mt-2">Battle Offline (Lokal)</span>
         </button>
         <button onclick="showNicknameScreen()" class="mode-btn p-6 rounded-xl bg-gray-100 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-400">
-          <span class="text-4xl sm:text-5xl font-bold text-purple-600">​🤼</span>
-          <span class="block text-base sm:text-lg font-medium text-gray-700 mt-2">2 Device (Online)</span>
+          <span class="text-4xl sm:text-5xl font-bold text-purple-600">👥</span>
+          <span class="block text-base sm:text-lg font-medium text-gray-700 mt-2">Battle Online</span>
         </button>
         <button onclick="showSpectatorScreen()" class="mode-btn p-6 rounded-xl bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400">
           <span class="text-4xl sm:text-5xl font-bold text-gray-600">📺</span>
           <span class="block text-base sm:text-lg font-medium text-gray-700 mt-2">Mode Penonton</span>
         </button>
       </div>
+       <button onclick="showMainMenu()" class="mt-8 text-sm text-gray-600 hover:text-blue-600 hover:underline">
+        &larr; Kembali
+      </button>
     </div>
     
     <!-- ======================================================= -->
-    <!-- Layar Pilihan Mode Game (LOKAL)                       -->
-    <!-- PERUBAHAN: Layout grid-cols-3 & tombol baru           -->
+    <!-- Layar Pilihan Mode Game (Dipakai Mandiri & PvP Lokal) -->
     <!-- ======================================================= -->
-    <div id="local-game-mode-screen" class="hidden bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
-      <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
-        Mode 1 Device
+    <div id="game-mode-selection-screen" class="hidden bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
+      <h1 id="game-mode-title" class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
+        Pilih Mode
       </h1>
       <h2 class="text-xl sm:text-2xl font-semibold text-gray-600 mb-6 sm:mb-8">
         Pilih Mode Permainan
       </h2>
-      <!-- PERUBAHAN: grid-cols-3, col-span-2 dihapus -->
       <div class="grid grid-cols-3 gap-3 sm:gap-4">
-        <button onclick="selectLocalMode('+')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <button onclick="selectGameMode('+')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400">
           <span class="text-2xl sm:text-4xl font-bold text-blue-600">+</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">Tambah</span>
         </button>
-        <button onclick="selectLocalMode('-')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-400">
+        <button onclick="selectGameMode('-')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-400">
           <span class="text-2xl sm:text-4xl font-bold text-red-600">−</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">Kurang</span>
         </button>
-        <button onclick="selectLocalMode('x')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-400">
+        <button onclick="selectGameMode('x')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-400">
           <span class="text-2xl sm:text-4xl font-bold text-green-600">×</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">Kali</span>
         </button>
-        <button onclick="selectLocalMode('÷')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-400">
+        <button onclick="selectGameMode('÷')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-400">
           <span class="text-2xl sm:text-4xl font-bold text-yellow-600">÷</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">Bagi</span>
         </button>
-        <button onclick="selectLocalMode('kpk')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-teal-400">
+        <button onclick="selectGameMode('kpk')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-teal-400">
           <span class="text-2xl sm:text-3xl font-bold text-teal-600">KPK</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">KPK</span>
         </button>
-        <button onclick="selectLocalMode('fpb')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-cyan-100 focus:outline-none focus:ring-2 focus:ring-cyan-400">
+        <button onclick="selectGameMode('fpb')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-cyan-100 focus:outline-none focus:ring-2 focus:ring-cyan-400">
           <span class="text-2xl sm:text-3xl font-bold text-cyan-600">FPB</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">FPB</span>
         </button>
-        <button onclick="selectLocalMode('gradien-persamaan')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-400">
+        <button onclick="selectGameMode('gradien-persamaan')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-400">
           <span class="text-xl sm:text-2xl font-bold text-orange-600">y=mx+c</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">Gradien (Pers)</span>
         </button>
-        <button onclick="selectLocalMode('gradien-titik')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-400">
+        <button onclick="selectGameMode('gradien-titik')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-400">
           <span class="text-xl sm:text-2xl font-bold text-amber-600">(x,y)</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">Gradien (Titik)</span>
         </button>
-        <!-- BARU: 3 Mode Baru -->
-        <button onclick="selectLocalMode('konversi-satuan')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-lime-100 focus:outline-none focus:ring-2 focus:ring-lime-400">
+        <button onclick="selectGameMode('konversi-satuan')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-lime-100 focus:outline-none focus:ring-2 focus:ring-lime-400">
           <span class="text-xl sm:text-2xl font-bold text-lime-600">km/m</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">Konversi</span>
         </button>
-        <button onclick="selectLocalMode('pola-aritmatika')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-pink-100 focus:outline-none focus:ring-2 focus:ring-pink-400">
+        <button onclick="selectGameMode('pola-aritmatika')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-pink-100 focus:outline-none focus:ring-2 focus:ring-pink-400">
           <span class="text-xl sm:text-2xl font-bold text-pink-600">1,3,5..</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">Pola Bilangan</span>
         </button>
-        <button onclick="selectLocalMode('deret-aritmatika')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-fuchsia-100 focus:outline-none focus:ring-2 focus:ring-fuchsia-400">
+        <button onclick="selectGameMode('deret-aritmatika')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-fuchsia-100 focus:outline-none focus:ring-2 focus:ring-fuchsia-400">
           <span class="text-xl sm:text-2xl font-bold text-fuchsia-600">S(n)</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">Deret Bilangan</span>
         </button>
-        <!-- Tombol Campuran -->
-        <button onclick="selectLocalMode('campuran')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+        <button onclick="selectGameMode('campuran')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-400">
           <span class="text-2xl sm:text-4xl font-bold text-indigo-600">?</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">Campuran</span>
         </button>
       </div>
-      <button onclick="showDeviceModeScreen()" class="mt-8 text-sm text-gray-600 hover:text-blue-600 hover:underline">
-        &larr; Kembali Pilih Mode
+      <button id="back-from-game-mode" onclick="showMainMenu()" class="mt-8 text-sm text-gray-600 hover:text-blue-600 hover:underline">
+        &larr; Kembali
+      </button>
+    </div>
+    
+    <!-- ======================================================= -->
+    <!-- Layar Pilihan Timer (BARU)                            -->
+    <!-- ======================================================= -->
+    <div id="timer-selection-screen" class="hidden bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
+        Pilih Waktu Permainan
+      </h1>
+      <h2 class="text-xl sm:text-2xl font-semibold text-gray-600 mb-6 sm:mb-8">
+        Set Waktu Maksimal
+      </h2>
+      <div class="grid grid-cols-2 gap-4">
+        <button onclick="onTimerSelected(60)" class="mode-btn p-6 rounded-xl bg-gray-100 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-400">
+          <span class="block text-2xl font-bold text-green-700">1 Menit</span>
+        </button>
+        <button onclick="onTimerSelected(120)" class="mode-btn p-6 rounded-xl bg-gray-100 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-400">
+          <span class="block text-2xl font-bold text-yellow-700">2 Menit</span>
+        </button>
+        <button onclick="onTimerSelected(300)" class="mode-btn p-6 rounded-xl bg-gray-100 hover:bg-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-400">
+          <span class="block text-2xl font-bold text-orange-700">5 Menit</span>
+        </button>
+        <button onclick="onTimerSelected(0)" class="mode-btn p-6 rounded-xl bg-gray-100 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-400">
+          <span class="block text-2xl font-bold text-red-700">Tanpa Batas</span>
+        </button>
+      </div>
+      <button id="back-from-timer" onclick="showGameModeScreen('local')" class="mt-8 text-sm text-gray-600 hover:text-blue-600 hover:underline">
+        &larr; Kembali
       </button>
     </div>
 
     <!-- ======================================================= -->
-    <!-- Layar Masukkan Nama (BARU)                            -->
+    <!-- Layar Masukkan Nama                                   -->
     <!-- ======================================================= -->
     <div id="nickname-screen" class="hidden bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
       <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
-        Mode 2 Device
+        Mode Battle Online
       </h1>
       <h2 class="text-xl sm:text-2xl font-semibold text-gray-600 mb-6 sm:mb-8">
         Masukkan Nama Panggilan
@@ -248,71 +299,68 @@
           Lanjut
         </button>
       </div>
-      <button onclick="showDeviceModeScreen()" class="mt-8 text-sm text-gray-600 hover:text-blue-600 hover:underline">
-        &larr; Kembali Pilih Mode
+      <button onclick="showPvpDeviceModeScreen()" class="mt-8 text-sm text-gray-600 hover:text-blue-600 hover:underline">
+        &larr; Kembali
       </button>
     </div>
     
     <!-- ======================================================= -->
     <!-- Layar Pilihan Mode Game (ONLINE)                      -->
-    <!-- PERUBAHAN: Layout grid-cols-3 & tombol baru           -->
     <!-- ======================================================= -->
     <div id="online-game-mode-screen" class="hidden bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
       <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
-        Mode 2 Device
+        Battle Online
       </h1>
       <h2 id="online-mode-greeting" class="text-xl sm:text-2xl font-semibold text-gray-600 mb-6 sm:mb-8">
         Pilih Mode Permainan
       </h2>
-      <!-- PERUBAHAN: grid-cols-3, col-span-2 dihapus -->
       <div class="grid grid-cols-3 gap-3 sm:gap-4">
-        <button onclick="showPairingScreen('+')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <!-- Tombol memanggil selectGameMode() -->
+        <button onclick="selectGameMode('+')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400">
           <span class="text-2xl sm:text-4xl font-bold text-blue-600">+</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">Tambah</span>
         </button>
-        <button onclick="showPairingScreen('-')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-400">
+        <button onclick="selectGameMode('-')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-400">
           <span class="text-2xl sm:text-4xl font-bold text-red-600">−</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">Kurang</span>
         </button>
-        <button onclick="showPairingScreen('x')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-400">
+        <button onclick="selectGameMode('x')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-400">
           <span class="text-2xl sm:text-4xl font-bold text-green-600">×</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">Kali</span>
         </button>
-        <button onclick="showPairingScreen('÷')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-400">
+        <button onclick="selectGameMode('÷')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-400">
           <span class="text-2xl sm:text-4xl font-bold text-yellow-600">÷</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">Bagi</span>
         </button>
-        <button onclick="showPairingScreen('kpk')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-teal-400">
+        <button onclick="selectGameMode('kpk')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-teal-400">
           <span class="text-2xl sm:text-3xl font-bold text-teal-600">KPK</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">KPK</span>
         </button>
-        <button onclick="showPairingScreen('fpb')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-cyan-100 focus:outline-none focus:ring-2 focus:ring-cyan-400">
+        <button onclick="selectGameMode('fpb')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-cyan-100 focus:outline-none focus:ring-2 focus:ring-cyan-400">
           <span class="text-2xl sm:text-3xl font-bold text-cyan-600">FPB</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">FPB</span>
         </button>
-        <button onclick="showPairingScreen('gradien-persamaan')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-400">
+        <button onclick="selectGameMode('gradien-persamaan')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-400">
           <span class="text-xl sm:text-2xl font-bold text-orange-600">y=mx+c</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">Gradien (Pers)</span>
         </button>
-        <button onclick="showPairingScreen('gradien-titik')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-400">
+        <button onclick="selectGameMode('gradien-titik')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-400">
           <span class="text-xl sm:text-2xl font-bold text-amber-600">(x,y)</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">Gradien (Titik)</span>
         </button>
-        <!-- BARU: 3 Mode Baru -->
-        <button onclick="showPairingScreen('konversi-satuan')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-lime-100 focus:outline-none focus:ring-2 focus:ring-lime-400">
+        <button onclick="selectGameMode('konversi-satuan')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-lime-100 focus:outline-none focus:ring-2 focus:ring-lime-400">
           <span class="text-xl sm:text-2xl font-bold text-lime-600">km/m</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">Konversi</span>
         </button>
-        <button onclick="showPairingScreen('pola-aritmatika')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-pink-100 focus:outline-none focus:ring-2 focus:ring-pink-400">
+        <button onclick="selectGameMode('pola-aritmatika')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-pink-100 focus:outline-none focus:ring-2 focus:ring-pink-400">
           <span class="text-xl sm:text-2xl font-bold text-pink-600">1,3,5..</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">Pola Bilangan</span>
         </button>
-        <button onclick="showPairingScreen('deret-aritmatika')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-fuchsia-100 focus:outline-none focus:ring-2 focus:ring-fuchsia-400">
+        <button onclick="selectGameMode('deret-aritmatika')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-fuchsia-100 focus:outline-none focus:ring-2 focus:ring-fuchsia-400">
           <span class="text-xl sm:text-2xl font-bold text-fuchsia-600">S(n)</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">Deret Bilangan</span>
         </button>
-        <!-- Tombol Campuran -->
-        <button onclick="showPairingScreen('campuran')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+        <button onclick="selectGameMode('campuran')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-400">
           <span class="text-2xl sm:text-4xl font-bold text-indigo-600">?</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">Campuran</span>
         </button>
@@ -327,7 +375,7 @@
     <!-- ======================================================= -->
     <div id="pairing-screen" class="hidden bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
       <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
-        Mode 2 Device
+        Mode Battle Online
       </h1>
       <h2 id="pairing-status" class="text-lg sm:text-xl text-gray-600 mb-6 sm:mb-8">
         Main dengan teman di device lain
@@ -363,8 +411,8 @@
         </div>
       </div>
 
-      <button id="back-from-pairing-btn" onclick="showOnlineGameModeScreen()" class="mt-8 text-sm text-gray-600 hover:text-blue-600 hover:underline">
-        &larr; Kembali Pilih Game
+      <button id="back-from-pairing-btn" onclick="showTimerSelection()" class="mt-8 text-sm text-gray-600 hover:text-blue-600 hover:underline">
+        &larr; Kembali Pilih Waktu
       </button>
     </div>
 
@@ -391,8 +439,8 @@
         </button>
       </div>
 
-      <button id="back-from-spectator-btn" onclick="showDeviceModeScreen()" class="mt-8 text-sm text-gray-600 hover:text-blue-600 hover:underline">
-        &larr; Kembali Pilih Mode
+      <button id="back-from-spectator-btn" onclick="showMainMenu()" class="mt-8 text-sm text-gray-600 hover:text-blue-600 hover:underline">
+        &larr; Kembali
       </button>
     </div>
 
@@ -404,6 +452,17 @@
     <!-- 3. Wrapper Kontainer Game (Default tersembunyi) -->
     <div id="game-container-wrapper" class="hidden w-full">
       <div class="bg-white w-full max-w-5xl p-4 sm:p-8 rounded-2xl shadow-xl text-center mx-auto">
+        
+        <!-- BARU: Timer dan Skor Mandiri -->
+        <div class="flex justify-between items-center mb-4">
+          <div id="mandiri-score-container" class="hidden text-left">
+             <span class="text-2xl font-bold text-green-600">Skor: <span id="mandiri-score-display">0</span></span>
+          </div>
+          <!-- Timer Display -->
+          <div id="timer-display" class="text-right text-3xl font-bold text-gray-700 w-full">
+            --:--
+          </div>
+        </div>
         
         <h1 class="text-2xl sm:text-4xl font-bold text-gray-800 mb-2">
           Tarik Tambang Matematika
@@ -421,9 +480,7 @@
             <div id="player1-problem" class="text-white text-lg sm:text-2xl font-bold mb-3 h-10 sm:h-12 flex items-center justify-center px-1">? + ? = ?</div>
             
             <div id="p1-input-wrapper">
-              <!-- Input Angka -->
               <input type="text" id="player1-answer" class="w-full p-2 sm:p-3 rounded-lg text-right text-2xl sm:text-3xl text-black mb-3 pointer-events-none bg-gray-100" readonly>
-              <!-- Keypad Angka -->
               <div id="p1-keypad" class="grid grid-cols-3 gap-2 sm:gap-3">
                 <button data-player="1" data-value="1" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">1</button>
                 <button data-player="1" data-value="2" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">2</button>
@@ -438,8 +495,6 @@
                 <button data-player="1" data-value="0" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">0</button>
                 <button data-player="1" data-value="Go" class="calc-btn go-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-green-600 text-white focus:outline-none">Go</button>
               </div>
-
-              <!-- BARU: UI Drag & Drop -->
               <div id="p1-dragdrop-ui" class="hidden space-y-3">
                 <div id="p1-answer-zone" data-player="1" class="answer-zone text-white/70 border-white/50 h-14 flex items-center justify-center text-lg">Drop jawaban di sini</div>
                 <div id="p1-choices" class="grid grid-cols-4 gap-2">
@@ -450,7 +505,6 @@
                 </div>
               </div>
             </div>
-
           </div>
 
           <!-- Visual Tarik Tambang -->
@@ -460,7 +514,7 @@
                 <span id="p1-spectator-name">Pemain 1</span>: 
                 <span id="p1-score-display">0</span>
               </div>
-              <span class="player-avatar">🧍🏻</span>
+              <span class="player-avatar">🧍‍♂️</span>
               <span id="explosion-p1" class="hidden player-avatar absolute inset-0 flex items-center justify-center">💥</span>
             </div>
             
@@ -484,9 +538,7 @@
             <div id="player2-problem" class="text-white text-lg sm:text-2xl font-bold mb-3 h-10 sm:h-12 flex items-center justify-center px-1">? + ? = ?</div>
             
             <div id="p2-input-wrapper">
-              <!-- Input Angka -->
               <input type="text" id="player2-answer" class="w-full p-2 sm:p-3 rounded-lg text-right text-2xl sm:text-3xl text-black mb-3 pointer-events-none bg-gray-100" readonly>
-              <!-- Keypad Angka -->
               <div id="p2-keypad" class="grid grid-cols-3 gap-2 sm:gap-3">
                 <button data-player="2" data-value="1" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">1</button>
                 <button data-player="2" data-value="2" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">2</button>
@@ -501,8 +553,6 @@
                 <button data-player="2" data-value="0" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">0</button>
                 <button data-player="2" data-value="Go" class="calc-btn go-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-green-600 text-white focus:outline-none">Go</button>
               </div>
-
-              <!-- BARU: UI Drag & Drop -->
               <div id="p2-dragdrop-ui" class="hidden space-y-3">
                 <div id="p2-answer-zone" data-player="2" class="answer-zone text-white/70 border-white/50 h-14 flex items-center justify-center text-lg">Drop jawaban di sini</div>
                 <div id="p2-choices" class="grid grid-cols-4 gap-2">
@@ -513,7 +563,6 @@
                 </div>
               </div>
             </div>
-
           </div>
         </div>
 
@@ -538,7 +587,7 @@
     // --- ========================================================== ---
     // --- PENTING! GANTI URL INI DENGAN URL GOOGLE APPS SCRIPT ANDA ---
     // --- ========================================================== ---
-    const gasWebAppUrl = "https://script.google.com/macros/s/AKfycbwaXFqRSefIzvAZXxtHPLGJ4SAhK3s9NqL9P0-qi6yGBtfN3M0899i2xcocGHnkGoPi/exec";
+    const gasWebAppUrl = "https://script.google.com/macros/s/AKfycbwUzlxf_PEwkOF1IsFLcoy2Gzx9pre2rL-8LMbnzSio0eMkLWbWSSCRSbPj60sSy2Pa/exec";
     // --- ========================================================== ---
 
 
@@ -554,8 +603,15 @@
     const allCalcButtons = document.querySelectorAll('.calc-btn');
     
     // Elemen Layar
-    const deviceModeSelectionScreen = document.getElementById('device-mode-selection-screen');
-    const localGameModeScreen = document.getElementById('local-game-mode-screen');
+    const mainMenuScreen = document.getElementById('main-menu-screen'); // BARU
+    const pvpDeviceModeScreen = document.getElementById('pvp-device-mode-screen'); // Ganti nama
+    const gameModeSelectionScreen = document.getElementById('game-mode-selection-screen'); // BARU (dipakai bersama)
+    const gameModeTitle = document.getElementById('game-mode-title'); // BARU
+    const backFromGameModeBtn = document.getElementById('back-from-game-mode'); // BARU
+    const timerSelectionScreen = document.getElementById('timer-selection-screen'); // BARU
+    const backFromTimerBtn = document.getElementById('back-from-timer'); // BARU
+    const timerDisplay = document.getElementById('timer-display'); // BARU
+    
     const onlineGameModeScreen = document.getElementById('online-game-mode-screen');
     const onlineModeGreeting = document.getElementById('online-mode-greeting');
     const countdownOverlay = document.getElementById('countdown-overlay');
@@ -563,6 +619,7 @@
     const gameContainerWrapper = document.getElementById('game-container-wrapper');
     const player1Card = document.getElementById('player1-card');
     const player2Card = document.getElementById('player2-card');
+    const gameVisual = document.getElementById('game-visual'); // BARU
     const explosionP1El = document.getElementById('explosion-p1');
     const explosionP2El = document.getElementById('explosion-p2');
     
@@ -595,8 +652,10 @@
     const p2SpectatorName = document.getElementById('p2-spectator-name');
     const p1ScoreDisplay = document.getElementById('p1-score-display');
     const p2ScoreDisplay = document.getElementById('p2-score-display');
+    const mandiriScoreContainer = document.getElementById('mandiri-score-container'); // BARU
+    const mandiriScoreDisplay = document.getElementById('mandiri-score-display'); // BARU
 
-    // BARU: Referensi UI Drag/Drop
+    // Referensi UI Drag/Drop
     const p1Keypad = document.getElementById('p1-keypad');
     const p1DragDropUI = document.getElementById('p1-dragdrop-ui');
     const p1AnswerZone = document.getElementById('p1-answer-zone');
@@ -616,10 +675,17 @@
     let ropePercent = 50;
     let gameIsOver = false;
     let currentGameMode = '+';
-    let currentAppMode = 'local';
+    // PERUBAHAN: Mode 'mandiri', 'pvp-local', 'pvp-online', 'spectator'
+    let currentAppMode = 'mandiri'; 
     let playerNickname = "Tamu";
+    let mandiriScore = 0; // BARU
     
     let localDifficultyParams = null;
+    
+    // State Timer (BARU)
+    let selectedTimerDuration = 0; // 0 = tanpa batas
+    let gameTimerInterval = null;
+    let gameEndTime = 0;
     
     // State Online
     let onlineGameMode = 'campuran';
@@ -666,68 +732,113 @@
     // --- LOGIKA ALUR LAYAR (BARU) --
     // --- ======================= ---
     
-    function showDeviceModeScreen() {
-      currentAppMode = 'local';
-      deviceModeSelectionScreen.classList.remove('hidden');
-      localGameModeScreen.classList.add('hidden');
-      nicknameScreen.classList.add('hidden');
-      onlineGameModeScreen.classList.add('hidden');
-      pairingScreen.classList.add('hidden');
-      spectatorScreen.classList.add('hidden');
-      gameContainerWrapper.classList.add('hidden');
-      newGameBtn.classList.add('hidden');
+    function showScreen(screenId) {
+        // Sembunyikan semua layar
+        [mainMenuScreen, pvpDeviceModeScreen, gameModeSelectionScreen, timerSelectionScreen, 
+         nicknameScreen, onlineGameModeScreen, pairingScreen, spectatorScreen, 
+         gameContainerWrapper, countdownOverlay].forEach(el => el.classList.add('hidden'));
+        
+        // Tampilkan layar yang diminta
+        const screenToShow = document.getElementById(screenId);
+        if (screenToShow) {
+            screenToShow.classList.remove('hidden');
+        }
+    }
 
-      stopPolling();
-      onlineRoomCode = null;
-      onlinePlayerId = null;
-      isWaitingForOpponent = false;
+    function showMainMenu() {
+        showScreen('main-menu-screen');
+        stopPolling();
+        onlineRoomCode = null;
+        onlinePlayerId = null;
+        isWaitingForOpponent = false;
     }
     
-    function showGameModeScreen(mode) { // 'local'
-      deviceModeSelectionScreen.classList.add('hidden');
-      if (mode === 'local') {
-        currentAppMode = 'local';
-        localGameModeScreen.classList.remove('hidden');
+    function showPvpDeviceModeScreen() {
+        currentAppMode = 'pvp-local'; // Default
+        showScreen('pvp-device-mode-screen');
+    }
+
+    function showMandiriGameModeScreen() {
+        currentAppMode = 'mandiri';
+        showGameModeScreen('mandiri');
+    }
+
+    function showGameModeScreen(context) { // 'mandiri', 'pvp-local', 'pvp-online'
+      if (context === 'mandiri') {
+        currentAppMode = 'mandiri';
+        gameModeTitle.textContent = "Mode Mandiri";
+        backFromGameModeBtn.onclick = showMainMenu;
+      } else if (context === 'pvp-local') {
+        currentAppMode = 'pvp-local';
+        gameModeTitle.textContent = "Mode Battle Offline";
+        backFromGameModeBtn.onclick = showPvpDeviceModeScreen;
+      } else if (context === 'pvp-online') {
+         currentAppMode = 'pvp-online';
+         onlineModeGreeting.textContent = `Hai ${playerNickname}, Pilih Mode Permainan!`;
+         backFromGameModeBtn.onclick = showNicknameScreen; // Kembali ke ganti nama
+         showScreen('online-game-mode-screen');
+         return;
       }
+      showScreen('game-mode-selection-screen');
     }
     
     function showNicknameScreen() {
-      currentAppMode = 'online';
-      deviceModeSelectionScreen.classList.add('hidden');
-      nicknameScreen.classList.remove('hidden');
-    }
-
-    function showOnlineGameModeScreen() {
-        nicknameScreen.classList.add('hidden');
-        pairingScreen.classList.add('hidden');
-        onlineGameModeScreen.classList.remove('hidden');
-        onlineModeGreeting.textContent = `Hai ${playerNickname}, Pilih Mode Permainan!`;
+      currentAppMode = 'pvp-online';
+      showScreen('nickname-screen');
     }
 
     function submitNickname() {
       let name = nicknameInput.value.trim();
       if (name === "") name = "Tamu";
       playerNickname = name.substring(0, 12);
-      showOnlineGameModeScreen();
+      showGameModeScreen('pvp-online'); // Lanjut ke pemilihan mode online
     }
     
-    function showPairingScreen(gameMode) {
-      onlineGameMode = gameMode;
-      onlineGameModeScreen.classList.add('hidden');
-      pairingScreen.classList.remove('hidden');
-      
-      pairingStatusEl.textContent = `Mode ${gameMode}. Main dengan teman.`;
+    function showTimerSelection() {
+        showScreen('timer-selection-screen');
+        // Set tombol kembali berdasarkan konteks
+        if (currentAppMode === 'mandiri') {
+            backFromTimerBtn.onclick = () => showGameModeScreen('mandiri');
+        } else if (currentAppMode === 'pvp-local') {
+            backFromTimerBtn.onclick = () => showGameModeScreen('pvp-local');
+        } else if (currentAppMode === 'pvp-online') {
+            backFromTimerBtn.onclick = () => showGameModeScreen('pvp-online');
+        }
+    }
+    
+    function selectGameMode(mode) {
+        currentGameMode = mode;
+        showTimerSelection();
+    }
+    
+    function onTimerSelected(duration) {
+        selectedTimerDuration = duration; // 60, 120, 300, atau 0
+        
+        if (currentAppMode === 'mandiri') {
+            showScreen('countdown-overlay');
+            startCountdown(startMandiriGame);
+        } else if (currentAppMode === 'pvp-local') {
+            showScreen('countdown-overlay');
+            startCountdown(startPvpLocalGame);
+        } else if (currentAppMode === 'pvp-online') {
+            showPairingScreen();
+        }
+    }
+
+    function showPairingScreen() {
+      // onlineGameMode dan selectedTimerDuration sudah di-set
+      showScreen('pairing-screen');
+      pairingStatusEl.textContent = `Mode ${onlineGameMode} (${selectedTimerDuration === 0 ? 'Tanpa Batas' : selectedTimerDuration/60 + ' Menit'})`;
       pairingLoadingEl.classList.add('hidden');
       pairingOptionsEl.classList.remove('hidden');
-      backFromPairingBtn.classList.remove('hidden');
+      backFromPairingBtn.onclick = showTimerSelection; // Kembali ke timer
       roomCodeWrapperEl.classList.add('hidden');
       joinCodeInputEl.value = '';
     }
 
     function showSpectatorScreen() {
       currentAppMode = 'spectator';
-      deviceModeSelectionScreen.classList.add('hidden');
-      spectatorScreen.classList.remove('hidden');
+      showScreen('spectator-screen');
       spectatorStatusEl.textContent = 'Masukkan kode room untuk menonton';
       spectatorLoadingEl.classList.add('hidden');
       spectatorOptionsEl.classList.remove('hidden');
@@ -767,7 +878,7 @@
             spectatorStatusEl.textContent = errorMsg;
             spectatorLoadingEl.classList.add('hidden');
             spectatorOptionsEl.classList.remove('hidden');
-        } else {
+        } else if (currentAppMode === 'pvp-online') {
             pairingStatusEl.textContent = errorMsg;
             pairingLoadingEl.classList.add('hidden');
             pairingOptionsEl.classList.remove('hidden');
@@ -787,8 +898,9 @@
       try {
         const result = await callGasApi({ 
           action: 'create', 
-          gameMode: onlineGameMode, 
-          nickname: playerNickname 
+          gameMode: currentGameMode, // Diambil dari selectGameMode
+          nickname: playerNickname,
+          timer: selectedTimerDuration // Diambil dari onTimerSelected
         });
         if (result.status === 'created') {
           onlineRoomCode = result.roomCode;
@@ -821,8 +933,7 @@
         if (result.status === 'joined') {
           onlineRoomCode = code;
           onlinePlayerId = result.player; // "p2"
-          pairingScreen.classList.add('hidden');
-          countdownOverlay.classList.remove('hidden');
+          showScreen('countdown-overlay');
           startCountdown(() => { startOnlineGame(result.initialState); });
         }
       } catch (error) { joinCodeInputEl.value = ''; }
@@ -832,19 +943,28 @@
       const code = spectatorCodeInputEl.value.toUpperCase().trim();
       if (!code) { alert("Masukkan kode room terlebih dahulu."); return; }
       onlineRoomCode = code;
+      currentAppMode = 'spectator'; // Pastikan mode spectator
       spectatorStatusEl.textContent = `Mencari room ${code}...`;
       spectatorLoadingEl.classList.remove('hidden');
       spectatorOptionsEl.classList.add('hidden');
       try {
         const result = await callGasApi({ action: 'getState', roomCode: onlineRoomCode });
         if (result.status === 'polled') {
-          spectatorScreen.classList.add('hidden');
-          gameContainerWrapper.classList.remove('hidden');
-          player1Card.classList.add('hidden'); // Sembunyikan panel P1
-          player2Card.classList.add('hidden'); // Sembunyikan panel P2
-          p1SpectatorInfo.classList.remove('hidden'); // Tampilkan info P1
-          p2SpectatorInfo.classList.remove('hidden'); // Tampilkan info P2
+          showScreen('game-container-wrapper');
+          player1Card.classList.add('hidden');
+          player2Card.classList.add('hidden');
+          gameVisual.classList.remove('hidden'); // Tampilkan visual
+          p1SpectatorInfo.classList.remove('hidden');
+          p2SpectatorInfo.classList.remove('hidden');
+          mandiriScoreContainer.classList.add('hidden'); // Sembunyikan skor mandiri
+          timerDisplay.classList.remove('hidden'); // Tampilkan timer
           messageEl.textContent = `Menonton Room: ${onlineRoomCode}`;
+          
+          // Mulai timer penonton
+          if(result.gameState.timerDuration > 0) {
+              startMainTimer(result.gameState.timerDuration, result.gameState.gameStartTime);
+          }
+          
           updateUiFromState(result.gameState);
           startPolling();
         }
@@ -859,11 +979,10 @@
           const result = await callGasApi({ action: 'getState', roomCode: onlineRoomCode });
           if (result.status === 'polled') {
             const gameState = result.gameState;
-            if (currentAppMode === 'online' && isWaitingForOpponent && gameState.player2) {
+            if (currentAppMode === 'pvp-online' && isWaitingForOpponent && gameState.player2) {
               isWaitingForOpponent = false;
               stopPolling();
-              pairingScreen.classList.add('hidden');
-              countdownOverlay.classList.remove('hidden');
+              showScreen('countdown-overlay');
               startCountdown(() => { startOnlineGame(gameState); });
             } 
             else if (gameState.gameStarted) {
@@ -873,14 +992,13 @@
         } catch (error) {
           console.error("Poll error:", error.message);
           let errorTargetEl = messageEl;
-          if (currentAppMode === 'online' && isWaitingForOpponent) {
+          if (currentAppMode === 'pvp-online' && isWaitingForOpponent) {
              errorTargetEl = pairingStatusEl;
              pairingLoadingEl.classList.add('hidden');
              backFromPairingBtn.classList.remove('hidden');
           } else if (currentAppMode === 'spectator') {
              errorTargetEl = spectatorStatusEl;
-             gameContainerWrapper.classList.add('hidden');
-             spectatorScreen.classList.remove('hidden');
+             showScreen('spectator-screen');
              spectatorOptionsEl.classList.remove('hidden');
           }
           if (!gameIsOver) errorTargetEl.textContent = "Koneksi ke server terputus."
@@ -891,63 +1009,60 @@
 
     function stopPolling() {
       if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+      if (gameTimerInterval) { clearInterval(gameTimerInterval); gameTimerInterval = null; }
     }
 
-    /**
-     * Sembunyikan panel lawan
-     */
     function setupOnlinePlayerUI() {
       if (onlinePlayerId === 'p1') {
         player1Card.classList.remove('hidden');
-        player2Card.classList.add('hidden'); // Sembunyikan P2
+        player2Card.classList.add('hidden');
       } else if (onlinePlayerId === 'p2') {
-        player1Card.classList.add('hidden'); // Sembunyikan P1
+        player1Card.classList.add('hidden');
         player2Card.classList.remove('hidden');
       }
+      gameVisual.classList.remove('hidden');
+      mandiriScoreContainer.classList.add('hidden');
+      timerDisplay.classList.remove('hidden');
     }
 
-    /**
-     * Memulai game online setelah countdown
-     */
     function startOnlineGame(initialState) {
       gameIsOver = false;
       messageEl.textContent = 'Jawab soal untuk mendorong bom!';
       newGameBtn.classList.add('hidden');
       explosionP1El.classList.add('hidden'); explosionP2El.classList.add('hidden');
       explosionP1El.classList.remove('animate-kaboom'); explosionP2El.classList.remove('animate-kaboom');
-      gameContainerWrapper.classList.remove('hidden');
+      showScreen('game-container-wrapper');
       p1SpectatorInfo.classList.add('hidden'); p2SpectatorInfo.classList.add('hidden');
       
-      setupOnlinePlayerUI(); // Sembunyikan/tampilkan panel
+      setupOnlinePlayerUI();
+      
+      // Mulai Timer
+      if (initialState.timerDuration > 0) {
+          startMainTimer(initialState.timerDuration, initialState.gameStartTime);
+      }
+      
       updateUiFromState(initialState);
       startPolling();
     }
 
-    /**
-     * BARU: Mengganti UI antara Keypad dan DragDrop
-     */
     function toggleInputMode(playerNum, type) {
         const keypad = (playerNum === 1) ? p1Keypad : p2Keypad;
         const dragUI = (playerNum === 1) ? p1DragDropUI : p2DragDropUI;
         const answerInput = (playerNum === 1) ? p1AnswerInput : p2AnswerInput;
         const answerZone = (playerNum === 1) ? p1AnswerZone : p2AnswerZone;
-
         if (type === 'number') {
             keypad.classList.remove('hidden');
             dragUI.classList.add('hidden');
             answerInput.classList.remove('hidden');
-        } else { // 'dragdrop'
+        } else {
             keypad.classList.add('hidden');
             dragUI.classList.remove('hidden');
-            answerInput.classList.add('hidden'); // Sembunyikan input angka
+            answerInput.classList.add('hidden');
             answerZone.textContent = 'Drop jawaban di sini';
             answerZone.dataset.value = '';
         }
     }
 
-    /**
-     * BARU: Memuat pilihan jawaban ke UI drag-drop
-     */
     function populateChoices(playerNum, choices) {
         const choiceContainer = (playerNum === 1) ? p1Choices : p2Choices;
         const buttons = choiceContainer.querySelectorAll('button');
@@ -957,15 +1072,10 @@
         });
     }
 
-    /**
-     * Sinkronkan UI dengan state dari server
-     */
     function updateUiFromState(gameState) {
       if (gameIsOver) return;
-
       ropePercent = gameState.ropePercent;
       ropeMarkerEl.style.left = `${ropePercent}%`;
-      
       const p1Name = (gameState.player1 && gameState.player1.name) ? gameState.player1.name : "Pemain 1";
       const p1Score = (gameState.player1) ? gameState.player1.score : 0;
       const p2Name = (gameState.player2 && gameState.player2.name) ? gameState.player2.name : "Menunggu...";
@@ -978,22 +1088,21 @@
           p2ScoreDisplay.textContent = p2Score;
       }
 
-      if (currentAppMode === 'online') {
+      if (currentAppMode === 'pvp-online') {
         p1NameEl.textContent = p1Name;
         p2NameEl.textContent = p2Name;
-        
         if (gameState.problems.p1) {
           const p = gameState.problems.p1;
           player1ProblemEl.textContent = p.question;
           player1Problem = p;
-          toggleInputMode(1, p.type); // Ganti UI
+          toggleInputMode(1, p.type);
           if(p.type === 'dragdrop') populateChoices(1, p.choices);
         }
         if (gameState.problems.p2) {
           const p = gameState.problems.p2;
           player2ProblemEl.textContent = p.question;
           player2Problem = p;
-          toggleInputMode(2, p.type); // Ganti UI
+          toggleInputMode(2, p.type);
           if(p.type === 'dragdrop') populateChoices(2, p.choices);
         }
       }
@@ -1001,8 +1110,13 @@
       if (gameState.winner) {
         gameIsOver = true;
         stopPolling();
-        const winnerNum = gameState.winner === 'p1' ? 1 : 2;
-        showWinner(winnerNum);
+        // Cek jika 'draw'
+        if (gameState.winner === 'draw') {
+            showWinner('draw');
+        } else {
+            const winnerNum = gameState.winner === 'p1' ? 1 : 2;
+            showWinner(winnerNum);
+        }
       }
     }
 
@@ -1011,17 +1125,60 @@
     // --- ======================= ---
 
 
-    /**
-     * Memilih mode dan memulai hitung mundur (Lokal)
-     */
-    function selectLocalMode(mode) {
-      initAudio();
-      currentGameMode = mode;
-      localGameModeScreen.classList.add('hidden');
-      countdownOverlay.classList.remove('hidden');
-      startCountdown(newGame);
-    }
+    // --- ======================= ---
+    // --- LOGIKA LOKAL & MANDIRI  ---
+    // --- ======================= ---
 
+    function startMainTimer(durationInSeconds, startTime = Date.now()) {
+        if (gameTimerInterval) clearInterval(gameTimerInterval);
+        
+        if (durationInSeconds === 0) {
+            timerDisplay.textContent = "∞"; // Tanpa batas
+            return;
+        }
+
+        gameEndTime = startTime + durationInSeconds * 1000;
+
+        function updateDisplay() {
+            const remainingMs = gameEndTime - Date.now();
+            if (remainingMs <= 0) {
+                timerDisplay.textContent = "00:00";
+                endGameByTimer();
+            } else {
+                const minutes = Math.floor((remainingMs / 1000 / 60) % 60);
+                const seconds = Math.floor((remainingMs / 1000) % 60);
+                timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+        }
+        updateDisplay(); // Panggil sekali di awal
+        gameTimerInterval = setInterval(updateDisplay, 1000);
+    }
+    
+    function endGameByTimer() {
+        if (gameIsOver) return;
+        gameIsOver = true;
+        stopPolling();
+        allCalcButtons.forEach(btn => btn.disabled = true);
+        newGameBtn.classList.remove('hidden');
+
+        if (currentAppMode === 'mandiri') {
+            messageEl.textContent = `Waktu Habis! Skor Akhir: ${mandiriScore}`;
+        } 
+        else if (currentAppMode === 'pvp-local') {
+            if (ropePercent > 50) showWinner(1);
+            else if (ropePercent < 50) showWinner(2);
+            else showWinner('draw');
+        }
+        else if (currentAppMode === 'pvp-online' && onlinePlayerId === 'p1') {
+            // Hanya Host (P1) yang mengirimkan hasil akhir
+            let winner = 'draw';
+            if (ropePercent > 50) winner = 'p1';
+            else if (ropePercent < 50) winner = 'p2';
+            callGasApi({ action: 'endGameByTime', roomCode: onlineRoomCode, winner: winner });
+            // UI akan diupdate oleh polling
+        }
+    }
+    
     /**
      * Memulai hitung mundur 3 detik
      */
@@ -1036,7 +1193,7 @@
           countdownTextEl.style.fontSize = '5rem';
         } else {
           clearInterval(interval);
-          countdownOverlay.classList.add('hidden');
+          showScreen('game-container-wrapper');
           countdownTextEl.textContent = '3';
           countdownTextEl.style.fontSize = '8rem';
           if (onComplete) onComplete();
@@ -1044,11 +1201,7 @@
       }, 1000);
     }
 
-    // --- ================================== ---
-    // --- LOGIKA KESULITAN (LOKAL)         ---
-    // --- (HARUS SAMA DENGAN Code.gs)      ---
-    // --- ================================== ---
-    
+    // --- (LOGIKA GENERATE SOAL LOKAL SAMA DENGAN BACKEND) ---
     function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
     function gcd(a, b) { while (b) { [a, b] = [b, a % b]; } return a; }
     function lcm(a, b) { return (a * b) / gcd(a, b); }
@@ -1059,15 +1212,10 @@
       }
       return array;
     }
-
     function getDifficultyParams(mode) {
       let op = mode;
       if (mode === 'campuran') {
-        const ops = [
-          '+', '-', 'x', '÷', 'kpk', 'fpb', 
-          'gradien-persamaan', 'gradien-titik',
-          'konversi-satuan', 'pola-aritmatika', 'deret-aritmatika'
-        ];
+        const ops = ['+', '-', 'x', '÷', 'kpk', 'fpb', 'gradien-persamaan', 'gradien-titik', 'konversi-satuan', 'pola-aritmatika', 'deret-aritmatika'];
         op = ops[rand(0, ops.length - 1)];
       }
       let params = { op: op, type: 'number' };
@@ -1083,8 +1231,7 @@
       } else if (op === 'kpk' || op === 'fpb') {
         params.minA = 2; params.maxA = 15; params.minB = 2; params.maxB = 15;
       } else if (op === 'gradien-persamaan') {
-        params.type = 'dragdrop';
-        params.subType = rand(1, 3); // 3 tipe soal
+        params.type = 'dragdrop'; params.subType = rand(1, 3);
       } else if (op === 'gradien-titik') {
         params.type = 'dragdrop';
       } else if (op === 'konversi-satuan' || op === 'pola-aritmatika' || op === 'deret-aritmatika') {
@@ -1092,11 +1239,8 @@
       }
       return params;
     }
-    
     function getDragDropChoices(answer) {
-      let choices = new Set();
-      choices.add(answer);
-      choices.add(-answer);
+      let choices = new Set(); choices.add(answer); choices.add(-answer);
       while (choices.size < 4) {
         let distractor;
         if (Math.random() < 0.5) distractor = answer + rand(1, 3);
@@ -1106,98 +1250,43 @@
       }
       return shuffle(Array.from(choices));
     }
-
     function generateProblemFromParams(params) {
       let a = 0, b = 0, c = 0, m = 0, n = 0, answer = 0, question = "", choices = [];
       let opSymbol = params.op;
       switch (params.op) {
-        case '+':
-          a = rand(params.minA, params.maxA); b = rand(params.minB, params.maxB);
-          answer = a + b; question = `${a} + ${b} = ?`;
-          break;
-        case '-':
-          a = rand(params.minA, params.maxA); b = rand(params.minB, params.maxB);
-          if (a < b) [a, b] = [b, a];
-          answer = a - b; opSymbol = '−'; question = `${a} ${opSymbol} ${b} = ?`;
-          break;
-        case 'x':
-          a = rand(params.minA, params.maxA); b = rand(params.minB, params.maxB);
-          answer = a * b; opSymbol = '×'; question = `${a} ${opSymbol} ${b} = ?`;
-          break;
-        case '÷':
-          b = rand(params.minB, params.maxB); answer = rand(params.minA, params.maxA);
-          a = b * answer;
-          opSymbol = '÷'; question = `${a} ${opSymbol} ${b} = ?`;
-          break;
-        case 'kpk':
-          a = rand(params.minA, params.maxA); b = rand(params.minB, params.maxB);
-          answer = lcm(a, b); question = `KPK(${a}, ${b}) = ?`;
-          break;
-        case 'fpb':
-          a = rand(params.minA, params.maxA); b = rand(params.minB, params.maxB);
-          answer = gcd(a, b); question = `FPB(${a}, ${b}) = ?`;
-          break;
+        case '+': a = rand(params.minA, params.maxA); b = rand(params.minB, params.maxB); answer = a + b; question = `${a} + ${b} = ?`; break;
+        case '-': a = rand(params.minA, params.maxA); b = rand(params.minB, params.maxB); if (a < b) [a, b] = [b, a]; answer = a - b; opSymbol = '−'; question = `${a} ${opSymbol} ${b} = ?`; break;
+        case 'x': a = rand(params.minA, params.maxA); b = rand(params.minB, params.maxB); answer = a * b; opSymbol = '×'; question = `${a} ${opSymbol} ${b} = ?`; break;
+        case '÷': b = rand(params.minB, params.maxB); answer = rand(params.minA, params.maxA); a = b * answer; opSymbol = '÷'; question = `${a} ${opSymbol} ${b} = ?`; break;
+        case 'kpk': a = rand(params.minA, params.maxA); b = rand(params.minB, params.maxB); answer = lcm(a, b); question = `KPK(${a}, ${b}) = ?`; break;
+        case 'fpb': a = rand(params.minA, params.maxA); b = rand(params.minB, params.maxB); answer = gcd(a, b); question = `FPB(${a}, ${b}) = ?`; break;
         case 'gradien-persamaan':
-          m = rand(-3, 3);
-          answer = m;
+          m = rand(-3, 3); answer = m;
           switch (params.subType) {
-            case 1: // y = mx + c
-              c = rand(-10, 10);
-              question = `y = ${m === 1 ? '' : m === -1 ? '-' : m}x ${c >= 0 ? '+' : '-'} ${Math.abs(c)}`;
-              if (m === 0) question = `y = ${c}`;
-              break;
-            case 2: // ax + by = c
-              b = rand(1, 3); a = -m * b; c = rand(1, 20);
-              question = `${a === 1 ? '' : a === -1 ? '-' : a}x ${b >= 0 ? '+' : '-'} ${Math.abs(b)}y = ${c}`;
-              break;
-            case 3: // ax + by + c = 0
-              b = rand(1, 3); a = -m * b; c = rand(-20, 20);
-              question = `${a === 1 ? '' : a === -1 ? '-' : a}x ${b >= 0 ? '+' : '-'} ${Math.abs(b)}y ${c >= 0 ? '+' : '-'} ${Math.abs(c)} = 0`;
-              break;
+            case 1: c = rand(-10, 10); question = `y = ${m === 1 ? '' : m === -1 ? '-' : m}x ${c >= 0 ? '+' : '-'} ${Math.abs(c)}`; if (m === 0) question = `y = ${c}`; break;
+            case 2: b = rand(1, 3); a = -m * b; c = rand(1, 20); question = `${a === 1 ? '' : a === -1 ? '-' : a}x ${b >= 0 ? '+' : '-'} ${Math.abs(b)}y = ${c}`; break;
+            case 3: b = rand(1, 3); a = -m * b; c = rand(-20, 20); question = `${a === 1 ? '' : a === -1 ? '-' : a}x ${b >= 0 ? '+' : '-'} ${Math.abs(b)}y ${c >= 0 ? '+' : '-'} ${Math.abs(c)} = 0`; break;
           }
-          choices = getDragDropChoices(answer);
-          break;
+          choices = getDragDropChoices(answer); break;
         case 'gradien-titik':
-          m = rand(-3, 3);
-          let x1 = rand(-5, 5); let y1 = rand(-5, 5);
-          let x2 = rand(-5, 5);
+          m = rand(-3, 3); let x1 = rand(-5, 5); let y1 = rand(-5, 5); let x2 = rand(-5, 5);
           while (x1 === x2) x2 = rand(-5, 5);
-          let y2 = m * (x2 - x1) + y1;
-          answer = m;
+          let y2 = m * (x2 - x1) + y1; answer = m;
           question = `Titik (${x1}, ${y1}) & (${x2}, ${y2})`;
-          choices = getDragDropChoices(answer);
-          break;
+          choices = getDragDropChoices(answer); break;
         case 'konversi-satuan':
-          const units = [
-            ['km', 'm', 1000], ['m', 'cm', 100], ['kg', 'g', 1000], 
-            ['l', 'ml', 1000], ['m', 'mm', 1000], ['cm', 'mm', 10]
-          ];
-          let pair = units[rand(0, units.length - 1)];
-          let val = rand(1, 50);
-          question = `${val} ${pair[0]} = ? ${pair[1]}`;
-          answer = val * pair[2];
-          break;
-        case 'pola-aritmatika':
-          a = rand(1, 20); b = rand(1, 5);
-          question = `${a}, ${a + b}, ${a + 2 * b}, ...?`;
-          answer = a + 3 * b;
-          break;
-        case 'deret-aritmatika':
-          a = rand(1, 10); b = rand(1, 5);
-          n = [4, 6][rand(0, 1)];
-          answer = (n / 2) * (2 * a + (n - 1) * b);
-          question = `Hitung ${n} suku: ${a}, ${a + b}, ...`;
-          break;
+          const units = [['km', 'm', 1000], ['m', 'cm', 100], ['kg', 'g', 1000], ['l', 'ml', 1000], ['m', 'mm', 1000], ['cm', 'mm', 10]];
+          let pair = units[rand(0, units.length - 1)]; let val = rand(1, 50);
+          question = `${val} ${pair[0]} = ? ${pair[1]}`; answer = val * pair[2]; break;
+        case 'pola-aritmatika': a = rand(1, 20); b = rand(1, 5); question = `${a}, ${a + b}, ${a + 2 * b}, ...?`; answer = a + 3 * b; break;
+        case 'deret-aritmatika': a = rand(1, 10); b = rand(1, 5); n = [4, 6][rand(0, 1)]; answer = (n / 2) * (2 * a + (n - 1) * b); question = `Hitung ${n} suku: ${a}, ${a + b}, ...`; break;
       }
       return { question: question, answer: answer, type: params.type, choices: choices };
     }
-
-    // --- ================================== ---
-    // --- AKHIR LOGIKA KESULITAN (LOKAL)   ---
-    // --- ================================== ---
+    // --- (AKHIR DARI LOGIKA SOAL LOKAL) ---
 
     /**
-     * Memperbarui UI soal (HANYA LOKAL)
+     * Memperbarui UI soal (Lokal & Mandiri)
      */
     function nextRound(playerNum) {
       if (gameIsOver) return;
@@ -1227,7 +1316,7 @@
     }
 
     function checkWin() {
-      if (gameIsOver || currentAppMode !== 'local') return;
+      if (gameIsOver || currentAppMode !== 'pvp-local') return;
       if (ropePercent <= WIN_THRESHOLD_P1_LOSES) showWinner(2);
       else if (ropePercent >= WIN_THRESHOLD_P2_LOSES) showWinner(1);
     }
@@ -1236,7 +1325,10 @@
       gameIsOver = true;
       playExplosionSound();
       stopPolling();
-      if (playerNum === 1) {
+      
+      if (playerNum === 'draw') {
+          messageEl.textContent = 'Waktu Habis! Permainan SERI!';
+      } else if (playerNum === 1) {
         messageEl.textContent = 'Pemain 1 (Biru) Menang!';
         ropeMarkerEl.style.left = '100%';
         explosionP2El.classList.remove('hidden');
@@ -1251,19 +1343,16 @@
       allCalcButtons.forEach(btn => btn.disabled = true);
     }
 
-    /**
-     * Menangani input dari tombol (Dipanggil oleh multi-touch)
-     */
     function handleInput(playerNum, value) {
       if (gameIsOver || currentAppMode === 'spectator') return;
 
-      if (currentAppMode === 'online' && onlinePlayerId) {
+      if (currentAppMode === 'pvp-online' && onlinePlayerId) {
          const myPlayerNum = onlinePlayerId === 'p1' ? 1 : 2;
          if (playerNum !== myPlayerNum) return;
       }
       
       const problem = (playerNum === 1) ? player1Problem : player2Problem;
-      if (problem.type !== 'number') return; // Abaikan input keypad jika mode dragdrop
+      if (problem.type !== 'number') return;
 
       const answerEl = (playerNum === 1) ? player1AnswerEl : player2AnswerEl;
 
@@ -1272,16 +1361,12 @@
       } else if (value === 'Go') {
         handleSubmit(playerNum);
       } else {
-        // PERUBAHAN: Izinkan input lebih panjang untuk KPK, konversi, dll.
         if (answerEl.value.length < 6) {
           answerEl.value += value;
         }
       }
     }
 
-    /**
-     * Menangani submit jawaban (LOKAL & ONLINE)
-     */
     async function handleSubmit(playerNum) {
       if (gameIsOver || currentAppMode === 'spectator') return;
       
@@ -1302,68 +1387,52 @@
           if (submittedAnswer === "" || isNaN(parseInt(submittedAnswer, 10))) return;
       }
 
-      // --- Logika Mode Online ---
-      if (currentAppMode === 'online') {
+      if (currentAppMode === 'pvp-online') {
         const goButton = (answerType === 'number') ? document.querySelector(`.calc-btn.go-btn[data-player="${playerNum}"]`) : null;
         if(goButton) {
             goButton.innerHTML = `<span class="spinner mx-auto"></span>`;
             goButton.disabled = true;
         }
-
         try {
           const result = await callGasApi({
-            action: 'submitAnswer',
-            roomCode: onlineRoomCode,
-            player: onlinePlayerId,
-            answer: submittedAnswer,
-            answerType: answerType
+            action: 'submitAnswer', roomCode: onlineRoomCode, player: onlinePlayerId,
+            answer: submittedAnswer, answerType: answerType
           });
-
           if (result.status === 'submitted') {
-            if (!result.wasCorrect) {
-              shakeInput(elementToShake, answerType);
-            } else {
-              if (answerType === 'dragdrop') {
-                elementToShake.textContent = 'Drop jawaban di sini';
-                elementToShake.dataset.value = '';
-              } else {
-                elementToShake.value = '';
-              }
+            if (!result.wasCorrect) shakeInput(elementToShake, answerType);
+            else {
+              if (answerType === 'dragdrop') { elementToShake.textContent = 'Drop jawaban di sini'; elementToShake.dataset.value = ''; }
+              else { elementToShake.value = ''; }
             }
             updateUiFromState(result.newState);
           }
         } catch (error) {
-          console.error("Submit error:", error);
-          messageEl.textContent = "Error kirim jawaban."
+          console.error("Submit error:", error); messageEl.textContent = "Error kirim jawaban."
         } finally {
-          if(goButton) {
-            goButton.innerHTML = `Go`;
-            if (!gameIsOver) goButton.disabled = false;
-          }
+          if(goButton) { goButton.innerHTML = `Go`; if (!gameIsOver) goButton.disabled = false; }
         }
       } 
-      // --- Logika Mode Lokal ---
-      else {
+      else { // Logika Lokal (Mandiri & PvP Lokal)
         const correctAnswer = problem.answer;
         let isCorrect = false;
         
-        if (answerType === 'dragdrop') {
-            isCorrect = (parseFloat(submittedAnswer) === correctAnswer);
-        } else {
-            isCorrect = (parseInt(submittedAnswer, 10) === correctAnswer);
-        }
+        if (answerType === 'dragdrop') isCorrect = (parseFloat(submittedAnswer) === correctAnswer);
+        else isCorrect = (parseInt(submittedAnswer, 10) === correctAnswer);
 
         if (isCorrect) {
-          if (playerNum === 1) ropePercent += ROPE_PULL_AMOUNT;
-          else ropePercent -= ROPE_PULL_AMOUNT;
-          
-          updateRopeVisual();
-          
-          if (!gameIsOver) {
-            localDifficultyParams = getDifficultyParams(currentGameMode);
-            // nextRound(1); // <-- KESALAHAN ADA DI SINI
-            // nextRound(2); // <-- DAN DI SINI
-            nextRound(playerNum); // PERBAIKAN: Hanya ganti soal untuk pemain yang menjawab
+          if (currentAppMode === 'mandiri') {
+              mandiriScore++;
+              mandiriScoreDisplay.textContent = mandiriScore;
+              localDifficultyParams = getDifficultyParams(currentGameMode);
+              nextRound(1); // Hanya P1 di mode mandiri
+          } else { // pvp-local
+              if (playerNum === 1) ropePercent += ROPE_PULL_AMOUNT;
+              else ropePercent -= ROPE_PULL_AMOUNT;
+              updateRopeVisual();
+              if (!gameIsOver) {
+                localDifficultyParams = getDifficultyParams(currentGameMode);
+                nextRound(playerNum);
+              }
           }
         } else {
           shakeInput(elementToShake, answerType);
@@ -1371,9 +1440,6 @@
       }
     }
 
-    /**
-     * Helper untuk menggoyangkan input
-     */
     function shakeInput(element, type) {
       element.classList.add('animate-shake');
       setTimeout(() => {
@@ -1388,28 +1454,28 @@
     }
 
     /**
-     * Memulai game baru (HANYA LOKAL)
+     * BARU: Memulai game PvP Lokal
      */
-    function newGame() {
-      if (currentAppMode !== 'local') return;
+    function startPvpLocalGame() {
+      currentAppMode = 'pvp-local';
       gameIsOver = false;
       ropePercent = 50;
       messageEl.textContent = 'Jawab soal untuk mendorong bom!';
       newGameBtn.classList.add('hidden');
-      gameContainerWrapper.classList.remove('hidden');
       
       player1Card.classList.remove('hidden');
       player2Card.classList.remove('hidden');
+      gameVisual.classList.remove('hidden');
+      mandiriScoreContainer.classList.add('hidden');
+      timerDisplay.classList.remove('hidden');
       p1SpectatorInfo.classList.add('hidden');
       p2SpectatorInfo.classList.add('hidden');
       
       p1NameEl.textContent = "Pemain 1";
       p2NameEl.textContent = "Pemain 2";
       
-      explosionP1El.classList.add('hidden');
-      explosionP2El.classList.add('hidden');
-      explosionP1El.classList.remove('animate-kaboom');
-      explosionP2El.classList.remove('animate-kaboom');
+      explosionP1El.classList.add('hidden'); explosionP2El.classList.add('hidden');
+      explosionP1El.classList.remove('animate-kaboom'); explosionP2El.classList.remove('animate-kaboom');
       
       allCalcButtons.forEach(btn => btn.disabled = false);
       
@@ -1418,14 +1484,52 @@
       updateRopeVisual();
       nextRound(1);
       nextRound(2);
+      startMainTimer(selectedTimerDuration);
     }
+
+    /**
+     * BARU: Memulai game Mandiri
+     */
+     function startMandiriGame() {
+        currentAppMode = 'mandiri';
+        gameIsOver = false;
+        mandiriScore = 0;
+        messageEl.textContent = 'Asah kemampuanmu! Jawab sebanyak mungkin!';
+        newGameBtn.classList.add('hidden');
+        
+        player1Card.classList.remove('hidden');
+        player1Card.classList.add('mx-auto'); // Tengahkan P1
+        player2Card.classList.add('hidden'); // Sembunyikan P2
+        gameVisual.classList.add('hidden'); // Sembunyikan tali
+        mandiriScoreContainer.classList.remove('hidden'); // Tampilkan skor
+        timerDisplay.classList.remove('hidden'); // Tampilkan timer
+        mandiriScoreDisplay.textContent = '0';
+        
+        p1NameEl.textContent = playerNickname === 'Tamu' ? 'Pemain' : playerNickname;
+        
+        explosionP1El.classList.add('hidden'); explosionP2El.classList.add('hidden');
+        explosionP1El.classList.remove('animate-kaboom'); explosionP2El.classList.remove('animate-kaboom');
+        
+        allCalcButtons.forEach(btn => btn.disabled = false);
+        
+        localDifficultyParams = getDifficultyParams(currentGameMode);
+        nextRound(1); // Hanya siapkan soal untuk P1
+        startMainTimer(selectedTimerDuration);
+     }
     
     function backToMenu() {
-      showDeviceModeScreen();
+      showMainMenu(); // Kembali ke menu paling awal
+      
+      // Reset tampilan panel (penting!)
       player1Card.classList.remove('hidden');
+      player1Card.classList.remove('mx-auto');
       player2Card.classList.remove('hidden');
+      gameVisual.classList.remove('hidden');
       p1SpectatorInfo.classList.add('hidden');
       p2SpectatorInfo.classList.add('hidden');
+      mandiriScoreContainer.classList.add('hidden');
+
+      // Sembunyikan ledakan
       explosionP1El.classList.add('hidden');
       explosionP2El.classList.add('hidden');
       explosionP1El.classList.remove('animate-kaboom');
@@ -1441,7 +1545,7 @@
           if (btn.disabled) return;
           const playerNum = parseInt(btn.dataset.player, 10);
           const value = btn.dataset.value;
-          if (currentAppMode === 'online' && onlinePlayerId) {
+          if (currentAppMode === 'pvp-online' && onlinePlayerId) {
              const myPlayerNum = onlinePlayerId === 'p1' ? 1 : 2;
              if (playerNum !== myPlayerNum) return;
           }
@@ -1460,16 +1564,12 @@
     function setupDragDrop() {
         let draggedItem = null;
 
-        // Listener untuk Pilihan Jawaban
         document.querySelectorAll('.choice-btn').forEach(item => {
             item.addEventListener('dragstart', (e) => {
                 const playerNum = parseInt(item.dataset.player, 10);
-                 if (currentAppMode === 'online' && onlinePlayerId) {
+                 if (currentAppMode === 'pvp-online' && onlinePlayerId) {
                     const myPlayerNum = onlinePlayerId === 'p1' ? 1 : 2;
-                    if (playerNum !== myPlayerNum) {
-                        e.preventDefault();
-                        return;
-                    }
+                    if (playerNum !== myPlayerNum) { e.preventDefault(); return; }
                  }
                 
                 draggedItem = item;
@@ -1483,7 +1583,6 @@
             });
         });
 
-        // Listener untuk Zona Drop Jawaban
         document.querySelectorAll('.answer-zone').forEach(zone => {
             zone.addEventListener('dragover', (e) => {
                 e.preventDefault();
@@ -1499,7 +1598,7 @@
                 zone.classList.remove('answer-zone-hover');
                 
                 const playerNum = parseInt(zone.dataset.player, 10);
-                if (currentAppMode === 'online' && onlinePlayerId) {
+                if (currentAppMode === 'pvp-online' && onlinePlayerId) {
                     const myPlayerNum = onlinePlayerId === 'p1' ? 1 : 2;
                     if (playerNum !== myPlayerNum) return;
                 }
@@ -1531,10 +1630,9 @@
 
     setupCalculatorTouch();
     setupDragDrop();
-    showDeviceModeScreen();
+    showMainMenu(); // BARU: Mulai dari menu utama
 
   </script>
 </body>
 </html>
-
 
