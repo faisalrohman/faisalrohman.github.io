@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timer Fullscreen</title>
+    <title>Timer Fullscreen Lengkap</title>
     <style>
         :root {
             --primary-color: #007aff;
@@ -45,7 +45,7 @@
         }
 
         #timerDisplay {
-            font-size: 6rem; /* Ukuran default */
+            font-size: 6rem; /* Ukuran default, akan diubah oleh slider */
             font-weight: 700;
             color: var(--primary-color);
             font-variant-numeric: tabular-nums;
@@ -142,22 +142,32 @@
         #fontSizeSlider { width: 100%; cursor: pointer; }
 
         /* --- Gaya Saat Fullscreen Aktif --- */
-        .timer-app:-webkit-full-screen {
-            background-color: var(--container-bg);
-        }
+        /* Standar W3C */
         .timer-app:fullscreen {
             background-color: var(--container-bg);
         }
-        
         .timer-app:fullscreen .timer-display-wrapper {
             height: 100vh;
             width: 100vw;
             border-radius: 0;
             box-shadow: none;
         }
-        
         .timer-app:fullscreen .controls-panel {
             display: none; /* Sembunyikan panel kontrol */
+        }
+        
+        /* Untuk browser Webkit (Chrome, Safari) */
+        .timer-app:-webkit-full-screen {
+            background-color: var(--container-bg);
+        }
+        .timer-app:-webkit-full-screen .timer-display-wrapper {
+            height: 100vh;
+            width: 100vw;
+            border-radius: 0;
+            box-shadow: none;
+        }
+        .timer-app:-webkit-full-screen .controls-panel {
+            display: none;
         }
     </style>
 </head>
@@ -204,7 +214,7 @@
     <audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/digital_alarm.ogg" preload="auto"></audio>
 
     <script>
-        // --- Elemen DOM ---
+        // --- Mendapatkan Elemen DOM ---
         const timerApp = document.getElementById('timerApp');
         const timerDisplay = document.getElementById('timerDisplay');
         const hoursInput = document.getElementById('hours');
@@ -220,37 +230,56 @@
         const iconExit = document.getElementById('icon-fullscreen-exit');
 
         // --- Variabel Status ---
-        let countdown;
+        let countdown; // Untuk menyimpan interval
         let totalSeconds = 0;
         let isRunning = false;
         let isMuted = false;
+        let hasInteracted = false; // Untuk perbaikan suara autoplay
 
-        // --- Fungsi Timer (Sama seperti sebelumnya) ---
+        // --- Fungsi Timer ---
+
         function startTimer() {
+            
+            // PERBAIKAN: "Buka kunci" audio saat interaksi (klik) pertama
+            // Ini untuk mengatasi kebijakan autoplay browser
+            if (!hasInteracted) {
+                alarmSound.play();
+                alarmSound.pause();
+                alarmSound.currentTime = 0;
+                hasInteracted = true;
+            }
+
             if (isRunning) {
+                // Jika sedang berjalan, maka Jeda
                 clearInterval(countdown);
                 isRunning = false;
                 startStopBtn.textContent = 'Lanjut';
                 startStopBtn.classList.remove('pause');
             } else {
+                // Jika tidak berjalan (baru atau lanjut)
                 if (totalSeconds === 0) {
+                    // Ambil nilai baru jika timer di 0
                     const hours = parseInt(hoursInput.value) || 0;
                     const minutes = parseInt(minutesInput.value) || 0;
                     const seconds = parseInt(secondsInput.value) || 0;
                     totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
                 }
-                if (totalSeconds <= 0) return;
+
+                if (totalSeconds <= 0) return; // Jangan mulai jika waktu 0
+
                 isRunning = true;
                 startStopBtn.textContent = 'Jeda';
                 startStopBtn.classList.add('pause');
-                toggleInputFields(false);
+                toggleInputFields(false); // Nonaktifkan input saat berjalan
+
                 countdown = setInterval(() => {
                     totalSeconds--;
                     updateDisplay();
+
                     if (totalSeconds <= 0) {
                         clearInterval(countdown);
                         playAlarm();
-                        resetTimer(false);
+                        resetTimer(false); // Reset status tapi jangan hapus input
                     }
                 }, 1000);
             }
@@ -263,7 +292,8 @@
             updateDisplay();
             startStopBtn.textContent = 'Mulai';
             startStopBtn.classList.remove('pause');
-            toggleInputFields(true);
+            toggleInputFields(true); // Aktifkan lagi input
+
             if (clearInputs) {
                 hoursInput.value = '';
                 minutesInput.value = '';
@@ -275,7 +305,9 @@
             const h = Math.floor(totalSeconds / 3600);
             const m = Math.floor((totalSeconds % 3600) / 60);
             const s = totalSeconds % 60;
-            timerDisplay.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+
+            timerDisplay.textContent = 
+                `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
         
         function toggleInputFields(enabled) {
@@ -285,9 +317,10 @@
         }
         
         // --- Fungsi Kontrol Suara & Font ---
+
         function playAlarm() {
             if (!isMuted) {
-                alarmSound.currentTime = 0;
+                alarmSound.currentTime = 0; // Putar dari awal
                 alarmSound.play();
             }
         }
@@ -299,22 +332,33 @@
         }
 
         function changeFontSize() {
-            timerDisplay.style.fontSize = `${fontSizeSlider.value}px`;
+            const size = fontSizeSlider.value;
+            timerDisplay.style.fontSize = `${size}px`;
         }
 
-        // --- Fungsi Fullscreen BARU ---
+        // --- Fungsi Fullscreen ---
+
         function toggleFullScreen() {
-            if (!document.fullscreenElement) {
-                timerApp.requestFullscreen().catch(err => {
-                    alert(`Error: Tidak bisa masuk mode layar penuh: ${err.message}`);
-                });
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                // Masuk fullscreen
+                if (timerApp.requestFullscreen) {
+                    timerApp.requestFullscreen();
+                } else if (timerApp.webkitRequestFullscreen) { /* Safari */
+                    timerApp.webkitRequestFullscreen();
+                }
             } else {
-                document.exitFullscreen();
+                // Keluar fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) { /* Safari */
+                    document.webkitExitFullscreen();
+                }
             }
         }
 
         function updateFullscreenIcon() {
-            if (document.fullscreenElement) {
+            // Periksa apakah ada elemen yang sedang fullscreen
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
                 iconEnter.style.display = 'none';
                 iconExit.style.display = 'block';
             } else {
@@ -329,11 +373,14 @@
         muteBtn.addEventListener('click', toggleMute);
         fontSizeSlider.addEventListener('input', changeFontSize);
         fullscreenBtn.addEventListener('click', toggleFullScreen);
-        document.addEventListener('fullscreenchange', updateFullscreenIcon); // Untuk deteksi keluar dgn tombol Esc
+        
+        // Listener untuk mendeteksi perubahan fullscreen (termasuk tombol Esc)
+        document.addEventListener('fullscreenchange', updateFullscreenIcon);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenIcon); // Untuk Safari
 
         // --- Inisialisasi Tampilan ---
         updateDisplay();
-        changeFontSize();
+        changeFontSize(); // Atur ukuran font awal sesuai slider
     </script>
 
 </body>
