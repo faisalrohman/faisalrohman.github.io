@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Balap Mobil FR</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #222;
+            overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
+            touch-action: none; /* Mencegah zoom dan scroll browser pada HP */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 100%;
+            max-width: 480px;
+            height: 100%;
+            max-height: 800px;
+            background-color: #555;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* UI Layers */
+        .ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.85); /* Sedikit lebih gelap agar teks terbaca */
+            color: white;
+            z-index: 10;
+            text-align: center;
+            transition: opacity 0.3s;
+        }
+
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+            z-index: 0; /* Turunkan z-index saat hidden */
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #ff3333;
+            text-shadow: 4px 4px #000;
+            margin-bottom: 10px;
+            line-height: 1;
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin: 10px 0;
+            color: #fff;
+        }
+
+        .btn {
+            margin-top: 20px;
+            padding: 20px 40px; /* Diperbesar area tap-nya */
+            font-size: 1.5rem;
+            font-weight: bold;
+            background-color: #ffcc00;
+            color: #000;
+            border: 4px solid #fff;
+            cursor: pointer;
+            border-radius: 10px;
+            text-transform: uppercase;
+            animation: pulse 1.5s infinite;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent; /* Hilangkan highlight biru di Android */
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+            background-color: #e6b800;
+        }
+
+        #scoreHud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 0 #000;
+            z-index: 5;
+            background: rgba(0,0,0,0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        /* Indikator Turbo */
+        #turboIndicator {
+            position: absolute;
+            bottom: 100px;
+            width: 100%;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 900;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+            font-style: italic;
+            opacity: 0;
+            transition: opacity 0.1s;
+            pointer-events: none;
+            z-index: 4;
+        }
+        .turbo-active {
+            opacity: 1 !important;
+            animation: shake 0.1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px); }
+            50% { transform: translate(-1px, -1px); }
+            100% { transform: translate(1px, -1px); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="gameContainer">
+    <div id="scoreHud">SKOR: 0</div>
+    <div id="turboIndicator">TURBO!!!</div>
+    
+    <!-- Canvas -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Start Screen -->
+    <div id="startScreen" class="ui-layer">
+        <h1>TURBO<br>RACER</h1>
+        <p>Hindari mobil biru!</p>
+        <div class="btn" id="startBtn">Mulai Balapan</div>
+        <p style="font-size: 0.9rem; margin-top: 30px; opacity: 0.8; line-height: 1.5;">
+            Desktop: Panah Kiri/Kanan + <b>Atas (Turbo)</b><br>
+            HP: Geser Kiri/Kanan + <b>Geser Atas (Turbo)</b>
+        </p>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameOverScreen" class="ui-layer hidden">
+        <h1 style="color: #fff;">TABRAKAN!</h1>
+        <p id="finalScoreDisplay">Skor Akhir: 0</p>
+        <div class="btn" id="restartBtn">Main Lagi</div>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const container = document.getElementById('gameContainer');
+    const ctx = canvas.getContext('2d');
+    const startScreen = document.getElementById('startScreen');
+    const gameOverScreen = document.getElementById('gameOverScreen');
+    const scoreHud = document.getElementById('scoreHud');
+    const finalScoreDisplay = document.getElementById('finalScoreDisplay');
+    const turboIndicator = document.getElementById('turboIndicator');
+    const startBtn = document.getElementById('startBtn');
+    const restartBtn = document.getElementById('restartBtn');
+
+    // Event Listeners untuk Tombol (Mouse & Touch)
+    startBtn.addEventListener('click', startGame);
+    restartBtn.addEventListener('click', resetGame);
+    startBtn.addEventListener('touchstart', (e) => { e.stopPropagation(); startGame(); });
+    restartBtn.addEventListener('touchstart', (e) => { e.stopPropagation(); resetGame(); });
+
+    // Game Config
+    let animationId;
+    let score = 0;
+    let gameSpeed = 5;
+    let isGameOver = false;
+    let roadOffset = 0;
+    let isBoosting = false;
+
+    // Responsive Canvas
+    function resizeCanvas() {
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+        
+        if (!animationId && player) {
+            player.x = canvas.width / 2 - player.width / 2;
+            player.y = canvas.height - 120;
+        }
+    }
+    window.addEventListener('resize', resizeCanvas);
+    
+    // Player Object
+    let player = {
+        x: 0,
+        y: 0,
+        width: 50,
+        height: 80,
+        color: '#ff3333',
+        speed: 7
+    };
+
+    let enemies = [];
+    let keys = { ArrowLeft: false, ArrowRight: false, ArrowUp: false };
+
+    // --- INPUT HANDLING ---
+    
+    // Keyboard
+    document.addEventListener('keydown', (e) => {
+        if (keys.hasOwnProperty(e.code)) keys[e.code] = true;
+    });
+    document.addEventListener('keyup', (e) => {
+        if (keys.hasOwnProperty(e.code)) keys[e.code] = false;
+    });
+
+    // Touch / Swipe Logic
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let isTouching = false;
+
+    container.addEventListener('touchstart', (e) => {
+        if (e.target.classList.contains('btn')) return;
+        e.preventDefault(); 
+        if (isGameOver) return;
+        
+        isTouching = true;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    }, { passive: false });
+
+    container.addEventListener('touchmove', (e) => {
+        if (e.target.classList.contains('btn')) return;
+        e.preventDefault(); 
+
+        if (!isTouching || isGameOver) return;
+
+        const touchCurrentX = e.touches[0].clientX;
+        const touchCurrentY = e.touches[0].clientY;
+        
+        // 1. Horizontal Control (Steering)
+        const deltaX = touchCurrentX - touchStartX;
+        player.x += deltaX;
+        touchStartX = touchCurrentX; // Reset X reference for smooth dragging
+
+        // 2. Vertical Control (Turbo/Boost)
+        // Jika jari bergeser ke atas (Y berkurang) secara signifikan dari titik awal sentuh
+        // atau posisi jari sekarang jauh di atas titik awal
+        const deltaYFromStart = touchCurrentY - touchStartY;
+        
+        // Threshold: geser ke atas 50px untuk aktifkan turbo
+        if (deltaYFromStart < -50) {
+            keys.ArrowUp = true;
+        } else {
+            keys.ArrowUp = false;
+        }
+
+        // Clamping
+        if (player.x < 20) player.x = 20;
+        if (player.x > canvas.width - 20 - player.width) player.x = canvas.width - 20 - player.width;
+
+    }, { passive: false });
+
+    container.addEventListener('touchend', (e) => {
+        if (!e.target.classList.contains('btn')) {
+            e.preventDefault();
+        }
+        isTouching = false;
+        keys.ArrowUp = false; // Matikan turbo saat jari diangkat
+    });
+
+    // --- DRAWING FUNCTIONS ---
+
+    function drawRect(x, y, w, h, color) {
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, w, h);
+    }
+
+    function drawCar(x, y, color, type) {
+        // Shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.fillRect(x + 5, y + 5, player.width, player.height);
+
+        // Tires
+        ctx.fillStyle = '#000';
+        const tireW = 8;
+        const tireH = 16;
+        ctx.fillRect(x - 2, y + 10, tireW, tireH);
+        ctx.fillRect(x + player.width - 6, y + 10, tireW, tireH);
+        ctx.fillRect(x - 2, y + player.height - 20, tireW, tireH);
+        ctx.fillRect(x + player.width - 6, y + player.height - 20, tireW, tireH);
+
+        // Body
+        drawRect(x + 2, y, player.width - 4, player.height, color);
+        
+        // Details
+        ctx.fillStyle = '#111';
+        
+        if (type === 'player') {
+            ctx.fillRect(x + 5, y + 20, player.width - 10, 15); 
+            ctx.fillRect(x + 5, y + 50, player.width - 10, 8);
+            ctx.fillStyle = 'rgba(255,255,255,0.3)';
+            ctx.fillRect(x + (player.width/2) - 3, y, 6, player.height);
+            
+            // Efek Api Knalpot saat Turbo
+            if (isBoosting) {
+                ctx.fillStyle = 'orange';
+                ctx.beginPath();
+                ctx.moveTo(x + 10, y + player.height);
+                ctx.lineTo(x + 15, y + player.height + 15 + Math.random() * 10);
+                ctx.lineTo(x + 20, y + player.height);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.moveTo(x + player.width - 20, y + player.height);
+                ctx.lineTo(x + player.width - 15, y + player.height + 15 + Math.random() * 10);
+                ctx.lineTo(x + player.width - 10, y + player.height);
+                ctx.fill();
+            }
+
+        } else {
+            ctx.fillRect(x + 5, y + 15, player.width - 10, 12);
+            ctx.fillRect(x + 5, y + 45, player.width - 10, 10);
+        }
+    }
+
+    function drawRoad(boostFactor) {
+        // Rumput
+        ctx.fillStyle = '#2d8f2d';
+        ctx.fillRect(0, 0, 20, canvas.height);
+        ctx.fillRect(canvas.width - 20, 0, 20, canvas.height);
+
+        // Batas Jalan
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(20, 0, 5, canvas.height);
+        ctx.fillRect(canvas.width - 25, 0, 5, canvas.height);
+
+        // Garis Putus-putus
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        const numLines = 10;
+        const lineHeight = 40;
+        const gap = 40;
+        
+        for (let i = -1; i < numLines + 1; i++) {
+            let y = (i * (lineHeight + gap)) + roadOffset;
+            ctx.fillRect(canvas.width / 2 - 2, y, 4, lineHeight);
+        }
+
+        // Kecepatan jalan dipengaruhi Boost
+        roadOffset += gameSpeed * boostFactor;
+        if (roadOffset > lineHeight + gap) {
+            roadOffset = 0;
+        }
+    }
+
+    // --- GAME LOGIC ---
+
+    function spawnEnemy() {
+        const minX = 30;
+        const maxX = canvas.width - 30 - player.width;
+        const x = Math.random() * (maxX - minX) + minX;
+        
+        enemies.push({
+            x: x,
+            y: -100,
+            color: getRandomColor(),
+            speed: gameSpeed * (0.8 + Math.random() * 0.4)
+        });
+    }
+
+    function getRandomColor() {
+        const colors = ['#3366cc', '#33cc33', '#cc33cc', '#e6e600', '#00cccc', '#ff9900'];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    function checkCollision(rect1, rect2) {
+        const padding = 5;
+        return (
+            rect1.x + padding < rect2.x + player.width - padding &&
+            rect1.x + player.width - padding > rect2.x + padding &&
+            rect1.y + padding < rect2.y + player.height - padding &&
+            rect1.height + rect1.y - padding > rect2.y + padding
+        );
+    }
+
+    function update() {
+        if (isGameOver) return;
+
+        // Cek Status Turbo
+        isBoosting = keys.ArrowUp;
+        let boostFactor = isBoosting ? 2.5 : 1.0; // 2.5x kecepatan normal
+
+        // Update UI Turbo
+        if (isBoosting) {
+            turboIndicator.classList.add('turbo-active');
+        } else {
+            turboIndicator.classList.remove('turbo-active');
+        }
+
+        // Update Posisi Player (Keyboard Steer)
+        if (!isTouching) {
+            if (keys.ArrowLeft && player.x > 25) {
+                player.x -= player.speed;
+            }
+            if (keys.ArrowRight && player.x < canvas.width - 25 - player.width) {
+                player.x += player.speed;
+            }
+        }
+        
+        if (player.x < 25) player.x = 25;
+        if (player.x > canvas.width - 25 - player.width) player.x = canvas.width - 25 - player.width;
+
+        // Logic Musuh
+        // Spawn chance meningkat sedikit saat turbo biar lebih seru
+        let spawnChance = isBoosting ? 0.04 : 0.02;
+        
+        if (Math.random() < spawnChance) { 
+            let canSpawn = true;
+            for(let enemy of enemies) {
+                if (enemy.y < 150) canSpawn = false;
+            }
+            if (canSpawn) spawnEnemy();
+        }
+
+        for (let i = 0; i < enemies.length; i++) {
+            let enemy = enemies[i];
+            
+            // Musuh bergerak lebih cepat ke bawah saat kita Turbo (efek relatif)
+            enemy.y += enemy.speed * boostFactor;
+
+            if (checkCollision(player, enemy)) {
+                gameOver();
+                return;
+            }
+
+            if (enemy.y > canvas.height) {
+                enemies.splice(i, 1);
+                i--;
+                
+                // Skor bonus jika dalam mode Turbo
+                score += isBoosting ? 2 : 1; 
+                scoreHud.innerText = "SKOR: " + score;
+                
+                if (score % 20 === 0) gameSpeed += 0.5;
+            }
+        }
+        
+        return boostFactor;
+    }
+
+    function draw(boostFactor) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = '#555'; 
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        drawRoad(boostFactor); // Pass boostFactor ke jalan
+
+        for (let enemy of enemies) {
+            drawCar(enemy.x, enemy.y, enemy.color, 'enemy');
+        }
+
+        drawCar(player.x, player.y, player.color, 'player');
+    }
+
+    function loop() {
+        if (isGameOver) return;
+        const boostFactor = update();
+        draw(boostFactor);
+        animationId = requestAnimationFrame(loop);
+    }
+
+    // --- STATE MANAGEMENT ---
+
+    function startGame() {
+        if (animationId) cancelAnimationFrame(animationId);
+        
+        resizeCanvas();
+        startScreen.classList.add('hidden');
+        gameOverScreen.classList.add('hidden');
+        
+        player.x = canvas.width / 2 - player.width / 2;
+        player.y = canvas.height - 120;
+        enemies = [];
+        score = 0;
+        gameSpeed = 5;
+        scoreHud.innerText = "SKOR: 0";
+        isGameOver = false;
+        keys.ArrowUp = false;
+
+        loop();
+    }
+
+    function gameOver() {
+        isGameOver = true;
+        cancelAnimationFrame(animationId);
+        gameOverScreen.classList.remove('hidden');
+        turboIndicator.classList.remove('turbo-active');
+        finalScoreDisplay.innerText = "Skor Akhir: " + score;
+    }
+
+    function resetGame() {
+        startGame();
+    }
+
+    resizeCanvas();
+    draw(1); 
+
+</script>
+</body>
+</html>
