@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Game Matematika</title>
-  <!-- Memuat Tailwind CSS untuk styling -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     /* Menggunakan font Inter */
@@ -79,8 +78,8 @@
       -moz-user-select: none;
     }
     .calc-btn-active {
-       transform: scale(0.92);
-       background-color: #d1d5db; /* gray-300 */
+        transform: scale(0.92);
+        background-color: #d1d5db; /* gray-300 */
     }
 
     /* Style untuk tombol yang dinonaktifkan (online mode) */
@@ -134,12 +133,8 @@
 </head>
 <body class="bg-sky-100 min-h-screen flex flex-col justify-between p-4 font-inter">
 
-  <!-- Kontainer Utama -->
   <main class="flex-grow flex items-center justify-center">
 
-    <!-- ======================================================= -->
-    <!-- Layar Menu Utama (BARU)                               -->
-    <!-- ======================================================= -->
     <div id="main-menu-screen" class="bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
       <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
         Game Matematika @FR
@@ -159,9 +154,6 @@
       </div>
     </div>
     
-    <!-- ======================================================= -->
-    <!-- Layar Pilihan Device (Diganti nama)                   -->
-    <!-- ======================================================= -->
     <div id="pvp-device-mode-screen" class="hidden bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
       <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
         Mode PvP
@@ -170,7 +162,6 @@
         Pilih Mode Battle
       </h2>
       <div class="grid grid-cols-1 gap-4">
-        <!-- PERUBAHAN: Teks tombol diganti -->
         <button onclick="showGameModeScreen('pvp-local')" class="mode-btn p-6 rounded-xl bg-gray-100 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400">
           <span class="text-4xl sm:text-5xl font-bold text-blue-600">🕵️‍♂️</span>
           <span class="block text-base sm:text-lg font-medium text-gray-700 mt-2">Battle Offline (Lokal)</span>
@@ -189,9 +180,6 @@
       </button>
     </div>
     
-    <!-- ======================================================= -->
-    <!-- Layar Pilihan Mode Game (Dipakai Mandiri & PvP Lokal) -->
-    <!-- ======================================================= -->
     <div id="game-mode-selection-screen" class="hidden bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
       <h1 id="game-mode-title" class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
         Pilih Mode
@@ -254,9 +242,6 @@
       </button>
     </div>
     
-    <!-- ======================================================= -->
-    <!-- Layar Pilihan Timer (BARU)                            -->
-    <!-- ======================================================= -->
     <div id="timer-selection-screen" class="hidden bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
       <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
         Pilih Waktu Permainan
@@ -283,9 +268,6 @@
       </button>
     </div>
 
-    <!-- ======================================================= -->
-    <!-- Layar Masukkan Nama                                   -->
-    <!-- ======================================================= -->
     <div id="nickname-screen" class="hidden bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
       <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
         Mode Battle Online
@@ -304,9 +286,6 @@
       </button>
     </div>
     
-    <!-- ======================================================= -->
-    <!-- Layar Pilihan Mode Game (ONLINE)                      -->
-    <!-- ======================================================= -->
     <div id="online-game-mode-screen" class="hidden bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
       <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
         Battle Online
@@ -315,7 +294,6 @@
         Pilih Mode Permainan
       </h2>
       <div class="grid grid-cols-3 gap-3 sm:gap-4">
-        <!-- Tombol memanggil selectGameMode() -->
         <button onclick="selectGameMode('+')" class="mode-btn p-4 rounded-xl bg-gray-100 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400">
           <span class="text-2xl sm:text-4xl font-bold text-blue-600">+</span>
           <span class="block text-sm font-medium text-gray-700 mt-1">Tambah</span>
@@ -370,9 +348,6 @@
       </button>
     </div>
 
-    <!-- ======================================================= -->
-    <!-- Layar Pairing (Online)                                -->
-    <!-- ======================================================= -->
     <div id="pairing-screen" class="hidden bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
       <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
         Mode Battle Online
@@ -391,12 +366,15 @@
       </div>
 
       <div id="pairing-options">
+        
         <div class="mb-6">
           <h3 class="text-xl font-semibold text-gray-700 mb-3">Buat Room Baru</h3>
+          <input type="text" id="create-code-input" placeholder="Masukkan Kode Room (4-10 Kar)" class="w-full p-3 border border-gray-300 rounded-lg text-center text-lg text-black mb-3 focus:ring-2 focus:ring-purple-400 focus:outline-none uppercase tracking-widest" maxlength="10">
           <button id="create-room-btn" onclick="createRoom()" class="w-full px-5 py-3 bg-purple-600 text-white text-base font-semibold rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-400">
-            Buat Kode Room
+            Buat Room
           </button>
         </div>
+
         <div class="relative flex py-2 items-center">
           <div class="flex-grow border-t border-gray-300"></div>
           <span class="flex-shrink mx-4 text-gray-500 font-medium">ATAU</span>
@@ -416,9 +394,6 @@
       </button>
     </div>
 
-    <!-- ======================================================= -->
-    <!-- Layar Mode Penonton                                   -->
-    <!-- ======================================================= -->
     <div id="spectator-screen" class="hidden bg-white w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl text-center">
       <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
         Mode Penonton
@@ -444,21 +419,17 @@
       </button>
     </div>
 
-    <!-- 2. Overlay Hitung Mundur (Default tersembunyi) -->
     <div id="countdown-overlay" class="hidden fixed inset-0 flex items-center justify-center">
       <div id="countdown-text">3</div>
     </div>
 
-    <!-- 3. Wrapper Kontainer Game (Default tersembunyi) -->
     <div id="game-container-wrapper" class="hidden w-full">
       <div class="bg-white w-full max-w-5xl p-4 sm:p-8 rounded-2xl shadow-xl text-center mx-auto">
         
-        <!-- BARU: Timer dan Skor Mandiri -->
         <div class="flex justify-between items-center mb-4">
           <div id="mandiri-score-container" class="hidden text-left">
              <span class="text-2xl font-bold text-green-600">Skor: <span id="mandiri-score-display">0</span></span>
           </div>
-          <!-- Timer Display -->
           <div id="timer-display" class="text-right text-3xl font-bold text-gray-700 w-full">
             --:--
           </div>
@@ -471,30 +442,31 @@
           Jawab soal untuk mendorong bom!
         </p>
 
-        <!-- Kontainer Utama Game -->
         <div id="game-container" class="flex flex-col lg:flex-row items-center justify-around w-full gap-4 sm:gap-8">
 
-          <!-- Pemain 1 (Kiri) -->
           <div id="player1-card" class="bg-blue-800 p-3 sm:p-4 rounded-2xl shadow-lg w-full max-w-[280px] sm:max-w-xs">
             <h2 id="p1-name" class="text-white text-xl font-semibold mb-2 truncate">Pemain 1</h2>
             <div id="player1-problem" class="text-white text-lg sm:text-2xl font-bold mb-3 h-10 sm:h-12 flex items-center justify-center px-1">? + ? = ?</div>
             
             <div id="p1-input-wrapper">
               <input type="text" id="player1-answer" class="w-full p-2 sm:p-3 rounded-lg text-right text-2xl sm:text-3xl text-black mb-3 pointer-events-none bg-gray-100" readonly>
+              
               <div id="p1-keypad" class="grid grid-cols-3 gap-2 sm:gap-3">
-                <button data-player="1" data-value="1" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">1</button>
-                <button data-player="1" data-value="2" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">2</button>
-                <button data-player="1" data-value="3" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">3</button>
-                <button data-player="1" data-value="4" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">4</button>
-                <button data-player="1" data-value="5" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">5</button>
-                <button data-player="1" data-value="6" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">6</button>
-                <button data-player="1" data-value="7" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">7</button>
-                <button data-player="1" data-value="8" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">8</button>
-                <button data-player="1" data-value="9" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">9</button>
-                <button data-player="1" data-value="C" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-red-600 text-white focus:outline-none">C</button>
-                <button data-player="1" data-value="0" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">0</button>
-                <button data-player="1" data-value="Go" class="calc-btn go-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-green-600 text-white focus:outline-none">Go</button>
+                <button data-player="1" data-value="1" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-white text-gray-800 focus:outline-none">1</button>
+                <button data-player="1" data-value="2" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-white text-gray-800 focus:outline-none">2</button>
+                <button data-player="1" data-value="3" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-white text-gray-800 focus:outline-none">3</button>
+                <button data-player="1" data-value="4" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-white text-gray-800 focus:outline-none">4</button>
+                <button data-player="1" data-value="5" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-white text-gray-800 focus:outline-none">5</button>
+                <button data-player="1" data-value="6" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-white text-gray-800 focus:outline-none">6</button>
+                <button data-player="1" data-value="7" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-white text-gray-800 focus:outline-none">7</button>
+                <button data-player="1" data-value="8" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-white text-gray-800 focus:outline-none">8</button>
+                <button data-player="1" data-value="9" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-white text-gray-800 focus:outline-none">9</button>
+                <button data-player="1" data-value="C" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-red-600 text-white focus:outline-none">C</button>
+                <button data-player="1" data-value="0" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-white text-gray-800 focus:outline-none">0</button>
+                <button data-player="1" data-value="Del" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-amber-500 text-white focus:outline-none">⌫</button>
+                <button data-player="1" data-value="Go" class="calc-btn go-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-green-600 text-white focus:outline-none col-span-3">Go</button>
               </div>
+              
               <div id="p1-dragdrop-ui" class="hidden space-y-3">
                 <div id="p1-answer-zone" data-player="1" class="answer-zone text-white/70 border-white/50 h-14 flex items-center justify-center text-lg">Drop jawaban di sini</div>
                 <div id="p1-choices" class="grid grid-cols-4 gap-2">
@@ -507,7 +479,6 @@
             </div>
           </div>
 
-          <!-- Visual Tarik Tambang -->
           <div id="game-visual" class="flex items-center justify-center w-full lg:w-auto px-4 my-4 lg:my-0">
             <div class="relative text-center">
               <div id="p1-spectator-info" class="hidden absolute -top-10 left-1/2 -translate-x-1/2 text-xl font-bold text-blue-600 bg-white/70 px-3 py-1 rounded-lg w-max max-w-xs truncate">
@@ -532,27 +503,29 @@
             </div>
           </div>
 
-          <!-- Pemain 2 (Kanan) -->
           <div id="player2-card" class="bg-red-800 p-3 sm:p-4 rounded-2xl shadow-lg w-full max-w-[280px] sm:max-w-xs">
             <h2 id="p2-name" class="text-white text-xl font-semibold mb-2 truncate">Pemain 2</h2>
             <div id="player2-problem" class="text-white text-lg sm:text-2xl font-bold mb-3 h-10 sm:h-12 flex items-center justify-center px-1">? + ? = ?</div>
             
             <div id="p2-input-wrapper">
               <input type="text" id="player2-answer" class="w-full p-2 sm:p-3 rounded-lg text-right text-2xl sm:text-3xl text-black mb-3 pointer-events-none bg-gray-100" readonly>
+              
               <div id="p2-keypad" class="grid grid-cols-3 gap-2 sm:gap-3">
-                <button data-player="2" data-value="1" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">1</button>
-                <button data-player="2" data-value="2" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">2</button>
-                <button data-player="2" data-value="3" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">3</button>
-                <button data-player="2" data-value="4" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">4</button>
-                <button data-player="2" data-value="5" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">5</button>
-                <button data-player="2" data-value="6" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">6</button>
-                <button data-player="2" data-value="7" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">7</button>
-                <button data-player="2" data-value="8" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">8</button>
-                <button data-player="2" data-value="9" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">9</button>
-                <button data-player="2" data-value="C" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-red-600 text-white focus:outline-none">C</button>
-                <button data-player="2" data-value="0" class="calc-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-white text-gray-800 focus:outline-none">0</button>
-                <button data-player="2" data-value="Go" class="calc-btn go-btn p-3 sm:p-3.5 rounded-lg text-xl sm:text-2xl font-bold bg-green-600 text-white focus:outline-none">Go</button>
+                <button data-player="2" data-value="1" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-white text-gray-800 focus:outline-none">1</button>
+                <button data-player="2" data-value="2" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-white text-gray-800 focus:outline-none">2</button>
+                <button data-player="2" data-value="3" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-white text-gray-800 focus:outline-none">3</button>
+                <button data-player="2" data-value="4" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-white text-gray-800 focus:outline-none">4</button>
+                <button data-player="2" data-value="5" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-white text-gray-800 focus:outline-none">5</button>
+                <button data-player="2" data-value="6" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-white text-gray-800 focus:outline-none">6</button>
+                <button data-player="2" data-value="7" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-white text-gray-800 focus:outline-none">7</button>
+                <button data-player="2" data-value="8" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-white text-gray-800 focus:outline-none">8</button>
+                <button data-player="2" data-value="9" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-white text-gray-800 focus:outline-none">9</button>
+                <button data-player="2" data-value="C" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-red-600 text-white focus:outline-none">C</button>
+                <button data-player="2" data-value="0" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-white text-gray-800 focus:outline-none">0</button>
+                <button data-player="2" data-value="Del" class="calc-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-amber-500 text-white focus:outline-none">⌫</button>
+                <button data-player="2" data-value="Go" class="calc-btn go-btn p-2 sm:p-3 rounded-lg text-lg sm:text-xl font-bold bg-green-600 text-white focus:outline-none col-span-3">Go</button>
               </div>
+              
               <div id="p2-dragdrop-ui" class="hidden space-y-3">
                 <div id="p2-answer-zone" data-player="2" class="answer-zone text-white/70 border-white/50 h-14 flex items-center justify-center text-lg">Drop jawaban di sini</div>
                 <div id="p2-choices" class="grid grid-cols-4 gap-2">
@@ -566,7 +539,6 @@
           </div>
         </div>
 
-        <!-- Tombol Mulai Game Baru -->
         <button id="new-game-btn" 
                 onclick="backToMenu()" 
                 class="hidden mt-6 sm:mt-8 px-5 py-2.5 sm:px-6 sm:py-3 bg-blue-600 text-white text-base sm:text-lg font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
@@ -576,7 +548,6 @@
     </div>
   </main>
 
-  <!-- 4. Footer -->
   <footer class="w-full text-center p-4 mt-8">
     <p class="text-sm text-gray-600">
       dibuat oleh Faisal Rohman, S.Pd. (@hanyauntukmu)
@@ -587,7 +558,7 @@
     // --- ========================================================== ---
     // --- PENTING! GANTI URL INI DENGAN URL GOOGLE APPS SCRIPT ANDA ---
     // --- ========================================================== ---
-    const gasWebAppUrl = "https://script.google.com/macros/s/AKfycbwUzlxf_PEwkOF1IsFLcoy2Gzx9pre2rL-8LMbnzSio0eMkLWbWSSCRSbPj60sSy2Pa/exec";
+    const gasWebAppUrl = "https://script.google.com/macros/s/AKfycbwDu6xv1HS81-2nYpWG94GTj69rh0nouyIGk_2Ts__HFBwh9qjvnrU9EPQDYt86Ooc_JA/exec";
     // --- ========================================================== ---
 
 
@@ -828,12 +799,13 @@
     function showPairingScreen() {
       // onlineGameMode dan selectedTimerDuration sudah di-set
       showScreen('pairing-screen');
-      pairingStatusEl.textContent = `Mode ${onlineGameMode} (${selectedTimerDuration === 0 ? 'Tanpa Batas' : selectedTimerDuration/60 + ' Menit'})`;
+      pairingStatusEl.textContent = `Mode: ${currentGameMode}, Waktu: ${selectedTimerDuration === 0 ? 'Tanpa Batas' : selectedTimerDuration/60 + ' Menit'}`;
       pairingLoadingEl.classList.add('hidden');
       pairingOptionsEl.classList.remove('hidden');
       backFromPairingBtn.onclick = showTimerSelection; // Kembali ke timer
       roomCodeWrapperEl.classList.add('hidden');
       joinCodeInputEl.value = '';
+      document.getElementById('create-code-input').value = ''; 
     }
 
     function showSpectatorScreen() {
@@ -889,7 +861,21 @@
     }
 
     async function createRoom() {
-      pairingStatusEl.textContent = 'Membuat room...';
+      const customCodeInput = document.getElementById('create-code-input');
+      const customCode = customCodeInput.value.trim();
+
+      if (customCode.length < 4) {
+          pairingStatusEl.textContent = 'Kode Room terlalu pendek (min 4 karakter).';
+          customCodeInput.focus();
+          return; 
+      }
+      if (customCode.length > 10) {
+          pairingStatusEl.textContent = 'Kode Room terlalu panjang (maks 10 karakter).';
+          customCodeInput.focus();
+          return;
+      }
+
+      pairingStatusEl.textContent = `Membuat room "${customCode.toUpperCase()}"...`;
       pairingLoadingEl.classList.remove('hidden');
       pairingLoadingTextEl.textContent = 'Menghubungi server...';
       pairingOptionsEl.classList.add('hidden');
@@ -898,9 +884,10 @@
       try {
         const result = await callGasApi({ 
           action: 'create', 
-          gameMode: currentGameMode, // Diambil dari selectGameMode
+          gameMode: currentGameMode, 
           nickname: playerNickname,
-          timer: selectedTimerDuration // Diambil dari onTimerSelected
+          timer: selectedTimerDuration, 
+          roomCode: customCode 
         });
         if (result.status === 'created') {
           onlineRoomCode = result.roomCode;
@@ -912,7 +899,9 @@
           isWaitingForOpponent = true;
           startPolling();
         }
-      } catch (error) { /* Error ditangani oleh callGasApi */ }
+      } catch (error) { 
+        customCodeInput.value = '';
+      }
     }
 
     async function joinRoom() {
@@ -948,7 +937,8 @@
       spectatorLoadingEl.classList.remove('hidden');
       spectatorOptionsEl.classList.add('hidden');
       try {
-        const result = await callGasApi({ action: 'getState', roomCode: onlineRoomCode });
+        // PERUBAHAN: Kirim 'player: spectator'
+        const result = await callGasApi({ action: 'getState', roomCode: onlineRoomCode, player: 'spectator' });
         if (result.status === 'polled') {
           showScreen('game-container-wrapper');
           player1Card.classList.add('hidden');
@@ -976,7 +966,17 @@
       pollInterval = setInterval(async () => {
         if (gameIsOver || !onlineRoomCode) { stopPolling(); return; }
         try {
-          const result = await callGasApi({ action: 'getState', roomCode: onlineRoomCode });
+          // PERUBAHAN: Kirim ID pemain atau 'spectator' saat polling
+          let pollPayload = { action: 'getState', roomCode: onlineRoomCode };
+          if (currentAppMode === 'pvp-online') {
+            pollPayload.player = onlinePlayerId;
+          } else {
+            pollPayload.player = 'spectator'; // Mode penonton
+          }
+          
+          const result = await callGasApi(pollPayload);
+          // ---
+          
           if (result.status === 'polled') {
             const gameState = result.gameState;
             if (currentAppMode === 'pvp-online' && isWaitingForOpponent && gameState.player2) {
@@ -1110,12 +1110,15 @@
       if (gameState.winner) {
         gameIsOver = true;
         stopPolling();
-        // Cek jika 'draw'
+        
+        // PERUBAHAN: Kirim 'winReason' ke showWinner
+        const winReason = gameState.winReason || 'score'; 
+        
         if (gameState.winner === 'draw') {
-            showWinner('draw');
+            showWinner('draw', winReason);
         } else {
             const winnerNum = gameState.winner === 'p1' ? 1 : 2;
-            showWinner(winnerNum);
+            showWinner(winnerNum, winReason);
         }
       }
     }
@@ -1165,9 +1168,9 @@
             messageEl.textContent = `Waktu Habis! Skor Akhir: ${mandiriScore}`;
         } 
         else if (currentAppMode === 'pvp-local') {
-            if (ropePercent > 50) showWinner(1);
-            else if (ropePercent < 50) showWinner(2);
-            else showWinner('draw');
+            if (ropePercent > 50) showWinner(1, 'time');
+            else if (ropePercent < 50) showWinner(2, 'time');
+            else showWinner('draw', 'time');
         }
         else if (currentAppMode === 'pvp-online' && onlinePlayerId === 'p1') {
             // Hanya Host (P1) yang mengirimkan hasil akhir
@@ -1317,11 +1320,12 @@
 
     function checkWin() {
       if (gameIsOver || currentAppMode !== 'pvp-local') return;
-      if (ropePercent <= WIN_THRESHOLD_P1_LOSES) showWinner(2);
-      else if (ropePercent >= WIN_THRESHOLD_P2_LOSES) showWinner(1);
+      if (ropePercent <= WIN_THRESHOLD_P1_LOSES) showWinner(2, 'score');
+      else if (ropePercent >= WIN_THRESHOLD_P2_LOSES) showWinner(1, 'score');
     }
 
-    function showWinner(playerNum) {
+    // PERUBAHAN: Menerima 'winReason'
+    function showWinner(playerNum, winReason = 'score') {
       gameIsOver = true;
       playExplosionSound();
       stopPolling();
@@ -1329,12 +1333,22 @@
       if (playerNum === 'draw') {
           messageEl.textContent = 'Waktu Habis! Permainan SERI!';
       } else if (playerNum === 1) {
-        messageEl.textContent = 'Pemain 1 (Biru) Menang!';
+        // Cek alasan menang
+        if (winReason === 'surrender') {
+          messageEl.textContent = 'Pemain 2 (Merah) Menyerah! Pemain 1 Menang!';
+        } else {
+          messageEl.textContent = 'Pemain 1 (Biru) Menang!';
+        }
         ropeMarkerEl.style.left = '100%';
         explosionP2El.classList.remove('hidden');
         explosionP2El.classList.add('animate-kaboom');
-      } else {
-        messageEl.textContent = 'Pemain 2 (Merah) Menang!';
+      } else { // playerNum === 2
+        // Cek alasan menang
+        if (winReason === 'surrender') {
+          messageEl.textContent = 'Pemain 1 (Biru) Menyerah! Pemain 2 Menang!';
+        } else {
+          messageEl.textContent = 'Pemain 2 (Merah) Menang!';
+        }
         ropeMarkerEl.style.left = '0%';
         explosionP1El.classList.remove('hidden');
         explosionP1El.classList.add('animate-kaboom');
@@ -1358,6 +1372,8 @@
 
       if (value === 'C') {
         answerEl.value = '';
+      } else if (value === 'Del') { 
+        answerEl.value = answerEl.value.slice(0, -1);
       } else if (value === 'Go') {
         handleSubmit(playerNum);
       } else {
@@ -1585,8 +1601,8 @@
             item.addEventListener('dragstart', (e) => {
                 const playerNum = parseInt(item.dataset.player, 10);
                  if (currentAppMode === 'pvp-online' && onlinePlayerId) {
-                    const myPlayerNum = onlinePlayerId === 'p1' ? 1 : 2;
-                    if (playerNum !== myPlayerNum) { e.preventDefault(); return; }
+                     const myPlayerNum = onlinePlayerId === 'p1' ? 1 : 2;
+                     if (playerNum !== myPlayerNum) { e.preventDefault(); return; }
                  }
                 
                 draggedItem = item;
@@ -1616,8 +1632,8 @@
                 
                 const playerNum = parseInt(zone.dataset.player, 10);
                 if (currentAppMode === 'pvp-online' && onlinePlayerId) {
-                    const myPlayerNum = onlinePlayerId === 'p1' ? 1 : 2;
-                    if (playerNum !== myPlayerNum) return;
+                     const myPlayerNum = onlinePlayerId === 'p1' ? 1 : 2;
+                     if (playerNum !== myPlayerNum) return;
                 }
 
                 const value = e.dataTransfer.getData('text/plain');
@@ -1650,8 +1666,8 @@
     showMainMenu(); // BARU: Mulai dari menu utama
 
   </script>
-
-  <script> 
+	
+<script> 
     window.intergramId = "127665879";
     window.intergramCustomizations = {
         titleClosed: 'Closed chat title',
@@ -1661,11 +1677,9 @@
         autoNoResponse: 'Maaf admin sedang sibuk mohon tunggu beberapa menit lagi (maksimal 5 menit) ' +
                         'atau tinggalkan no WA anda',
         mainColor: "#E91E63", // Can be any css supported color 'red', 'rgb(255,87,34)', etc
-        alwaysUseFloatingButton: true // Use the mobile floating button also on large screens
+        alwaysUseFloatingButton: true // Use the mobile floating button also on large screens
     };
 </script>
 <script id="intergram" type="text/javascript" src="https://www.intergram.xyz/js/widget.js"></script>
 </body>
 </html>
-
-
