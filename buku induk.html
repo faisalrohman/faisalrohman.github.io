@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="id">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Arsip Nilai MTs</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  
+  <style>
+    /* --- GAYA TAMPILAN (UI) --- */
+    body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; height: 100vh; background: #f0f2f5; }
+    
+    .main-container { width: 100%; min-height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; display: flex; justify-content: center; }
+    .content-wrapper { width: 100%; max-width: 1200px; }
+    
+    .card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); padding: 24px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.2); }
+    
+    .btn { padding: 10px 20px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
+    .btn-primary { background: #667eea; color: white; } .btn-primary:hover { background: #5a67d8; }
+    .btn-secondary { background: #e2e8f0; color: #4a5568; } .btn-secondary:hover { background: #cbd5e0; }
+    .btn-danger { background: #fc8181; color: white; }
+    .btn-success { background: #48bb78; color: white; }
+    
+    .input-field { width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; background: #f8fafc; }
+    .input-field:focus { outline: none; border-color: #667eea; background: white; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    label { font-weight: 600; color: #4a5568; font-size: 12px; text-transform: uppercase; }
+    
+    .table-container { overflow-x: auto; margin-top: 15px; border-radius: 12px; border: 1px solid #e2e8f0; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { background: #f7fafc; padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
+    td { padding: 12px; border-bottom: 1px solid #edf2f7; }
+    
+    .tab-container { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; }
+    .tab { padding: 10px 20px; background: rgba(255,255,255,0.8); border-radius: 10px; cursor: pointer; font-weight: 600; color: #718096; white-space: nowrap; }
+    .tab.active { background: white; color: #667eea; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+
+    .loading-spinner { border: 3px solid #f3f3f3; border-top: 3px solid #667eea; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* --- GAYA KHUSUS CETAK (PRINT) --- */
+    #printArea { display: none; background: white; color: black; font-family: 'Times New Roman', Times, serif; }
+    
+    @media print {
+        @page { size: A4; margin: 1cm; }
+        body * { visibility: hidden; }
+        .main-container { background: white; padding: 0; display: block; }
+        .card, .tab-container, #alertArea { display: none !important; }
+        
+        #printArea { display: block !important; visibility: visible !important; position: absolute; left: 0; top: 0; width: 100%; }
+        #printArea * { visibility: visible !important; }
+        
+        /* KOP SURAT */
+        .header-img { width: 100%; max-height: 150px; object-fit: contain; margin-bottom: 5px; display: block; margin-left: auto; margin-right: auto; }
+        
+        .print-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+        .print-table th, .print-table td { border: 1px solid black; padding: 4px; }
+        .print-table th { text-align: center; background: #eee !important; -webkit-print-color-adjust: exact; }
+
+        .identitas-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
+        .identitas-table td { border: none; padding: 4px; vertical-align: top; }
+        .identitas-label { width: 5%; }
+        .identitas-field { width: 30%; }
+        .identitas-sep { width: 2%; text-align: center; }
+        .identitas-val { width: 63%; font-weight: bold; }
+        .sub-field { padding-left: 20px; }
+
+        /* Footer Tanda Tangan */
+        .signature-container {
+            display: flex;
+            justify-content: space-between; /* Kiri QR, Kanan TTD */
+            align-items: flex-start; /* Sejajar atas */
+            margin-top: 30px;
+            padding: 0 10px;
+            font-size: 12px;
+        }
+
+        .sig-box-left {
+            text-align: center;
+            width: 150px;
+            padding-top: 20px; /* Sedikit turun agar sejajar visual dengan tanggal */
+        }
+
+        .sig-box-right {
+            text-align: center;
+            width: 220px;
+        }
+
+        .foto-box { width: 3cm; height: 4cm; border: 1px solid black; display: flex; align-items: center; justify-content: center; margin-top: 10px; font-size: 10px; }
+    }
+  </style>
+ </head>
+ <body>
+  <div class="main-container">
+   <div class="content-wrapper">
+    
+    <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+      <div><h1 style="margin:0; font-size:24px; font-weight:800; color:#2d3748;">Sistem Arsip Nilai MTs</h1><p style="margin:0; color:#718096;">Database Lengkap & Cetak Rapor :https://script.google.com/macros/s/AKfycbz8WbDz_C2uZiPYf7ieYLCWS5LGcQfSZer_ilE28qQOrptWdEaXf6YGdX-xXH_fGios8g/exec</p></div>
+      <button class="btn btn-secondary" onclick="window.location.reload()">🔄 Refresh</button>
+    </div>
+
+    <div class="tab-container">
+     <div class="tab active" onclick="switchTab('siswa')">📋 Data Siswa</div>
+     <div class="tab" onclick="switchTab('mapel')">📚 Mapel</div>
+     <div class="tab" onclick="switchTab('nilai')">📝 Input Nilai</div>
+     <div class="tab" onclick="switchTab('cetak')">🖨️ Cetak</div>
+     <div class="tab" onclick="switchTab('api')">⚙️ Pengaturan</div>
+    </div>
+
+    <div id="apiTab" class="card" style="display: none;">
+     <h2>⚙️ Konfigurasi API</h2>
+     <div class="form-group"><label>URL Apps Script</label><input id="apiUrl" class="input-field" placeholder="Paste URL Web App Google Script di sini..."></div>
+     <div style="margin-top:10px;"><button class="btn btn-primary" onclick="saveApiUrl()">Simpan</button> <button class="btn btn-success" onclick="testConnection()">Test</button></div>
+    </div>
+
+    <div id="siswaTab" class="card">
+     <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+        <h2>Data Siswa</h2>
+        <div><button class="btn btn-primary" onclick="showFormSiswa()">➕ Tambah/Edit Lengkap</button> <button class="btn btn-secondary" onclick="loadSiswa()">🔄 Load</button></div>
+     </div>
+     
+     <div id="formSiswa" style="display:none; background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e2e8f0; margin-bottom:20px;">
+        <h3 style="margin-top:0; border-bottom:1px solid #ddd; padding-bottom:5px;">A. Identitas Siswa</h3>
+        <div class="form-grid">
+            <div class="form-group"><label>NISN *</label><input id="s_nisn" class="input-field"></div>
+            <div class="form-group"><label>NIS</label><input id="s_nis" class="input-field"></div>
+            <div class="form-group"><label>Nama Lengkap *</label><input id="s_nama" class="input-field"></div>
+            <div class="form-group"><label>Jenis Kelamin</label><select id="s_jk" class="input-field"><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
+            <div class="form-group"><label>Tempat Lahir</label><input id="s_tempat" class="input-field"></div>
+            <div class="form-group"><label>Tanggal Lahir</label><input type="date" id="s_tgl" class="input-field"></div>
+            <div class="form-group"><label>Agama</label><input id="s_agama" class="input-field" value="Islam"></div>
+            <div class="form-group"><label>Status Keluarga</label><input id="s_status_kel" class="input-field" value="Anak Kandung"></div>
+            <div class="form-group"><label>Anak Ke</label><input id="s_anak_ke" class="input-field"></div>
+            <div class="form-group"><label>Alamat Siswa</label><input id="s_alamat" class="input-field"></div>
+            <div class="form-group"><label>Telepon/HP</label><input id="s_telp" class="input-field"></div>
+        </div>
+
+        <h3 style="margin-top:10px; border-bottom:1px solid #ddd; padding-bottom:5px;">B. Data Sekolah & Orang Tua</h3>
+        <div class="form-grid">
+            <div class="form-group"><label>Sekolah Asal</label><input id="s_asal" class="input-field"></div>
+            <div class="form-group"><label>Diterima Kelas</label><input id="s_diterima_kelas" class="input-field" value="VII"></div>
+            <div class="form-group"><label>Diterima Tanggal</label><input type="text" id="s_diterima_tgl" class="input-field" placeholder="Contoh: 17 Juli 2024"></div>
+            <div class="form-group"><label>Nama Ayah</label><input id="s_ayah" class="input-field"></div>
+            <div class="form-group"><label>Nama Ibu</label><input id="s_ibu" class="input-field"></div>
+            <div class="form-group"><label>Pekerjaan Ayah</label><input id="s_pek_ayah" class="input-field"></div>
+            <div class="form-group"><label>Pekerjaan Ibu</label><input id="s_pek_ibu" class="input-field"></div>
+            <div class="form-group"><label>Alamat Orang Tua</label><input id="s_alamat_ortu" class="input-field"></div>
+        </div>
+
+        <h3 style="margin-top:10px; border-bottom:1px solid #ddd; padding-bottom:5px;">C. Wali (Opsional)</h3>
+        <div class="form-grid">
+            <div class="form-group"><label>Nama Wali</label><input id="s_wali" class="input-field"></div>
+            <div class="form-group"><label>Pekerjaan Wali</label><input id="s_pek_wali" class="input-field"></div>
+            <div class="form-group"><label>Alamat Wali</label><input id="s_alamat_wali" class="input-field"></div>
+            <div class="form-group"><label>Status Siswa</label><select id="s_status" class="input-field"><option value="Aktif">Aktif</option><option value="Lulus">Lulus</option></select></div>
+        </div>
+        <div style="text-align:right;"><button class="btn btn-secondary" onclick="hideFormSiswa()">Batal</button> <button class="btn btn-primary" onclick="saveSiswaFull()">Simpan Lengkap</button></div>
+     </div>
+
+     <div class="table-container">
+        <table id="tblSiswa"><thead><tr><th>NISN</th><th>Nama</th><th>Kelas</th><th>Aksi</th></tr></thead><tbody id="bodySiswa"></tbody></table>
+     </div>
+    </div>
+
+    <div id="mapelTab" class="card" style="display:none;">
+      <h2>Mata Pelajaran</h2>
+      <button class="btn btn-primary" onclick="showMapelForm()">Tambah Mapel</button> <button class="btn btn-secondary" onclick="loadMapel()">Refresh</button>
+      <div id="formMapel" style="display:none; margin:15px 0;"><input id="m_kode" class="input-field" placeholder="Kode"><input id="m_nama" class="input-field" placeholder="Nama"><select id="m_kel" class="input-field"><option value="A">A</option><option value="B">B</option></select><button class="btn btn-primary" onclick="saveMapel()">Simpan</button></div>
+      <div class="table-container"><table id="tblMapel"><thead><tr><th>Kode</th><th>Nama</th><th>Kel</th><th>Aksi</th></tr></thead><tbody id="bodyMapel"></tbody></table></div>
+    </div>
+
+    <div id="nilaiTab" class="card" style="display:none;">
+      <h2>Input Nilai</h2>
+      <div class="form-grid">
+        <div class="form-group"><label>Siswa</label><select id="n_siswa" class="input-field" onchange="loadNilaiData()"></select></div>
+        <div class="form-group"><label>Sem</label><select id="n_sem" class="input-field" onchange="loadNilaiData()"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option></select></div>
+        <div class="form-group"><label>Thn Ajar</label><input id="n_thn" class="input-field" value="2024/2025"></div>
+      </div>
+      <div id="areaNilai" style="display:none;">
+        <div style="display:flex; gap:10px; margin-bottom:10px;"><input id="n_um" class="input-field" placeholder="Nilai UM"><input id="n_un" class="input-field" placeholder="Nilai UN"></div>
+        <div id="gridMapel" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:10px;"></div>
+        <button class="btn btn-primary" style="margin-top:20px; width:100%; justify-content:center;" onclick="saveNilai()">Simpan Nilai</button>
+      </div>
+    </div>
+
+    <div id="cetakTab" class="card" style="display:none;">
+      <h2>🖨️ Pusat Cetak</h2>
+      <div style="background:#f0fff4; padding:15px; border-radius:10px; margin-bottom:15px; border:1px solid #c6f6d5;">
+        <h3 style="margin-top:0;">Konfigurasi Cetak</h3>
+        <div class="form-grid">
+            <div class="form-group"><label>Pilih Siswa</label><select id="c_siswa" class="input-field"></select></div>
+            <div class="form-group"><label>Semester (Rapor)</label><select id="c_sem" class="input-field"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option></select></div>
+            <div class="form-group"><label>Kepala Madrasah</label><input id="c_kepsek" class="input-field" value="SALIM, S.Ag., M.Pd."></div>
+            <div class="form-group"><label>NIP Kepsek</label><input id="c_nip" class="input-field" value="19690217200641009"></div>
+            <div class="form-group"><label>Wali Kelas</label><input id="c_wali" class="input-field" placeholder="Nama Wali"></div>
+            <div class="form-group"><label>Tanggal Cetak</label><input id="c_tgl" class="input-field" value="21 Desember 2024"></div>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="cetakIdentitas()">📄 Cetak Identitas (Hal 1)</button>
+        <button class="btn btn-secondary" onclick="cetakRapor()">📊 Cetak Rapor Semester</button>
+        <button class="btn btn-success" onclick="cetakRekap()">📈 Cetak Rekap (Sem 1-6)</button>
+      </div>
+    </div>
+
+   </div>
+   
+   <div id="printArea"></div>
+  </div>
+
+  <script>
+    // --- VARIABEL GLOBAL ---
+    let apiUrl = localStorage.getItem('apiUrl') || '';
+    let siswaData = [], mapelData = [], nilaiData = [];
+    
+    // URL KOP SURAT (DIPERBARUI DENGAN LINK BLOGGER)
+    const KOP_URLe = "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgK5gV0UTSOepaKtfPN9FOee79OHMGxQMDVuRw93wCwkmsNrvhqehuoSPe8bkB72FaXC6Ll9pSZ5Dl22w9F2XbA2Tbs8BdTECq0YXA_3Z0tLCGYJO7477xQRTvp-7ZVjQhVtnoFXjV9a0yPki4Bk8MR3LRjGVxuX1vJH8ftZBhTj53klA3tvHY9-pQAbOk7/s1600/kop%20RDM2.PNG";
+
+    window.onload = function() {
+        if(!apiUrl) switchTab('api');
+        else { loadSiswa(); loadMapel(); }
+    };
+
+    function switchTab(t) {
+        document.querySelectorAll('.card[id$="Tab"]').forEach(e=>e.style.display='none');
+        document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
+        document.getElementById(t+'Tab').style.display='block';
+        document.querySelector(`.tab[onclick="switchTab('${t}')"]`).classList.add('active');
+        if(t==='nilai') populateSel('n_siswa');
+        if(t==='cetak') populateSel('c_siswa');
+    }
+
+    async function apiCall(act, p={}) {
+        if(!apiUrl) return alert('Set API URL!');
+        let fd = new URLSearchParams(); fd.append('action',act); fd.append('data',JSON.stringify(p));
+        try { let r=await fetch(apiUrl,{method:'POST',body:fd}); return await r.json(); } 
+        catch(e){ alert(e); return null; }
+    }
+    
+    function saveApiUrl(){ localStorage.setItem('apiUrl',document.getElementById('apiUrl').value); apiUrl=localStorage.getItem('apiUrl'); alert('Saved'); }
+    async function testConnection(){ let r=await apiCall('test'); if(r&&r.success) alert(r.message); }
+
+    // --- SISWA ---
+    async function loadSiswa(){
+        let r=await apiCall('getSiswa');
+        if(r&&r.success){
+            siswaData=r.data;
+            let h='';
+            for(let i=1; i<siswaData.length; i++){
+                let s=siswaData[i];
+                h+=`<tr><td>${s[0]}</td><td>${s[2]}</td><td>${s[12]||'-'}</td>
+                <td><button class="btn btn-danger" onclick="delSiswa('${s[0]}')">Del</button></td></tr>`;
+            }
+            document.getElementById('bodySiswa').innerHTML=h;
+        }
+    }
+    function showFormSiswa(){ document.getElementById('formSiswa').style.display='block'; }
+    function hideFormSiswa(){ document.getElementById('formSiswa').style.display='none'; }
+    
+    async function saveSiswaFull(){
+        let p = {
+            nisn: document.getElementById('s_nisn').value,
+            nis: document.getElementById('s_nis').value,
+            nama: document.getElementById('s_nama').value,
+            jk: document.getElementById('s_jk').value,
+            tempatLahir: document.getElementById('s_tempat').value,
+            tanggalLahir: document.getElementById('s_tgl').value,
+            agama: document.getElementById('s_agama').value,
+            statusKeluarga: document.getElementById('s_status_kel').value,
+            anakKe: document.getElementById('s_anak_ke').value,
+            alamat: document.getElementById('s_alamat').value,
+            telp: document.getElementById('s_telp').value,
+            sekolahAsal: document.getElementById('s_asal').value,
+            diterimaKelas: document.getElementById('s_diterima_kelas').value,
+            diterimaTgl: document.getElementById('s_diterima_tgl').value,
+            namaAyah: document.getElementById('s_ayah').value,
+            namaIbu: document.getElementById('s_ibu').value,
+            pekAyah: document.getElementById('s_pek_ayah').value,
+            pekIbu: document.getElementById('s_pek_ibu').value,
+            alamatOrtu: document.getElementById('s_alamat_ortu').value,
+            namaWali: document.getElementById('s_wali').value,
+            pekWali: document.getElementById('s_pek_wali').value,
+            alamatWali: document.getElementById('s_alamat_wali').value,
+            status: document.getElementById('s_status').value
+        };
+        let r=await apiCall('saveSiswaFull', p);
+        if(r&&r.success){ hideFormSiswa(); loadSiswa(); }
+    }
+    async function delSiswa(id){ if(confirm('Hapus?')) await apiCall('deleteSiswa',{nisn:id}); loadSiswa(); }
+
+    // --- MAPEL ---
+    async function loadMapel(){ let r=await apiCall('getMapel'); if(r) mapelData=r.data; renderMapel(); }
+    function renderMapel(){
+        let h=''; for(let i=1;i<mapelData.length;i++) h+=`<tr><td>${mapelData[i][0]}</td><td>${mapelData[i][1]}</td><td>${mapelData[i][2]}</td><td>x</td></tr>`;
+        document.getElementById('bodyMapel').innerHTML=h;
+    }
+    function showMapelForm(){ document.getElementById('formMapel').style.display='block'; }
+    async function saveMapel(){ await apiCall('addMapel',{kode:document.getElementById('m_kode').value.toUpperCase(), nama:document.getElementById('m_nama').value, kelompok:document.getElementById('m_kel').value}); loadMapel(); }
+
+    // --- NILAI ---
+    function populateSel(id){
+        let s=document.getElementById(id); s.innerHTML='<option value="">--Pilih--</option>';
+        for(let i=1; i<siswaData.length; i++) { let opt=document.createElement('option'); opt.value=siswaData[i][0]; opt.text=siswaData[i][2]; s.add(opt); }
+        apiCall('getNilai').then(r=>{if(r) nilaiData=r.data});
+    }
+    function loadNilaiData(){
+        let nisn=document.getElementById('n_siswa').value, sem=document.getElementById('n_sem').value;
+        if(!nisn) return;
+        document.getElementById('areaNilai').style.display='block';
+        let g=document.getElementById('gridMapel'); g.innerHTML='';
+        for(let i=1;i<mapelData.length;i++){
+            let kd=mapelData[i][0];
+            g.innerHTML+=`<div><small>${kd}</small><input type="number" class="input-field in-nilai" data-kd="${kd}"></div>`;
+        }
+        if(nilaiData.length>0){
+            let h=nilaiData[0];
+            let row=nilaiData.find(r=>String(r[h.indexOf('NISN')])==nisn && String(r[h.indexOf('Semester')])==sem);
+            if(row){
+                if(h.indexOf('Tahun Pelajaran')>-1) document.getElementById('n_thn').value=row[h.indexOf('Tahun Pelajaran')];
+                document.getElementById('n_um').value = row[h.indexOf('Nilai Ujian Madrasah')]||'';
+                document.getElementById('n_un').value = row[h.indexOf('Nilai Ujian Nasional')]||'';
+                document.querySelectorAll('.in-nilai').forEach(el=>{
+                    let idx=h.indexOf(el.dataset.kd); if(idx>-1) el.value=row[idx];
+                });
+            }
+        }
+    }
+    async function saveNilai(){
+        let m={}; document.querySelectorAll('.in-nilai').forEach(e=>{if(e.value) m[e.dataset.kd]=e.value});
+        let p={
+            nisn:document.getElementById('n_siswa').value,
+            semester:document.getElementById('n_sem').value,
+            tahunPelajaran:document.getElementById('n_thn').value,
+            nilaiUM:document.getElementById('n_um').value,
+            nilaiUN:document.getElementById('n_un').value,
+            nilaiMapel:m
+        };
+        await apiCall('saveNilaiWide',p); alert('Saved');
+        apiCall('getNilai').then(r=>{if(r) nilaiData=r.data});
+    }
+
+    // --- CETAK FUNCTIONS ---
+    function getSiswa(id){ return siswaData.find(s=>String(s[0])==id); }
+    function getNilai(id, sem){ if(!nilaiData.length)return null; return nilaiData.find(r=>String(r[nilaiData[0].indexOf('NISN')])==id && String(r[nilaiData[0].indexOf('Semester')])==sem); }
+    function getVal(row, key){ if(!row)return ''; let idx=nilaiData[0].indexOf(key); return idx>-1?row[idx]:''; }
+
+    // 1. CETAK IDENTITAS
+    function cetakIdentitas(){
+        let id=document.getElementById('c_siswa').value; if(!id)return alert('Pilih Siswa');
+        let s=getSiswa(id); 
+        let kepsek=document.getElementById('c_kepsek').value;
+        let nip=document.getElementById('c_nip').value;
+        let tgl=document.getElementById('c_tgl').value;
+        let tglLahir = s[5]; if(tglLahir && tglLahir.includes('T')) tglLahir = tglLahir.split('T')[0];
+
+        let html = `
+            <div style="text-align:center;"><img src="${KOP_URLe}" class="header-img" referrerpolicy="no-referrer"></div>
+            <h3 style="text-align:center; text-decoration: underline; margin:10px 0;">IDENTITAS PESERTA DIDIK</h3>
+            <table class="identitas-table">
+                <tr><td class="identitas-label">1.</td><td class="identitas-field">Nama Peserta Didik</td><td class="identitas-sep">:</td><td class="identitas-val">${s[2]}</td></tr>
+                <tr><td>2.</td><td>NIS</td><td>:</td><td>${s[1]||'-'}</td></tr>
+                <tr><td>3.</td><td>NISN</td><td>:</td><td>${s[0]}</td></tr>
+                <tr><td>4.</td><td>Tempat Tanggal Lahir</td><td>:</td><td>${s[4]||''}, ${tglLahir}</td></tr>
+                <tr><td>5.</td><td>Jenis Kelamin</td><td>:</td><td>${s[3]}</td></tr>
+                <tr><td>6.</td><td>Agama</td><td>:</td><td>${s[6]}</td></tr>
+                <tr><td>7.</td><td>Status dalam Keluarga</td><td>:</td><td>${s[7]||'-'}</td></tr>
+                <tr><td>8.</td><td>Anak ke</td><td>:</td><td>${s[8]||'-'}</td></tr>
+                <tr><td>9.</td><td>Alamat Peserta Didik</td><td>:</td><td>${s[9]||'-'}</td></tr>
+                <tr><td>10.</td><td>Nomor Telepon Rumah/HP</td><td>:</td><td>${s[10]||'-'}</td></tr>
+                <tr><td>11.</td><td>Sekolah Asal</td><td>:</td><td>${s[11]||'-'}</td></tr>
+                <tr><td>12.</td><td>Diterima di sekolah ini</td><td></td><td></td></tr>
+                <tr><td></td><td class="sub-field">a. Di kelas</td><td>:</td><td>${s[12]||'VII'}</td></tr>
+                <tr><td></td><td class="sub-field">b. Pada tanggal</td><td>:</td><td>${s[13]||'-'}</td></tr>
+                <tr><td>13.</td><td>Nama Orang Tua</td><td></td><td></td></tr>
+                <tr><td></td><td class="sub-field">a. Ayah</td><td>:</td><td>${s[14]||'-'}</td></tr>
+                <tr><td></td><td class="sub-field">b. Ibu</td><td>:</td><td>${s[15]||'-'}</td></tr>
+                <tr><td>14.</td><td>Alamat Orang Tua</td><td>:</td><td>${s[18]||'-'}</td></tr>
+                <tr><td>15.</td><td>Pekerjaan Orang Tua</td><td></td><td></td></tr>
+                <tr><td></td><td class="sub-field">a. Ayah</td><td>:</td><td>${s[16]||'-'}</td></tr>
+                <tr><td></td><td class="sub-field">b. Ibu</td><td>:</td><td>${s[17]||'-'}</td></tr>
+                <tr><td>16.</td><td>Nama Wali Siswa</td><td>:</td><td>${s[19]||'-'}</td></tr>
+                <tr><td></td><td class="sub-field">Pekerjaan Wali</td><td>:</td><td>${s[20]||'-'}</td></tr>
+                <tr><td></td><td class="sub-field">Alamat Wali Siswa</td><td>:</td><td>${s[21]||'-'}</td></tr>
+            </table>
+            <div class="signature-container">
+                <div class="sig-box-left"><div class="foto-box">Foto 3x4</div></div>
+                <div class="sig-box-right">
+                    <p>Kudus, ${tgl}</p><p>Kepala Madrasah</p><br><br><br>
+                    <p style="font-weight:bold; text-decoration:underline;">${kepsek}</p><p>NIP. ${nip}</p>
+                </div>
+            </div>
+            <div style="font-size:10px; text-align:right; margin-top:20px;">${s[2]}_${s[0]}</div>
+        `;
+        doPrint(html, s[0], s[2], tgl);
+    }
+
+    // 2. CETAK RAPOR
+    function cetakRapor(){
+        let id=document.getElementById('c_siswa').value, sem=document.getElementById('c_sem').value;
+        if(!id)return alert('Pilih Siswa');
+        let s=getSiswa(id);
+        let n=getNilai(id,sem);
+        let kepsek=document.getElementById('c_kepsek').value, nip=document.getElementById('c_nip').value, wali=document.getElementById('c_wali').value, tgl=document.getElementById('c_tgl').value;
+        let thn = n?getVal(n,'Tahun Pelajaran'):'2024/2025';
+
+        let mapels = [
+            {n:'1', k:'Pendidikan Agama Islam', h:true},
+            {n:'', k:"A. Al Qur'an Hadis", c:'QH', i:true}, {n:'', k:"B. Akidah Akhlak", c:'AA', i:true},
+            {n:'', k:"C. Fikih", c:'FIK', i:true}, {n:'', k:"D. Sejarah Kebudayaan Islam", c:'SKI', i:true},
+            {n:'2', k:'Bahasa Arab', c:'BAR'}, {n:'3', k:'Pendidikan Pancasila', c:'PP'},
+            {n:'4', k:'Bahasa Indonesia', c:'BINDO'}, {n:'5', k:'Matematika', c:'MTK'},
+            {n:'6', k:'Ilmu Pengetahuan Alam', c:'IPA'}, {n:'7', k:'Ilmu Pengetahuan Sosial', c:'IPS'},
+            {n:'8', k:'Bahasa Inggris', c:'BING'}, {n:'9', k:'Pend. Jasmani, Olahraga', c:'PJOK'},
+            {n:'10', k:'Informatika', c:'INFO'}, {n:'11', k:'Seni Budaya', c:'SBP'},
+            {n:'12', k:'Muatan Lokal', h:true},
+            {n:'', k:"A. Bahasa Jawa", c:'BJawa', i:true}, {n:'', k:"B. Ke NU an", c:'NU', i:true}
+        ];
+
+        let html = `
+            <div style="text-align:center;"><img src="${KOP_URLe}" class="header-img" referrerpolicy="no-referrer"></div>
+            <table class="identitas-table" style="margin-bottom:15px;">
+                <tr><td width="15%">NAMA</td><td width="1%">:</td><td width="40%"><b>${s[2]}</b></td><td width="15%">Kelas</td><td>:</td><td>${s[12]||'VII'}</td></tr>
+                <tr><td>NIS/NISN</td><td>:</td><td>${s[1]}/${s[0]}</td><td>Fase</td><td>:</td><td>D</td></tr>
+                <tr><td>Madrasah</td><td>:</td><td>MTSS NU TBS</td><td>Semester</td><td>:</td><td>${sem%2==1?'Ganjil':'Genap'}</td></tr>
+                <tr><td>Alamat</td><td>:</td><td>JL. KH TURAICHAN</td><td>Thn Ajar</td><td>:</td><td>${thn}</td></tr>
+            </table>
+            <h3 style="text-align:center;">CAPAIAN HASIL BELAJAR</h3>
+            <table class="print-table">
+                <thead><tr><th width="5%">No</th><th>Mata Pelajaran</th><th width="15%">Nilai Akhir</th></tr></thead>
+                <tbody>
+        `;
+        let tot=0;
+        mapels.forEach(m=>{
+            let val = m.c ? getVal(n, m.c) : '';
+            if(val) tot+=parseInt(val);
+            html+=`<tr><td style="text-align:center">${m.n}</td><td style="${m.h?'font-weight:bold':''};${m.i?'padding-left:20px':''}">${m.k}</td><td style="text-align:center">${val}</td></tr>`;
+        });
+        html+=`<tr><td colspan="2" style="text-align:center;font-weight:bold;">Jumlah</td><td style="text-align:center;font-weight:bold;">${tot||'-'}</td></tr></tbody></table>`;
+        html+= footerSig(kepsek, nip, wali, tgl, s[2], s[0], true);
+        doPrint(html, s[0], s[2], tgl);
+    }
+
+    // 3. CETAK REKAP
+    function cetakRekap(){
+        let id=document.getElementById('c_siswa').value; if(!id)return alert('Pilih Siswa');
+        let s=getSiswa(id);
+        let kepsek=document.getElementById('c_kepsek').value, nip=document.getElementById('c_nip').value, tgl=document.getElementById('c_tgl').value;
+
+        let mapels = [
+            {n:'1', k:'Pendidikan Agama Islam', h:true},
+            {n:'', k:"A. Al Qur'an Hadis", c:'QH', i:true}, {n:'', k:"B. Akidah Akhlak", c:'AA', i:true},
+            {n:'', k:"C. Fikih", c:'FIK', i:true}, {n:'', k:"D. Sejarah Kebudayaan Islam", c:'SKI', i:true},
+            {n:'2', k:'Bahasa Arab', c:'BAR'}, {n:'3', k:'Pendidikan Pancasila', c:'PP'},
+            {n:'4', k:'Bahasa Indonesia', c:'BINDO'}, {n:'5', k:'Matematika', c:'MTK'},
+            {n:'6', k:'Ilmu Pengetahuan Alam', c:'IPA'}, {n:'7', k:'Ilmu Pengetahuan Sosial', c:'IPS'},
+            {n:'8', k:'Bahasa Inggris', c:'BING'}, {n:'9', k:'PJOK', c:'PJOK'},
+            {n:'10', k:'Informatika', c:'INFO'}, {n:'11', k:'Seni Budaya', c:'SBP'},
+            {n:'12', k:'Muatan Lokal', h:true},
+            {n:'', k:"A. Bahasa Jawa", c:'BJawa', i:true}, {n:'', k:"B. Ke NU an", c:'NU', i:true}
+        ];
+        
+        let rows=[]; for(let i=1;i<=6;i++) rows.push(getNilai(id, i));
+
+        let html = `
+            <div style="text-align:center;"><img src="${KOP_URLe}" class="header-img" referrerpolicy="no-referrer"></div>
+            <table class="identitas-table">
+                <tr><td width="15%">Madrasah</td><td>:</td><td>MTSS NU TBS KUDUS</td></tr>
+                <tr><td>NISN</td><td>:</td><td>${s[0]}</td></tr>
+                <tr><td>NAMA</td><td>:</td><td><b>${s[2]}</b></td></tr>
+            </table>
+            <h3 style="text-align:center; text-decoration:underline;">REKAP HASIL BELAJAR</h3>
+            <table class="print-table">
+                <thead><tr><th rowspan="2">No</th><th rowspan="2">Mata Pelajaran</th><th colspan="2">VII</th><th colspan="2">VIII</th><th colspan="2">IX</th><th rowspan="2">Rata2</th></tr>
+                <tr><th>Ganjil</th><th>Genap</th><th>Ganjil</th><th>Genap</th><th>Ganjil</th><th>Genap</th></tr></thead>
+                <tbody>
+        `;
+        let totAvg=0;
+        mapels.forEach(m=>{
+            let style = m.h?'font-weight:bold':''; if(m.i) style+=';padding-left:20px';
+            let tds=''; let sum=0, cnt=0;
+            for(let i=0;i<6;i++){
+                let v = m.c ? getVal(rows[i], m.c) : '';
+                tds+=`<td style="text-align:center">${v}</td>`;
+                if(v){ sum+=parseFloat(v); cnt++; }
+            }
+            let avg = cnt>0 ? (sum/cnt).toFixed(0) : '';
+            if(avg) totAvg+=parseFloat(avg);
+            html+=`<tr><td style="text-align:center">${m.n}</td><td style="${style}">${m.k}</td>${tds}<td style="text-align:center;background:#eee">${avg}</td></tr>`;
+        });
+        html+=`<tr><td colspan="8" style="text-align:center;font-weight:bold">Jumlah Rata-rata</td><td style="text-align:center;font-weight:bold">${totAvg}</td></tr></tbody></table>`;
+        
+        // Footer Khusus Rekap (QR Kiri, TTD Kanan)
+        html += `
+            <div class="signature-container">
+                <div class="sig-box-left" style="text-align:center;">
+                    <div id="qrPlace"></div>
+                    <div style="font-size:10px; margin-top:5px;">${s[2]}</div>
+                </div>
+                <div class="sig-box-right">
+                    <p>Kudus, ${tgl}</p>
+                    <p>Kepala Madrasah</p>
+                    <br><br><br>
+                    <p style="font-weight:bold;text-decoration:underline">${kepsek}</p>
+                    <p>NIP. ${nip}</p>
+                </div>
+            </div>
+        `;
+        
+        doPrint(html, s[0], s[2], tgl);
+    }
+
+    // FOOTER RAPOR (Biasa)
+    function footerSig(kepsek, nip, wali, tgl, nama, nisn, isRapor){
+        return `
+            <div class="signature-container">
+                <div class="sig-box-left" style="width:200px">
+                    ${isRapor ? '<p>Mengetahui</p><p>Kepala Madrasah</p><br><br><br><p style="font-weight:bold;text-decoration:underline">'+kepsek+'</p><p>NIP. '+nip+'</p>' : ''}
+                </div>
+                <div class="sig-box-right">
+                    ${isRapor ? '<p>Kudus, '+tgl+'</p><p>Wali Kelas</p><br><br><br><p style="font-weight:bold;text-decoration:underline">'+wali+'</p><p>NIP. -</p>' : 
+                    ''}
+                </div>
+            </div>
+            ${isRapor ? '<div style="margin-top:20px; text-align:right;"><div id="qrPlace" style="display:inline-block"></div></div><div style="text-align:right; font-size:10px;">'+nama+'_'+nisn+'</div>' : ''}
+        `;
+    }
+
+    function doPrint(html, nisn, nama, tgl){
+        let area = document.getElementById('printArea');
+        area.innerHTML = html;
+        if(nisn && document.getElementById('qrPlace')){
+            new QRCode(document.getElementById("qrPlace"), {text:`NISN:${nisn}\nNama:${nama}\nTgl:${tgl}`, width:70, height:70});
+        }
+        window.print();
+    }
+  </script>
+ </body>
+</html>
