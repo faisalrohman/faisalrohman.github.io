@@ -9,114 +9,60 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   
   <style>
-    /* --- GAYA TAMPILAN (UI) --- */
-    body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; height: 100vh; background: #f0f2f5; }
-    
+    /* UI UTAMA (WEB) */
+    body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; height: 100vh; background: #f0f2f5; overflow-y: auto; }
     .main-container { width: 100%; min-height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; display: flex; justify-content: center; }
     .content-wrapper { width: 100%; max-width: 1200px; }
     
-    .card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); padding: 24px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.2); }
-    
-    .btn { padding: 10px 20px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
+    .card { background: rgba(255, 255, 255, 0.95); border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); padding: 24px; margin-bottom: 20px; }
+    .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 5px; transition: 0.2s; }
     .btn-primary { background: #667eea; color: white; } .btn-primary:hover { background: #5a67d8; }
     .btn-secondary { background: #e2e8f0; color: #4a5568; } .btn-secondary:hover { background: #cbd5e0; }
     .btn-danger { background: #fc8181; color: white; }
-    .btn-success { background: #48bb78; color: white; }
     
-    .input-field { width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; background: #f8fafc; }
-    .input-field:focus { outline: none; border-color: #667eea; background: white; }
+    .input-field { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; background: #f8fafc; }
     .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
     .form-group { display: flex; flex-direction: column; gap: 5px; }
     label { font-weight: 600; color: #4a5568; font-size: 12px; text-transform: uppercase; }
     
     .table-container { overflow-x: auto; margin-top: 15px; border-radius: 12px; border: 1px solid #e2e8f0; }
-    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
     th { background: #f7fafc; padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
-    td { padding: 12px; border-bottom: 1px solid #edf2f7; }
+    td { padding: 10px 12px; border-bottom: 1px solid #edf2f7; }
     
     .tab-container { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; }
     .tab { padding: 10px 20px; background: rgba(255,255,255,0.8); border-radius: 10px; cursor: pointer; font-weight: 600; color: #718096; white-space: nowrap; }
     .tab.active { background: white; color: #667eea; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .pagination { display: flex; justify-content: flex-end; gap: 5px; margin-top: 15px; align-items: center; font-size: 13px; }
 
-    .loading-spinner { border: 3px solid #f3f3f3; border-top: 3px solid #667eea; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-    /* --- GAYA KHUSUS CETAK (PRINT) --- */
-    #printArea { display: none; background: white; color: black; font-family: 'Times New Roman', Times, serif; }
+    /* LAYOUT CETAK (PAPER) */
+    #printArea { display: none; background: white; color: black; font-family: 'Times New Roman', serif; }
     
     @media print {
         @page { size: A4; margin: 1cm; }
+        .main-container, .card, .tab-container { display: none !important; }
+        body { background: white; }
         
-        /* SEMBUNYIKAN SEMUA ELEMEN WEB */
-        body > :not(#printArea) {
-            display: none !important;
-        }
-
-        /* TAMPILKAN AREA CETAK */
-        #printArea { 
-            display: block !important; 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            margin: 0;
-            padding: 0;
-        }
+        #printArea { display: block !important; width: 100%; position: relative; left: 0; top: 0; }
         
-        /* SETUP GAMBAR KOP AGAR MUNCUL DI PC */
-        .header-img { 
-            width: 100% !important;
-            height: auto !important;
-            max-height: 150px !important;
-            object-fit: contain !important;
-            display: block !important;
-            margin-bottom: 5px; 
-            border-bottom: 2px solid black; 
-        }
-        
-        .print-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
-        .print-table th, .print-table td { border: 1px solid black; padding: 4px; }
+        .header-img { width: 100%; max-height: 140px; object-fit: contain; margin-bottom: 5px; border-bottom: 2px solid black; display: block; }
+        .print-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; }
+        .print-table th, .print-table td { border: 1px solid black; padding: 3px 5px; }
         .print-table th { text-align: center; background: #eee !important; -webkit-print-color-adjust: exact; }
-
-        .identitas-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
-        .identitas-table td { border: none; padding: 4px; vertical-align: top; }
-        .identitas-label { width: 5%; }
-        .identitas-field { width: 30%; }
-        .identitas-sep { width: 2%; text-align: center; }
-        .identitas-val { width: 63%; font-weight: bold; }
-        .sub-field { padding-left: 20px; }
-
-        /* Footer Tanda Tangan */
-        .signature-container {
-            display: flex;
-            justify-content: space-between; /* Kiri QR, Kanan TTD */
-            align-items: flex-start; /* Sejajar atas */
-            margin-top: 30px;
-            padding: 0 10px;
-            font-size: 12px;
-        }
-
-        .sig-box-left {
-            text-align: center;
-            width: 150px;
-            padding-top: 15px; /* Menyesuaikan agar sejajar tanggal */
-        }
-
-        .sig-box-right {
-            text-align: center;
-            width: 220px;
-        }
-
-        .foto-box { width: 3cm; height: 4cm; border: 1px solid black; display: flex; align-items: center; justify-content: center; margin-top: 10px; font-size: 10px; }
+        .identitas-table td { padding: 3px; vertical-align: top; border:none; font-size:12px; }
+        
+        /* Flexbox Signature untuk 3 Kolom Sejajar */
+        .signature-container { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 30px; padding: 0 10px; font-size: 12px; }
+        .sig-col { flex: 1; text-align: center; display: flex; flex-direction: column; align-items: center; }
+        .foto-box { width: 3cm; height: 4cm; border: 1px solid black; display: flex; align-items: center; justify-content: center; margin-top: 10px; }
     }
   </style>
  </head>
  <body>
   <div class="main-container">
    <div class="content-wrapper">
-    
     <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
-      <div><h1 style="margin:0; font-size:24px; font-weight:800; color:#2d3748;">Sistem Arsip Nilai MTs</h1><p style="margin:0; color:#718096;">Database Lengkap & Cetak Rapor</p></div>
+      <div><h1 style="margin:0; font-size:24px; font-weight:800; color:#2d3748;"><a href="https://script.google.com/macros/s/AKfycbwZvArYQ3w0R73oG2d1PhPppkJE0v6wMSICstUgypWIyWQQcLTtJnzSzU9c5r_rynYk8w/exec" target="_blank">Sistem Arsip Nilai MTs</a></h1><p style="margin:0; color:#718096;">Database Lengkap & Cetak PDF</p></div>
       <button class="btn btn-secondary" onclick="window.location.reload()">🔄 Refresh</button>
     </div>
 
@@ -130,22 +76,26 @@
 
     <div id="apiTab" class="card" style="display: none;">
      <h2>⚙️ Konfigurasi API</h2>
-     <div class="form-group"><label>URL Apps Script</label><input id="apiUrl" class="input-field" placeholder="Paste URL Web App Google Script di sini..."></div>
+     <div class="form-group"><input id="apiUrl" class="input-field" placeholder="Paste URL Web App di sini..."></div>
      <div style="margin-top:10px;"><button class="btn btn-primary" onclick="saveApiUrl()">Simpan</button> <button class="btn btn-success" onclick="testConnection()">Test</button></div>
     </div>
 
     <div id="siswaTab" class="card">
-     <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-        <h2>Data Siswa</h2>
-        <div><button class="btn btn-primary" onclick="showFormSiswa()">➕ Tambah/Edit Lengkap</button> <button class="btn btn-secondary" onclick="loadSiswa()">🔄 Load</button></div>
+     <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="searchSiswaInput" class="input-field" placeholder="Cari Nama/NISN..." onkeyup="handleSiswaSearchTable()" style="width:200px;">
+            <button class="btn btn-secondary" onclick="handleSiswaSearchTable()">🔍</button>
+        </div>
+        <div><button class="btn btn-primary" onclick="showFormSiswa()">➕ Tambah Lengkap</button> <button class="btn btn-secondary" onclick="loadSiswa()">🔄 Load</button></div>
      </div>
      
      <div id="formSiswa" style="display:none; background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e2e8f0; margin-bottom:20px;">
-        <h3 style="margin-top:0; border-bottom:1px solid #ddd; padding-bottom:5px;">A. Identitas Siswa</h3>
+        <h3 style="margin-top:0; border-bottom:1px solid #ddd; padding-bottom:5px;">A. Identitas Diri</h3>
         <div class="form-grid">
             <div class="form-group"><label>NISN *</label><input id="s_nisn" class="input-field"></div>
             <div class="form-group"><label>NIS</label><input id="s_nis" class="input-field"></div>
             <div class="form-group"><label>Nama Lengkap *</label><input id="s_nama" class="input-field"></div>
+            <div class="form-group"><label>Tahun Masuk</label><input id="s_thn_masuk" class="input-field"></div>
             <div class="form-group"><label>Jenis Kelamin</label><select id="s_jk" class="input-field"><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
             <div class="form-group"><label>Tempat Lahir</label><input id="s_tempat" class="input-field"></div>
             <div class="form-group"><label>Tanggal Lahir</label><input type="date" id="s_tgl" class="input-field"></div>
@@ -153,19 +103,19 @@
             <div class="form-group"><label>Status Keluarga</label><input id="s_status_kel" class="input-field" value="Anak Kandung"></div>
             <div class="form-group"><label>Anak Ke</label><input id="s_anak_ke" class="input-field"></div>
             <div class="form-group"><label>Alamat Siswa</label><input id="s_alamat" class="input-field"></div>
-            <div class="form-group"><label>Telepon/HP</label><input id="s_telp" class="input-field"></div>
+            <div class="form-group"><label>Telepon</label><input id="s_telp" class="input-field"></div>
         </div>
 
         <h3 style="margin-top:10px; border-bottom:1px solid #ddd; padding-bottom:5px;">B. Data Sekolah & Orang Tua</h3>
         <div class="form-grid">
             <div class="form-group"><label>Sekolah Asal</label><input id="s_asal" class="input-field"></div>
-            <div class="form-group"><label>Diterima Kelas</label><input id="s_diterima_kelas" class="input-field" value="VII"></div>
-            <div class="form-group"><label>Diterima Tanggal</label><input type="text" id="s_diterima_tgl" class="input-field" placeholder="Contoh: 17 Juli 2024"></div>
+            <div class="form-group"><label>Diterima Kelas</label><input id="s_diterima_kelas" class="input-field"></div>
+            <div class="form-group"><label>Diterima Tanggal</label><input id="s_diterima_tgl" class="input-field"></div>
             <div class="form-group"><label>Nama Ayah</label><input id="s_ayah" class="input-field"></div>
             <div class="form-group"><label>Nama Ibu</label><input id="s_ibu" class="input-field"></div>
             <div class="form-group"><label>Pekerjaan Ayah</label><input id="s_pek_ayah" class="input-field"></div>
             <div class="form-group"><label>Pekerjaan Ibu</label><input id="s_pek_ibu" class="input-field"></div>
-            <div class="form-group"><label>Alamat Orang Tua</label><input id="s_alamat_ortu" class="input-field"></div>
+            <div class="form-group"><label>Alamat Ortu</label><input id="s_alamat_ortu" class="input-field"></div>
         </div>
 
         <h3 style="margin-top:10px; border-bottom:1px solid #ddd; padding-bottom:5px;">C. Wali (Opsional)</h3>
@@ -175,238 +125,201 @@
             <div class="form-group"><label>Alamat Wali</label><input id="s_alamat_wali" class="input-field"></div>
             <div class="form-group"><label>Status Siswa</label><select id="s_status" class="input-field"><option value="Aktif">Aktif</option><option value="Lulus">Lulus</option></select></div>
         </div>
-        <div style="text-align:right;"><button class="btn btn-secondary" onclick="hideFormSiswa()">Batal</button> <button class="btn btn-primary" onclick="saveSiswaFull()">Simpan Lengkap</button></div>
+        <div style="text-align:right; margin-top:10px;"><button class="btn btn-secondary" onclick="hideFormSiswa()">Batal</button> <button class="btn btn-primary" onclick="saveSiswaFull()">Simpan Lengkap</button></div>
      </div>
 
      <div class="table-container">
-        <table id="tblSiswa"><thead><tr><th>NISN</th><th>Nama</th><th>Kelas</th><th>Aksi</th></tr></thead><tbody id="bodySiswa"></tbody></table>
+        <table id="tblSiswa"><thead><tr><th>NISN</th><th>NIS</th><th>Nama</th><th>Thn Masuk</th><th>Aksi</th></tr></thead><tbody id="bodySiswa"></tbody></table>
      </div>
+     <div class="pagination"><button class="btn btn-secondary" onclick="prevPage()">❮</button><span id="pageInfo">Page 1</span><button class="btn btn-secondary" onclick="nextPage()">❯</button></div>
     </div>
 
     <div id="mapelTab" class="card" style="display:none;">
       <h2>Mata Pelajaran</h2>
       <button class="btn btn-primary" onclick="showMapelForm()">Tambah Mapel</button> <button class="btn btn-secondary" onclick="loadMapel()">Refresh</button>
-      <div id="formMapel" style="display:none; margin:15px 0;"><input id="m_kode" class="input-field" placeholder="Kode"><input id="m_nama" class="input-field" placeholder="Nama"><select id="m_kel" class="input-field"><option value="A">A</option><option value="B">B</option></select><button class="btn btn-primary" onclick="saveMapel()">Simpan</button></div>
+      <div id="formMapel" style="display:none; margin:15px 0;"><input id="m_kode" class="input-field" placeholder="Kode"><input id="m_nama" class="input-field" placeholder="Nama"><select id="m_kel" class="input-field"><option value="A">A</option><option value="B">B</option><option value="C">C</option></select><button class="btn btn-primary" onclick="saveMapel()">Simpan</button></div>
       <div class="table-container"><table id="tblMapel"><thead><tr><th>Kode</th><th>Nama</th><th>Kel</th><th>Aksi</th></tr></thead><tbody id="bodyMapel"></tbody></table></div>
     </div>
 
     <div id="nilaiTab" class="card" style="display:none;">
       <h2>Input Nilai</h2>
-      <div class="form-grid">
-        <div class="form-group"><label>Siswa</label><select id="n_siswa" class="input-field" onchange="loadNilaiData()"></select></div>
-        <div class="form-group"><label>Sem</label><select id="n_sem" class="input-field" onchange="loadNilaiData()"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option></select></div>
-        <div class="form-group"><label>Thn Ajar</label><input id="n_thn" class="input-field" value="2024/2025"></div>
+      <div style="background:#fff7ed; padding:15px; border-radius:10px; margin-bottom:15px;">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Cari Siswa</label>
+                <input list="dl_nilai_siswa" id="in_nilai_cari" class="input-field" placeholder="Ketik nama..." oninput="handleNilaiSearch()">
+                <datalist id="dl_nilai_siswa"></datalist>
+                <input type="hidden" id="n_siswa">
+                <small id="lbl_nilai_siswa" style="color:green; font-weight:bold;"></small>
+            </div>
+            <div class="form-group"><label>Sem</label><select id="n_sem" class="input-field" onchange="loadNilaiData()"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option></select></div>
+            <div class="form-group"><label>Thn Ajar</label><input id="n_thn" class="input-field" value="2024/2025"></div>
+            <div class="form-group"><label>Kurikulum</label><select id="n_kurikulum" class="input-field" onchange="loadNilaiData()"><option value="K13">K13 (2 Nilai)</option><option value="KM">Merdeka (1 Nilai)</option></select></div>
+        </div>
       </div>
       <div id="areaNilai" style="display:none;">
-        <div style="display:flex; gap:10px; margin-bottom:10px;"><input id="n_um" class="input-field" placeholder="Nilai UM"><input id="n_un" class="input-field" placeholder="Nilai UN"></div>
-        <div id="gridMapel" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:10px;"></div>
+        <div class="form-grid"><div class="form-group"><label>Nilai UM</label><input id="n_um" class="input-field" placeholder="0-100"></div><div class="form-group"><label>Nilai UN</label><input id="n_un" class="input-field" placeholder="0-100"></div></div>
+        <div id="gridMapel" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:10px; margin-top:15px;"></div>
         <button class="btn btn-primary" style="margin-top:20px; width:100%; justify-content:center;" onclick="saveNilai()">Simpan Nilai</button>
       </div>
     </div>
 
     <div id="cetakTab" class="card" style="display:none;">
       <h2>🖨️ Pusat Cetak</h2>
-      <div style="background:#f0fff4; padding:15px; border-radius:10px; margin-bottom:15px; border:1px solid #c6f6d5;">
-        <h3 style="margin-top:0;">Konfigurasi Cetak</h3>
+      <div style="background:#f0fff4; padding:15px; border-radius:10px; margin-bottom:15px;">
         <div class="form-grid">
-            
-            <div class="form-group">
-                <label>Cari Siswa (Nama/NISN)</label>
-                <input list="siswaDataList" id="inputCariSiswa" class="input-field" placeholder="Ketik nama siswa..." onchange="handleSiswaSearch()">
-                <datalist id="siswaDataList"></datalist>
-                <input type="hidden" id="c_siswa"> </div>
-
-            <div class="form-group"><label>Semester (Rapor)</label><select id="c_sem" class="input-field"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option></select></div>
+            <div class="form-group"><label>Cari Siswa</label><input list="dl_cetak_siswa" id="in_cetak_cari" class="input-field" placeholder="Ketik nama..." oninput="handleCetakSearch()"><datalist id="dl_cetak_siswa"></datalist><input type="hidden" id="c_siswa"></div>
+            <div class="form-group"><label>Kurikulum</label><select id="c_kurikulum" class="input-field"><option value="K13">K13</option><option value="KM">Merdeka</option></select></div>
+            <div class="form-group"><label>Semester</label><select id="c_sem" class="input-field"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option></select></div>
             <div class="form-group"><label>Kepala Madrasah</label><input id="c_kepsek" class="input-field" value="SALIM, S.Ag., M.Pd."></div>
             <div class="form-group"><label>NIP Kepsek</label><input id="c_nip" class="input-field" value="19690217200641009"></div>
-            <div class="form-group"><label>Wali Kelas</label><input id="c_wali" class="input-field" placeholder="Nama Wali"></div>
-            <div class="form-group"><label>Tanggal Cetak</label><input id="c_tgl" class="input-field" value="21 Desember 2024"></div>
+            <div class="form-group"><label>Wali Kelas</label><input id="c_wali" class="input-field"></div>
+            <div class="form-group"><label>Tanggal</label><input id="c_tgl" class="input-field" value="21 Desember 2024"></div>
         </div>
       </div>
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn btn-primary" onclick="cetakIdentitas()">📄 Cetak Identitas (Hal 1)</button>
-        <button class="btn btn-secondary" onclick="cetakRapor()">📊 Cetak Rapor Semester</button>
-        <button class="btn btn-success" onclick="cetakRekap()">📈 Cetak Rekap (Sem 1-6)</button>
+        <button class="btn btn-primary" onclick="cetakIdentitas()">📄 Identitas</button>
+        <button class="btn btn-secondary" onclick="cetakRapor()">📊 Rapor Semester</button>
+        <button class="btn btn-success" onclick="cetakRekap()">📈 Rekap (Sem 1-6)</button>
       </div>
     </div>
-
    </div>
-   
-   <div id="printArea"></div>
   </div>
+  
+  <div id="printArea"></div>
 
   <script>
-    // --- VARIABEL GLOBAL ---
     let apiUrl = localStorage.getItem('apiUrl') || '';
     let siswaData = [], mapelData = [], nilaiData = [];
-    
-    // URL KOP SURAT (DIRECT LINK BLOGGER)
+    let currentPage = 1, rowsPerPage = 10, filteredSiswa = [];
     const KOP_URL = "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgK5gV0UTSOepaKtfPN9FOee79OHMGxQMDVuRw93wCwkmsNrvhqehuoSPe8bkB72FaXC6Ll9pSZ5Dl22w9F2XbA2Tbs8BdTECq0YXA_3Z0tLCGYJO7477xQRTvp-7ZVjQhVtnoFXjV9a0yPki4Bk8MR3LRjGVxuX1vJH8ftZBhTj53klA3tvHY9-pQAbOk7/s1600/kop%20RDM2.PNG";
 
-    window.onload = function() {
-        if(!apiUrl) switchTab('api');
-        else { loadSiswa(); loadMapel(); }
-    };
+    window.onload = function() { if(!apiUrl) switchTab('api'); else { loadSiswa(); loadMapel(); } };
 
     function switchTab(t) {
         document.querySelectorAll('.card[id$="Tab"]').forEach(e=>e.style.display='none');
         document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
         document.getElementById(t+'Tab').style.display='block';
         document.querySelector(`.tab[onclick="switchTab('${t}')"]`).classList.add('active');
-        if(t==='nilai') populateSel('n_siswa');
-        if(t==='cetak') populateSearchable('siswaDataList'); // Populate Datalist
+        if(t==='nilai') populateSearch('dl_nilai_siswa');
+        if(t==='cetak') populateSearch('dl_cetak_siswa');
     }
 
     async function apiCall(act, p={}) {
-        if(!apiUrl) return alert('Set API URL!');
         let fd = new URLSearchParams(); fd.append('action',act); fd.append('data',JSON.stringify(p));
-        try { let r=await fetch(apiUrl,{method:'POST',body:fd}); return await r.json(); } 
-        catch(e){ alert(e); return null; }
+        try { let r=await fetch(apiUrl,{method:'POST',body:fd}); return await r.json(); } catch(e){ alert('Error: '+e); return null; }
     }
     
     function saveApiUrl(){ localStorage.setItem('apiUrl',document.getElementById('apiUrl').value); apiUrl=localStorage.getItem('apiUrl'); alert('Saved'); }
     async function testConnection(){ let r=await apiCall('test'); if(r&&r.success) alert(r.message); }
 
-    // --- SISWA ---
+    // SISWA LOGIC
     async function loadSiswa(){
         let r=await apiCall('getSiswa');
-        if(r&&r.success){
-            siswaData=r.data;
-            let h='';
-            for(let i=1; i<siswaData.length; i++){
-                let s=siswaData[i];
-                h+=`<tr><td>${s[0]}</td><td>${s[2]}</td><td>${s[12]||'-'}</td>
-                <td><button class="btn btn-danger" onclick="delSiswa('${s[0]}')">Del</button></td></tr>`;
-            }
-            document.getElementById('bodySiswa').innerHTML=h;
-        }
+        if(r&&r.success){ siswaData = r.data.slice(1); filteredSiswa = siswaData; renderSiswaTable(); }
     }
+    function handleSiswaSearchTable() {
+        let q = document.getElementById('searchSiswaInput').value.toLowerCase();
+        filteredSiswa = siswaData.filter(s => String(s[0]).toLowerCase().includes(q) || String(s[2]).toLowerCase().includes(q));
+        currentPage = 1; renderSiswaTable();
+    }
+    function renderSiswaTable(){
+        let start = (currentPage-1)*rowsPerPage, end = start+rowsPerPage, pageData = filteredSiswa.slice(start, end);
+        let h = pageData.length===0 ? '<tr><td colspan="5" style="text-align:center">Tidak ada data</td></tr>' : 
+            pageData.map(s => `<tr><td>${s[0]}</td><td>${s[1]}</td><td>${s[2]}</td><td>${s[23]||'-'}</td><td><button class="btn btn-danger" onclick="delSiswa('${s[0]}')">Del</button></td></tr>`).join('');
+        document.getElementById('bodySiswa').innerHTML = h;
+        document.getElementById('pageInfo').innerText = `Page ${currentPage} of ${Math.ceil(filteredSiswa.length/rowsPerPage)||1}`;
+    }
+    function prevPage() { if(currentPage > 1) { currentPage--; renderSiswaTable(); } }
+    function nextPage() { if(currentPage < Math.ceil(filteredSiswa.length/rowsPerPage)) { currentPage++; renderSiswaTable(); } }
     function showFormSiswa(){ document.getElementById('formSiswa').style.display='block'; }
     function hideFormSiswa(){ document.getElementById('formSiswa').style.display='none'; }
-    
     async function saveSiswaFull(){
         let p = {
-            nisn: document.getElementById('s_nisn').value,
-            nis: document.getElementById('s_nis').value,
-            nama: document.getElementById('s_nama').value,
-            jk: document.getElementById('s_jk').value,
-            tempatLahir: document.getElementById('s_tempat').value,
-            tanggalLahir: document.getElementById('s_tgl').value,
-            agama: document.getElementById('s_agama').value,
-            statusKeluarga: document.getElementById('s_status_kel').value,
-            anakKe: document.getElementById('s_anak_ke').value,
-            alamat: document.getElementById('s_alamat').value,
-            telp: document.getElementById('s_telp').value,
-            sekolahAsal: document.getElementById('s_asal').value,
-            diterimaKelas: document.getElementById('s_diterima_kelas').value,
-            diterimaTgl: document.getElementById('s_diterima_tgl').value,
-            namaAyah: document.getElementById('s_ayah').value,
-            namaIbu: document.getElementById('s_ibu').value,
-            pekAyah: document.getElementById('s_pek_ayah').value,
-            pekIbu: document.getElementById('s_pek_ibu').value,
-            alamatOrtu: document.getElementById('s_alamat_ortu').value,
-            namaWali: document.getElementById('s_wali').value,
-            pekWali: document.getElementById('s_pek_wali').value,
-            alamatWali: document.getElementById('s_alamat_wali').value,
-            status: document.getElementById('s_status').value
+            nisn: document.getElementById('s_nisn').value, nis: document.getElementById('s_nis').value,
+            nama: document.getElementById('s_nama').value, jk: document.getElementById('s_jk').value,
+            tempatLahir: document.getElementById('s_tempat').value, tanggalLahir: document.getElementById('s_tgl').value,
+            agama: document.getElementById('s_agama').value, statusKeluarga: document.getElementById('s_status_kel').value,
+            anakKe: document.getElementById('s_anak_ke').value, alamat: document.getElementById('s_alamat').value,
+            telp: document.getElementById('s_telp').value, sekolahAsal: document.getElementById('s_asal').value,
+            diterimaKelas: document.getElementById('s_diterima_kelas').value, diterimaTgl: document.getElementById('s_diterima_tgl').value,
+            namaAyah: document.getElementById('s_ayah').value, namaIbu: document.getElementById('s_ibu').value,
+            pekAyah: document.getElementById('s_pek_ayah').value, pekIbu: document.getElementById('s_pek_ibu').value,
+            alamatOrtu: document.getElementById('s_alamat_ortu').value, namaWali: document.getElementById('s_wali').value,
+            pekWali: document.getElementById('s_pek_wali').value, alamatWali: document.getElementById('s_alamat_wali').value,
+            status: document.getElementById('s_status').value, tahunMasuk: document.getElementById('s_thn_masuk').value
         };
-        let r=await apiCall('saveSiswaFull', p);
-        if(r&&r.success){ hideFormSiswa(); loadSiswa(); }
+        await apiCall('saveSiswaFull', p); hideFormSiswa(); loadSiswa();
     }
     async function delSiswa(id){ if(confirm('Hapus?')) await apiCall('deleteSiswa',{nisn:id}); loadSiswa(); }
 
-    // --- MAPEL ---
+    // MAPEL LOGIC
     async function loadMapel(){ let r=await apiCall('getMapel'); if(r) mapelData=r.data; renderMapel(); }
-    function renderMapel(){
-        let h=''; for(let i=1;i<mapelData.length;i++) h+=`<tr><td>${mapelData[i][0]}</td><td>${mapelData[i][1]}</td><td>${mapelData[i][2]}</td><td>x</td></tr>`;
-        document.getElementById('bodyMapel').innerHTML=h;
-    }
+    function renderMapel(){ document.getElementById('bodyMapel').innerHTML = mapelData.length<=1 ? '' : mapelData.slice(1).map(m => `<tr><td>${m[0]}</td><td>${m[1]}</td><td>${m[2]}</td><td>x</td></tr>`).join(''); }
     function showMapelForm(){ document.getElementById('formMapel').style.display='block'; }
     async function saveMapel(){ await apiCall('addMapel',{kode:document.getElementById('m_kode').value.toUpperCase(), nama:document.getElementById('m_nama').value, kelompok:document.getElementById('m_kel').value}); loadMapel(); }
 
-    // --- NILAI & SEARCH LOGIC ---
-    function populateSel(id){
-        let s=document.getElementById(id); s.innerHTML='<option value="">--Pilih--</option>';
-        for(let i=1; i<siswaData.length; i++) { let opt=document.createElement('option'); opt.value=siswaData[i][0]; opt.text=siswaData[i][2]; s.add(opt); }
+    // NILAI LOGIC
+    function populateSearch(listId){
+        let dl = document.getElementById(listId); dl.innerHTML = '';
+        siswaData.forEach(s => { let opt=document.createElement('option'); opt.value = `${s[2]} (${s[0]})`; dl.appendChild(opt); });
         apiCall('getNilai').then(r=>{if(r) nilaiData=r.data});
     }
-
-    // FUNGSI POPULATE DATALIST (PENCARIAN)
-    function populateSearchable(listId){
-        let dl = document.getElementById(listId);
-        dl.innerHTML = '';
-        for(let i=1; i<siswaData.length; i++) { 
-            let opt=document.createElement('option'); 
-            opt.value = `${siswaData[i][2]} (${siswaData[i][0]})`; // Nama (NISN)
-            dl.appendChild(opt); 
-        }
-        apiCall('getNilai').then(r=>{if(r) nilaiData=r.data});
+    function handleNilaiSearch(){
+        let val = document.getElementById('in_nilai_cari').value;
+        let found = siswaData.find(s => `${s[2]} (${s[0]})` === val);
+        if(found) { document.getElementById('n_siswa').value = found[0]; document.getElementById('lbl_nilai_siswa').innerText = "✓"; loadNilaiData(); }
+        else { document.getElementById('areaNilai').style.display='none'; }
     }
-
-    function handleSiswaSearch(){
-        let val = document.getElementById('inputCariSiswa').value;
-        let nisn = val.match(/\(([^)]+)\)/); // Ambil text dalam kurung
-        if(nisn && nisn[1]){
-            document.getElementById('c_siswa').value = nisn[1];
-        } else {
-            // Jika user ketik manual dan persis
-            let found = siswaData.find(s=>s[2]===val || s[0]===val);
-            if(found) document.getElementById('c_siswa').value = found[0];
-        }
-    }
-
     function loadNilaiData(){
-        let nisn=document.getElementById('n_siswa').value, sem=document.getElementById('n_sem').value;
+        let nisn = document.getElementById('n_siswa').value, sem = document.getElementById('n_sem').value, kur = document.getElementById('n_kurikulum').value;
         if(!nisn) return;
         document.getElementById('areaNilai').style.display='block';
-        let g=document.getElementById('gridMapel'); g.innerHTML='';
-        for(let i=1;i<mapelData.length;i++){
-            let kd=mapelData[i][0];
-            g.innerHTML+=`<div><small>${kd}</small><input type="number" class="input-field in-nilai" data-kd="${kd}"></div>`;
+        let g = document.getElementById('gridMapel'); g.innerHTML='';
+        for(let i=1; i<mapelData.length; i++){
+            let kd = mapelData[i][0], nm = mapelData[i][1];
+            let inputHTML = kur === 'K13' ? 
+                `<div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;"><input type="number" class="input-field in-nilai" data-kd="${kd}_P" placeholder="P"><input type="number" class="input-field in-nilai" data-kd="${kd}_K" placeholder="K"></div>` :
+                `<input type="number" class="input-field in-nilai" data-kd="${kd}" placeholder="Nilai">`;
+            g.innerHTML += `<div style="background:white; border:1px solid #ddd; padding:10px; border-radius:8px;"><b>${nm}</b>${inputHTML}</div>`;
         }
         if(nilaiData.length>0){
-            let h=nilaiData[0];
-            let row=nilaiData.find(r=>String(r[h.indexOf('NISN')])==nisn && String(r[h.indexOf('Semester')])==sem);
+            let h = nilaiData[0];
+            let row = nilaiData.find(r => String(r[h.indexOf('NISN')]) == nisn && String(r[h.indexOf('Semester')]) == sem);
             if(row){
-                if(h.indexOf('Tahun Pelajaran')>-1) document.getElementById('n_thn').value=row[h.indexOf('Tahun Pelajaran')];
-                document.getElementById('n_um').value = row[h.indexOf('Nilai Ujian Madrasah')]||'';
-                document.getElementById('n_un').value = row[h.indexOf('Nilai Ujian Nasional')]||'';
-                document.querySelectorAll('.in-nilai').forEach(el=>{
-                    let idx=h.indexOf(el.dataset.kd); if(idx>-1) el.value=row[idx];
-                });
+                if(h.indexOf('Tahun Pelajaran') > -1) document.getElementById('n_thn').value = row[h.indexOf('Tahun Pelajaran')];
+                document.getElementById('n_um').value = row[h.indexOf('Nilai Ujian Madrasah')] || '';
+                document.getElementById('n_un').value = row[h.indexOf('Nilai Ujian Nasional')] || '';
+                document.querySelectorAll('.in-nilai').forEach(el => { let idx = h.indexOf(el.dataset.kd); if(idx > -1) el.value = row[idx]; });
             }
         }
     }
     async function saveNilai(){
-        let m={}; document.querySelectorAll('.in-nilai').forEach(e=>{if(e.value) m[e.dataset.kd]=e.value});
-        let p={
-            nisn:document.getElementById('n_siswa').value,
-            semester:document.getElementById('n_sem').value,
-            tahunPelajaran:document.getElementById('n_thn').value,
-            nilaiUM:document.getElementById('n_um').value,
-            nilaiUN:document.getElementById('n_un').value,
-            nilaiMapel:m
-        };
-        await apiCall('saveNilaiWide',p); alert('Saved');
-        apiCall('getNilai').then(r=>{if(r) nilaiData=r.data});
+        let m = {}; document.querySelectorAll('.in-nilai').forEach(el => { if(el.value) m[el.dataset.kd] = el.value; });
+        let p = { nisn: document.getElementById('n_siswa').value, semester: document.getElementById('n_sem').value, tahunPelajaran: document.getElementById('n_thn').value, kurikulum: document.getElementById('n_kurikulum').value, nilaiUM: document.getElementById('n_um').value, nilaiUN: document.getElementById('n_un').value, nilaiMapel: m };
+        await apiCall('saveNilaiWide', p); alert('Saved'); apiCall('getNilai').then(r=>{if(r) nilaiData=r.data});
     }
 
-    // --- CETAK FUNCTIONS ---
+    // CETAK LOGIC
+    function handleCetakSearch(){
+        let val = document.getElementById('in_cetak_cari').value;
+        let found = siswaData.find(s => `${s[2]} (${s[0]})` === val);
+        if(found) document.getElementById('c_siswa').value = found[0];
+    }
     function getSiswa(id){ return siswaData.find(s=>String(s[0])==id); }
     function getNilai(id, sem){ if(!nilaiData.length)return null; return nilaiData.find(r=>String(r[nilaiData[0].indexOf('NISN')])==id && String(r[nilaiData[0].indexOf('Semester')])==sem); }
     function getVal(row, key){ if(!row)return ''; let idx=nilaiData[0].indexOf(key); return idx>-1?row[idx]:''; }
+    function getPredikat(val){ if(!val) return ''; val=parseInt(val); if(val>=90)return 'A'; if(val>=80)return 'B'; if(val>=70)return 'C'; return 'D'; }
 
-    // 1. CETAK IDENTITAS
+    // 1. CETAK IDENTITAS (SEJAJAR: QR KIRI, FOTO TENGAH, KEPALA KANAN)
     function cetakIdentitas(){
-        let id=document.getElementById('c_siswa').value; if(!id)return alert('Pilih Siswa (Gunakan Pencarian)');
-        let s=getSiswa(id); 
-        let kepsek=document.getElementById('c_kepsek').value;
-        let nip=document.getElementById('c_nip').value;
-        let tgl=document.getElementById('c_tgl').value;
+        let id=document.getElementById('c_siswa').value; if(!id) return alert('Pilih Siswa');
+        let s=getSiswa(id);
+        let kepsek=document.getElementById('c_kepsek').value, nip=document.getElementById('c_nip').value, tgl=document.getElementById('c_tgl').value;
         let tglLahir = s[5]; if(tglLahir && tglLahir.includes('T')) tglLahir = tglLahir.split('T')[0];
 
         let html = `
-            <div style="text-align:center;"><img src="${KOP_URL}" class="header-img" referrerpolicy="no-referrer"></div>
+            <div style="text-align:center;"><img src="${KOP_URL}" class="header-img"></div>
             <h3 style="text-align:center; text-decoration: underline; margin:10px 0;">IDENTITAS PESERTA DIDIK</h3>
             <table class="identitas-table">
                 <tr><td class="identitas-label">1.</td><td class="identitas-field">Nama Peserta Didik</td><td class="identitas-sep">:</td><td class="identitas-val">${s[2]}</td></tr>
@@ -435,30 +348,27 @@
                 <tr><td></td><td class="sub-field">Alamat Wali Siswa</td><td>:</td><td>${s[21]||'-'}</td></tr>
             </table>
             
-            <div class="signature-section">
-                <div class="sig-box"><div class="foto-box">Foto 3x4</div></div>
-                <div class="sig-box" style="text-align:left; margin-left:50px;">
+            <div class="signature-container">
+                <div class="sig-col"><div style="height:30px;"></div><div id="qrPlace"></div></div>
+                <div class="sig-col"><div class="foto-box">Foto 3x4</div></div>
+                <div class="sig-col">
                     <p>Kudus, ${tgl}</p><p>Kepala Madrasah</p><br><br><br>
                     <p style="font-weight:bold; text-decoration:underline;">${kepsek}</p><p>NIP. ${nip}</p>
                 </div>
-            </div>
-            <div style="margin-top:20px; display:flex; justify-content:center; align-items:center; flex-direction:column;">
-                <div id="qrPlace"></div>
-                <div style="font-size:10px; margin-top:5px;">${s[2]}_${s[0]}</div>
-            </div>
-        `;
+            </div>`;
         doPrint(html, s[0], s[2], tgl);
     }
 
-    // 2. CETAK RAPOR
+    // 2. CETAK RAPOR (SEJAJAR: KEPALA KIRI, QR TENGAH, WALI KANAN)
     function cetakRapor(){
         let id=document.getElementById('c_siswa').value, sem=document.getElementById('c_sem').value;
-        if(!id)return alert('Pilih Siswa (Gunakan Pencarian)');
-        let s=getSiswa(id);
-        let n=getNilai(id,sem);
+        if(!id) return alert('Pilih Siswa!');
+        let s=getSiswa(id), n=getNilai(id,sem);
         let kepsek=document.getElementById('c_kepsek').value, nip=document.getElementById('c_nip').value, wali=document.getElementById('c_wali').value, tgl=document.getElementById('c_tgl').value;
         let thn = n?getVal(n,'Tahun Pelajaran'):'2024/2025';
+        let kurikulum = document.getElementById('c_kurikulum').value;
 
+        // Mapel Structure
         let mapels = [
             {n:'1', k:'Pendidikan Agama Islam', h:true},
             {n:'', k:"A. Al Qur'an Hadis", c:'QH', i:true}, {n:'', k:"B. Akidah Akhlak", c:'AA', i:true},
@@ -468,137 +378,89 @@
             {n:'6', k:'Ilmu Pengetahuan Alam', c:'IPA'}, {n:'7', k:'Ilmu Pengetahuan Sosial', c:'IPS'},
             {n:'8', k:'Bahasa Inggris', c:'BING'}, {n:'9', k:'Pend. Jasmani, Olahraga', c:'PJOK'},
             {n:'10', k:'Informatika', c:'INFO'}, {n:'11', k:'Seni Budaya', c:'SBP'},
-            {n:'12', k:'Muatan Lokal', h:true},
-            {n:'', k:"A. Bahasa Jawa", c:'BJawa', i:true}, {n:'', k:"B. Ke NU an", c:'NU', i:true}
+            {n:'12', k:'Muatan Lokal', h:true}, {n:'', k:"A. Bahasa Jawa", c:'BJawa', i:true}, {n:'', k:"B. Ke NU an", c:'NU', i:true}
         ];
 
-        let html = `
-            <div style="text-align:center;"><img src="${KOP_URL}" class="header-img" referrerpolicy="no-referrer"></div>
-            <table class="identitas-table" style="margin-bottom:15px;">
-                <tr><td width="15%">NAMA</td><td width="1%">:</td><td width="40%"><b>${s[2]}</b></td><td width="15%">Kelas</td><td>:</td><td>${s[12]||'VII'}</td></tr>
-                <tr><td>NIS/NISN</td><td>:</td><td>${s[1]}/${s[0]}</td><td>Fase</td><td>:</td><td>D</td></tr>
-                <tr><td>Madrasah</td><td>:</td><td>MTSS NU TBS</td><td>Semester</td><td>:</td><td>${sem%2==1?'Ganjil':'Genap'}</td></tr>
-                <tr><td>Alamat</td><td>:</td><td>JL. KH TURAICHAN</td><td>Thn Ajar</td><td>:</td><td>${thn}</td></tr>
+        let html = `<div style="text-align:center;"><img src="${KOP_URL}" class="header-img"></div>
+            <table class="identitas-table" style="margin-bottom:15px; width:100%;">
+                <tr><td width="15%">NAMA</td><td width="1%">:</td><td width="35%"><b>${s[2]}</b></td><td width="15%">Kelas</td><td>:</td><td>${s[12]||'VII'}</td></tr>
+                <tr><td>NIS/NISN</td><td>:</td><td>${s[1]}/${s[0]}</td><td>Semester</td><td>:</td><td>${sem%2==1?'Ganjil':'Genap'}</td></tr>
+                <tr><td>Madrasah</td><td>:</td><td>MTSS NU TBS</td><td>Thn Ajar</td><td>:</td><td>${thn}</td></tr>
             </table>
-            <h3 style="text-align:center;">CAPAIAN HASIL BELAJAR</h3>
-            <table class="print-table">
-                <thead><tr><th width="5%">No</th><th>Mata Pelajaran</th><th width="15%">Nilai Akhir</th></tr></thead>
-                <tbody>
-        `;
-        let tot=0;
-        mapels.forEach(m=>{
-            let val = m.c ? getVal(n, m.c) : '';
-            if(val) tot+=parseInt(val);
-            html+=`<tr><td style="text-align:center">${m.n}</td><td style="${m.h?'font-weight:bold':''};${m.i?'padding-left:20px':''}">${m.k}</td><td style="text-align:center">${val}</td></tr>`;
-        });
-        html+=`<tr><td colspan="2" style="text-align:center;font-weight:bold;">Jumlah</td><td style="text-align:center;font-weight:bold;">${tot||'-'}</td></tr></tbody></table>`;
-        
-        // Footer Rapor (QR Kiri, TTD Kanan)
-        html+= footerSig(kepsek, nip, wali, tgl, s[2], s[0], true);
+            <h3 style="text-align:center; font-weight:bold;">CAPAIAN HASIL BELAJAR</h3>`;
+
+        if(kurikulum === 'K13') {
+            html += `<table class="print-table"><thead><tr><th rowspan="2" width="5%">No</th><th rowspan="2">Mata Pelajaran</th><th colspan="2">Pengetahuan</th><th colspan="2">Keterampilan</th></tr><tr><th>Nilai</th><th>Pred</th><th>Nilai</th><th>Pred</th></tr></thead><tbody>`;
+            mapels.forEach(m=>{
+                let vP = m.c ? getVal(n, m.c+'_P') : '', vK = m.c ? getVal(n, m.c+'_K') : '';
+                html+=`<tr><td style="text-align:center">${m.n}</td><td style="${m.h?'font-weight:bold':''};${m.i?'padding-left:20px':''}">${m.k}</td><td style="text-align:center">${vP}</td><td style="text-align:center">${getPredikat(vP)}</td><td style="text-align:center">${vK}</td><td style="text-align:center">${getPredikat(vK)}</td></tr>`;
+            });
+        } else {
+            html += `<table class="print-table"><thead><tr><th width="5%">No</th><th>Mata Pelajaran</th><th width="15%">Nilai Akhir</th></tr></thead><tbody>`;
+            let tot=0;
+            mapels.forEach(m=>{
+                let v = m.c ? getVal(n, m.c) : ''; if(v) tot+=parseInt(v);
+                html+=`<tr><td style="text-align:center">${m.n}</td><td style="${m.h?'font-weight:bold':''};${m.i?'padding-left:20px':''}">${m.k}</td><td style="text-align:center">${v}</td></tr>`;
+            });
+            html+=`<tr><td colspan="2" style="text-align:center;font-weight:bold;">Jumlah</td><td style="text-align:center;font-weight:bold;">${tot||'-'}</td></tr>`;
+        }
+        html += `</tbody></table>
+            <div class="signature-container">
+                <div class="sig-col"><p>Mengetahui</p><p>Kepala Madrasah</p><br><br><br><p style="font-weight:bold;text-decoration:underline">${kepsek}</p><p>NIP. ${nip}</p></div>
+                <div class="sig-col"><div style="height:30px"></div><div id="qrPlace"></div></div>
+                <div class="sig-col"><p>Kudus, ${tgl}</p><p>Wali Kelas</p><br><br><br><p style="font-weight:bold;text-decoration:underline">${wali}</p><p>NIP. -</p></div>
+            </div>`;
         doPrint(html, s[0], s[2], tgl);
     }
 
-    // 3. CETAK REKAP
+    // 3. CETAK REKAP (SEJAJAR: QR KIRI, KEPALA KANAN)
     function cetakRekap(){
-        let id=document.getElementById('c_siswa').value; if(!id)return alert('Pilih Siswa (Gunakan Pencarian)');
-        let s=getSiswa(id);
-        let kepsek=document.getElementById('c_kepsek').value, nip=document.getElementById('c_nip').value, tgl=document.getElementById('c_tgl').value;
-
-        let mapels = [
-            {n:'1', k:'Pendidikan Agama Islam', h:true},
-            {n:'', k:"A. Al Qur'an Hadis", c:'QH', i:true}, {n:'', k:"B. Akidah Akhlak", c:'AA', i:true},
-            {n:'', k:"C. Fikih", c:'FIK', i:true}, {n:'', k:"D. Sejarah Kebudayaan Islam", c:'SKI', i:true},
-            {n:'2', k:'Bahasa Arab', c:'BAR'}, {n:'3', k:'Pendidikan Pancasila', c:'PP'},
-            {n:'4', k:'Bahasa Indonesia', c:'BINDO'}, {n:'5', k:'Matematika', c:'MTK'},
-            {n:'6', k:'Ilmu Pengetahuan Alam', c:'IPA'}, {n:'7', k:'Ilmu Pengetahuan Sosial', c:'IPS'},
-            {n:'8', k:'Bahasa Inggris', c:'BING'}, {n:'9', k:'PJOK', c:'PJOK'},
-            {n:'10', k:'Informatika', c:'INFO'}, {n:'11', k:'Seni Budaya', c:'SBP'},
-            {n:'12', k:'Muatan Lokal', h:true},
-            {n:'', k:"A. Bahasa Jawa", c:'BJawa', i:true}, {n:'', k:"B. Ke NU an", c:'NU', i:true}
-        ];
+        let id=document.getElementById('c_siswa').value; if(!id) return alert('Pilih Siswa');
+        let s=getSiswa(id); let kepsek=document.getElementById('c_kepsek').value, nip=document.getElementById('c_nip').value, tgl=document.getElementById('c_tgl').value;
         
+        // Shortened Mapel List
+        let mapels = [
+            {n:'1', k:'PAI', h:true}, {n:'', k:"QH", c:'QH', i:true}, {n:'', k:"AA", c:'AA', i:true}, {n:'', k:"FIK", c:'FIK', i:true}, {n:'', k:"SKI", c:'SKI', i:true},
+            {n:'2', k:'B.Arab', c:'BAR'}, {n:'3', k:'PKN', c:'PP'}, {n:'4', k:'B.Indo', c:'BINDO'}, {n:'5', k:'MTK', c:'MTK'},
+            {n:'6', k:'IPA', c:'IPA'}, {n:'7', k:'IPS', c:'IPS'}, {n:'8', k:'B.Ing', c:'BING'}, {n:'9', k:'PJOK', c:'PJOK'},
+            {n:'10', k:'Info', c:'INFO'}, {n:'11', k:'S.Bud', c:'SBP'}, {n:'12', k:'Mulok', h:true}, {n:'', k:"B.Jawa", c:'BJawa', i:true}, {n:'', k:"NU", c:'NU', i:true}
+        ];
         let rows=[]; for(let i=1;i<=6;i++) rows.push(getNilai(id, i));
 
-        let html = `
-            <div style="text-align:center;"><img src="${KOP_URL}" class="header-img" referrerpolicy="no-referrer"></div>
-            <table class="identitas-table">
-                <tr><td width="15%">Madrasah</td><td>:</td><td>MTSS NU TBS KUDUS</td></tr>
-                <tr><td>NISN</td><td>:</td><td>${s[0]}</td></tr>
-                <tr><td>NAMA</td><td>:</td><td><b>${s[2]}</b></td></tr>
-            </table>
+        let html = `<div style="text-align:center;"><img src="${KOP_URL}" class="header-img"></div>
+            <table class="identitas-table"><tr><td width="15%">Madrasah</td><td>:</td><td>MTSS NU TBS</td></tr><tr><td>NISN</td><td>:</td><td>${s[0]}</td></tr><tr><td>NAMA</td><td>:</td><td><b>${s[2]}</b></td></tr></table>
             <h3 style="text-align:center; text-decoration:underline;">REKAP HASIL BELAJAR</h3>
-            <table class="print-table">
-                <thead><tr><th rowspan="2">No</th><th rowspan="2">Mata Pelajaran</th><th colspan="2">VII</th><th colspan="2">VIII</th><th colspan="2">IX</th><th rowspan="2">Rata2</th></tr>
-                <tr><th>Ganjil</th><th>Genap</th><th>Ganjil</th><th>Genap</th><th>Ganjil</th><th>Genap</th></tr></thead>
-                <tbody>
-        `;
-        let totAvg=0;
-        mapels.forEach(m=>{
-            let style = m.h?'font-weight:bold':''; if(m.i) style+=';padding-left:20px';
-            let tds=''; let sum=0, cnt=0;
-            for(let i=0;i<6;i++){
-                let v = m.c ? getVal(rows[i], m.c) : '';
-                tds+=`<td style="text-align:center">${v}</td>`;
-                if(v){ sum+=parseFloat(v); cnt++; }
-            }
-            let avg = cnt>0 ? (sum/cnt).toFixed(0) : '';
-            if(avg) totAvg+=parseFloat(avg);
-            html+=`<tr><td style="text-align:center">${m.n}</td><td style="${style}">${m.k}</td>${tds}<td style="text-align:center;background:#eee">${avg}</td></tr>`;
-        });
-        html+=`<tr><td colspan="8" style="text-align:center;font-weight:bold">Jumlah Rata-rata</td><td style="text-align:center;font-weight:bold">${totAvg}</td></tr></tbody></table>`;
+            <table class="print-table"><thead><tr><th rowspan="3">No</th><th rowspan="3">Mapel</th><th colspan="4">VII</th><th colspan="4">VIII</th><th colspan="4">IX</th></tr><tr><th colspan="2">Ganjil</th><th colspan="2">Genap</th><th colspan="2">Ganjil</th><th colspan="2">Genap</th><th colspan="2">Ganjil</th><th colspan="2">Genap</th></tr><tr><th>A</th><th>B</th><th>A</th><th>B</th><th>A</th><th>B</th><th>A</th><th>B</th><th>A</th><th>B</th><th>A</th><th>B</th></tr></thead><tbody>`;
         
-        // FOOTER REKAP (QR KIRI, KEPSEK KANAN BAWAH)
-        html += `
+        mapels.forEach(m=>{
+            let style = m.h?'font-weight:bold':''; if(m.i) style+=';padding-left:10px';
+            let tds='';
+            for(let i=0;i<6;i++){
+                let r=rows[i], vA='', vB='';
+                if(r) { 
+                    if(m.c) {
+                        let p = getVal(r, m.c+'_P'), k = getVal(r, m.c+'_K'), raw = getVal(r, m.c);
+                        vA = p || raw; vB = k || '-';
+                    }
+                }
+                tds+=`<td style="text-align:center">${vA}</td><td style="text-align:center">${vB}</td>`;
+            }
+            html+=`<tr><td style="text-align:center">${m.n}</td><td style="${style}">${m.k}</td>${tds}</tr>`;
+        });
+        html+=`</tbody></table>
+            <div style="font-size:10px; margin-top:5px;">* Ket: A=Pengetahuan, B=Keterampilan</div>
             <div class="signature-container">
-                <div class="sig-box-left" style="text-align:center;">
-                    <div id="qrPlace"></div>
-                    <div style="font-size:10px; margin-top:5px;">${s[2]}</div>
-                </div>
-                <div class="sig-box-right">
-                    <p>Kudus, ${tgl}</p>
-                    <p>Kepala Madrasah</p>
-                    <br><br><br>
-                    <p style="font-weight:bold;text-decoration:underline">${kepsek}</p>
-                    <p>NIP. ${nip}</p>
-                </div>
-            </div>
-        `;
+                <div class="sig-col"><div style="height:30px"></div><div id="qrPlace"></div></div>
+                <div class="sig-col"></div>
+                <div class="sig-col"><p>Kudus, ${tgl}</p><p>Kepala Madrasah</p><br><br><br><p style="font-weight:bold;text-decoration:underline">${kepsek}</p><p>NIP. ${nip}</p></div>
+            </div>`;
         doPrint(html, s[0], s[2], tgl);
-    }
-
-    // FOOTER RAPOR
-    function footerSig(kepsek, nip, wali, tgl, nama, nisn, isRapor){
-        return `
-            <div class="signature-container">
-                <div class="sig-box-left" style="width:200px; text-align:center;">
-                    ${isRapor ? '<p>Mengetahui</p><p>Kepala Madrasah</p><br><br><br><p style="font-weight:bold;text-decoration:underline">'+kepsek+'</p><p>NIP. '+nip+'</p>' : ''}
-                </div>
-                <div class="sig-box-right">
-                    ${isRapor ? '<p>Kudus, '+tgl+'</p><p>Wali Kelas</p><br><br><br><p style="font-weight:bold;text-decoration:underline">'+wali+'</p><p>NIP. -</p>' : ''}
-                </div>
-            </div>
-            ${isRapor ? `
-            <div class="signature-container">
-                <div class="sig-box-left" style="text-align:center;">
-                    <div id="qrPlace"></div>
-                    <div style="font-size:10px; margin-top:5px;">${nama}_${nisn}</div>
-                </div>
-                <div></div>
-            </div>` : ''}
-        `;
     }
 
     function doPrint(html, nisn, nama, tgl){
-        let area = document.getElementById('printArea');
-        area.innerHTML = html;
-        if(nisn && document.getElementById('qrPlace')){
-            new QRCode(document.getElementById("qrPlace"), {text:`NISN:${nisn}\nNama:${nama}\nTgl:${tgl}`, width:70, height:70});
-        }
-        
-        // Jeda sedikit untuk memastikan gambar & QR ter-render
-        setTimeout(() => {
-            window.print();
-        }, 500);
+        let area = document.getElementById('printArea'); area.innerHTML = html;
+        if(nisn && document.getElementById('qrPlace')) new QRCode(document.getElementById("qrPlace"), {text:`NISN:${nisn}\nNama:${nama}\nTgl:${tgl}`, width:70, height:70});
+        setTimeout(() => { window.print(); }, 800);
     }
   </script>
  </body>
