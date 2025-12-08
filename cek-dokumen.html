@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Digital Signature Verification</title>
-  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script><style>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <style>
     body {
       box-sizing: border-box;
       margin: 0;
@@ -131,7 +132,8 @@
     }
      
     input[type="text"],
-    input[type="password"] {
+    input[type="password"],
+    input[type="file"] {
       width: 100%;
       padding: 0.875rem;
       border: 2px solid #e9ecef;
@@ -140,9 +142,15 @@
       transition: all 0.3s ease;
       box-sizing: border-box;
     }
+
+    input[type="file"] {
+      padding: 0.6rem;
+      background: #f8f9fa;
+    }
      
     input[type="text"]:focus,
-    input[type="password"]:focus {
+    input[type="password"]:focus,
+    input[type="file"]:focus {
       outline: none;
       border-color: #667eea;
       box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
@@ -252,11 +260,11 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 60px;
-      height: 60px;
+      width: 50px; /* Ukuran default logo di QR */
+      height: 50px;
       background: #ffffff;
       border-radius: 8px;
-      padding: 5px;
+      padding: 3px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       display: flex;
       align-items: center;
@@ -537,6 +545,12 @@
       background: #218838;
       transform: translateY(-2px);
     }
+
+    .help-text {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
      
     @media (max-width: 768px) {
       .app-container {
@@ -613,6 +627,9 @@
        <div class="form-group"><label for="signerName">Nama Penandatangan</label> <input type="text" id="signerName" placeholder="Contoh: John Doe" required>
        </div>
        <div class="form-group"><label for="signerPosition">Jabatan</label> <input type="text" id="signerPosition" placeholder="Contoh: Direktur Utama" required>
+       </div>
+       <div class="form-group"><label for="logoUpload">Upload Logo (Opsional)</label> <input type="file" id="logoUpload" accept="image/*">
+        <p class="help-text">Format: JPG/PNG. Logo akan dikonversi dan disematkan di tengah QR Code.</p>
        </div><button type="submit" class="btn btn-primary btn-full" id="generate-btn"> <span id="generate-btn-text">Generate QR Code</span> </button>
       </form>
       <div id="qrResult" style="display: none;" class="qr-result">
@@ -636,8 +653,8 @@
    </div>
   </div>
   <script>
-    // ⚠️ GANTI URL INI DENGAN URL APPS SCRIPT ANDA YANG SUDAH DIUPDATE
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwT5sQdUkLM-cXOCTX9Kn5TkEVrElRQm5s7V_Cqp7FJ_STVhjwUX-keKCqQt086X1pD/exec';
+    // ⚠️ GANTI URL INI DENGAN URL APPS SCRIPT ANDA YANG BARU DIUPDATE
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxIBaYIJQw22D2QTw1VPgOLPTZFThqOAs807gpucFZjTRlNQsCulamXZs7nWkjoGwLt/exec';
     
     let signatures = [];
     let isLoading = false;
@@ -645,10 +662,44 @@
     
     const ADMIN_USERNAME = 'admine';
     const ADMIN_PASSWORD = 'adminttd';
-    const LOGO_URL = 'https://blogger.googleusercontent.com/img/a/AVvXsEjjINzUrLqjW0r_V3PERAPmCZmh5EzTUmCaLlTlOqiVEY-HAylPbPVOGwYo-u7Ob2Qe914Ql7oebQvqJsC9XnpKUhPEdA576pUITGT6MN68RgpyTI_72-M3U7TMSTfDCbAPriU4kn1EeTIW__WGJteBgnOEyjA5uwJYCaXJ-RqS4u7LBh-7wLm44yd-cLq-';
     const APP_URL = 'https://faisalrohman.github.io/cek-dokumen.html';
+    const STORAGE_KEY = 'qr_auth_session'; // Key untuk localStorage
+
+    // Fungsi resize gambar ke Base64 (Kecil agar muat di Google Sheet)
+    function processImage(file) {
+      return new Promise((resolve, reject) => {
+        if (!file) {
+          resolve('');
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function(event) {
+          const img = new Image();
+          img.src = event.target.result;
+          img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const maxWidth = 100; // Resize ke 100px max width
+            const scaleSize = maxWidth / img.width;
+            
+            canvas.width = maxWidth;
+            canvas.height = img.height * scaleSize;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            
+            // Konversi ke Base64 (JPEG low quality cukup untuk logo kecil)
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+            resolve(dataUrl);
+          }
+          img.onerror = reject;
+        }
+        reader.onerror = reject;
+      });
+    }
     
-    // Load all data from Google Sheets (Only for History Tab)
+    // Load history (hanya dipanggil di tab history)
     async function loadData() {
       try {
         const response = await fetch(APPS_SCRIPT_URL);
@@ -663,7 +714,7 @@
       }
     }
     
-    // New Function: Fast Verify Single ID directly from Server
+    // Fungsi Verifikasi Cepat ke Server
     async function verifySignatureServer(signatureId) {
        try {
          const response = await fetch(APPS_SCRIPT_URL, {
@@ -700,7 +751,7 @@
       }
     }
     
-    // Update signature status in Google Sheets
+    // Update signature status
     async function updateSignatureStatus(signatureId, status) {
       try {
         const response = await fetch(APPS_SCRIPT_URL, {
@@ -720,9 +771,34 @@
       }
     }
     
+    // Cek status login saat halaman dimuat
+    function checkLoginStatus() {
+       const session = localStorage.getItem(STORAGE_KEY);
+       if (session === 'true') {
+         isLoggedIn = true;
+         updateUIForLogin();
+       } else {
+         isLoggedIn = false;
+         updateUIForLogout();
+       }
+    }
+
+    function updateUIForLogin() {
+        document.getElementById('create-tab-btn').classList.remove('hidden');
+        document.getElementById('history-tab-btn').classList.remove('hidden');
+        document.getElementById('login-tab-btn').classList.add('hidden');
+        document.getElementById('logoutBtn').style.display = 'block';
+    }
+
+    function updateUIForLogout() {
+        document.getElementById('create-tab-btn').classList.add('hidden');
+        document.getElementById('history-tab-btn').classList.add('hidden');
+        document.getElementById('login-tab-btn').classList.remove('hidden');
+        document.getElementById('logoutBtn').style.display = 'none';
+    }
+    
     async function initializeApp() {
-      // Load history in background (don't block verification)
-      loadData();
+      checkLoginStatus(); // Cek login dari localStorage
       
       const urlParams = new URLSearchParams(window.location.search);
       const signatureId = urlParams.get('id');
@@ -732,15 +808,23 @@
         document.getElementById('verify-tab-btn').classList.add('active');
         document.getElementById('signatureId').value = signatureId;
         
-        // DIRECT VERIFY: Trigger verification immediately without waiting for full data
+        // Auto verify
         const verifyBtn = document.getElementById('verify-btn');
         if (verifyBtn) {
            verifyBtn.click();
         }
+      } else {
+         // Jika tidak ada ID, dan user login, mungkin bisa ke tab create atau tetap verify
+         if (isLoggedIn) {
+             // Optional: Mau default ke tab create atau verify saat login?
+             // switchTab('verify'); 
+         }
       }
     }
     
-    function addLogoToQR(container) {
+    function addLogoToQR(container, logoBase64) {
+      if (!logoBase64) return; // Jika tidak ada logo, skip
+
       setTimeout(() => {
         if (container.querySelector('.qr-logo-overlay')) return;
         
@@ -748,7 +832,7 @@
         logoDiv.className = 'qr-logo-overlay';
         
         const logoImg = document.createElement('img');
-        logoImg.src = LOGO_URL;
+        logoImg.src = logoBase64;
         logoImg.alt = 'Logo';
         logoImg.onerror = function() {
           logoDiv.style.display = 'none';
@@ -790,11 +874,9 @@
       
       if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
         isLoggedIn = true;
+        localStorage.setItem(STORAGE_KEY, 'true'); // Simpan sesi login
         
-        document.getElementById('create-tab-btn').classList.remove('hidden');
-        document.getElementById('history-tab-btn').classList.remove('hidden');
-        document.getElementById('login-tab-btn').classList.add('hidden');
-        document.getElementById('logoutBtn').style.display = 'block';
+        updateUIForLogin();
         
         switchTab('verify');
         document.getElementById('verify-tab-btn').classList.add('active');
@@ -809,11 +891,9 @@
     
     document.getElementById('logoutBtn').addEventListener('click', () => {
       isLoggedIn = false;
+      localStorage.removeItem(STORAGE_KEY); // Hapus sesi login
       
-      document.getElementById('create-tab-btn').classList.add('hidden');
-      document.getElementById('history-tab-btn').classList.add('hidden');
-      document.getElementById('login-tab-btn').classList.remove('hidden');
-      document.getElementById('logoutBtn').style.display = 'none';
+      updateUIForLogout();
       
       switchTab('verify');
       document.getElementById('verify-tab-btn').classList.add('active');
@@ -831,21 +911,37 @@
       const documentName = document.getElementById('documentName').value;
       const signerName = document.getElementById('signerName').value;
       const signerPosition = document.getElementById('signerPosition').value;
+      const logoFile = document.getElementById('logoUpload').files[0];
+
       const signatureId = generateId();
       const timestamp = new Date().toISOString();
       
       const generateBtn = document.getElementById('generate-btn');
       generateBtn.disabled = true;
-      generateBtn.innerHTML = '<span class="loading"></span>';
+      generateBtn.innerHTML = '<span class="loading"></span> Memproses...';
       isLoading = true;
       
+      // Proses konversi gambar ke Base64 (resize dulu)
+      let logoBase64 = '';
+      try {
+        logoBase64 = await processImage(logoFile);
+      } catch (err) {
+        console.error("Gagal proses gambar", err);
+        showToast('Gagal memproses gambar logo', 'error');
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = '<span id="generate-btn-text">Generate QR Code</span>';
+        isLoading = false;
+        return;
+      }
+
       const signatureData = {
         signature_id: signatureId,
         document_name: documentName,
         signer_name: signerName,
         signer_position: signerPosition,
         timestamp: timestamp,
-        status: 'valid'
+        status: 'valid',
+        logo: logoBase64 // Kirim data logo
       };
       
       const success = await createSignature(signatureData);
@@ -866,14 +962,18 @@
           correctLevel: QRCode.CorrectLevel.H
         });
         
-        addLogoToQR(qrContainer);
+        // Render logo jika ada
+        if (logoBase64) {
+            addLogoToQR(qrContainer, logoBase64);
+        }
         
         document.getElementById('signatureIdDisplay').textContent = signatureId;
         document.getElementById('qrResult').style.display = 'block';
         
         document.getElementById('createForm').reset();
         
-        await loadData();
+        // Hapus history lokal agar saat pindah tab history, data reload baru
+        signatures = []; 
       } else {
         showToast('Gagal membuat tanda tangan. Silakan coba lagi.', 'error');
       }
@@ -895,7 +995,6 @@
       verifyBtn.innerHTML = '<span class="loading"></span>';
       isLoading = true;
       
-      // Use Server-side verification (Fast) instead of client-side array search
       const signature = await verifySignatureServer(signatureId);
       
       const resultDiv = document.getElementById('verifyResult');
@@ -919,8 +1018,17 @@
           statusColor = '#dc3545';
         }
         
+        // Tampilkan logo jika ada
+        let logoHtml = '';
+        if (signature.logo) {
+            logoHtml = `<div style="text-align: center; margin-bottom: 1rem;">
+                <img src="${signature.logo}" alt="Logo Instansi" style="max-height: 60px; object-fit: contain;">
+            </div>`;
+        }
+
         resultDiv.className = `verify-result ${statusClass}`;
         resultDiv.innerHTML = `
+          ${logoHtml}
           <h3>${statusLabel}</h3>
           <div class="signature-details">
             <div class="detail-row">
@@ -975,7 +1083,10 @@
       
       if (success) {
         showToast(`Status berhasil diubah menjadi ${newStatus.toUpperCase()}`, 'success');
-        await loadData();
+        // update local data if exists
+        const index = signatures.findIndex(s => s.signature_id === signature.signature_id);
+        if(index !== -1) signatures[index].status = newStatus;
+        renderHistory();
       } else {
         showToast('Gagal mengubah status. Silakan coba lagi.', 'error');
       }
@@ -997,7 +1108,10 @@
         correctLevel: QRCode.CorrectLevel.H
       });
       
-      addLogoToQR(modalQrCode);
+      // Pakai logo dari data signature
+      if (signature.logo) {
+          addLogoToQR(modalQrCode, signature.logo);
+      }
       
       document.getElementById('modalTitle').textContent = signature.document_name;
       document.getElementById('modalSignatureId').textContent = signature.signature_id;
@@ -1041,6 +1155,9 @@
           statusText = 'DIBATALKAN';
         }
         
+        // Escape quotes for JSON stringify in onclick
+        const sigString = JSON.stringify(sig).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+
         return `
           <div class="history-item">
             <div class="history-header">
@@ -1060,21 +1177,21 @@
               })}</div>
             </div>
             <div class="history-actions">
-              <button class="btn btn-secondary" onclick='printQrCode(${JSON.stringify(sig).replace(/'/g, "&apos;")})'>
+              <button class="btn btn-secondary" onclick='printQrCode(${sigString})'>
                 Cetak QR
               </button>
               ${sig.status !== 'valid' ? `
-                <button class="btn btn-success" onclick='updateStatus(${JSON.stringify(sig).replace(/'/g, "&apos;")}, "valid")'>
+                <button class="btn btn-success" onclick='updateStatus(${sigString}, "valid")'>
                   Set Valid
                 </button>
               ` : ''}
               ${sig.status !== 'frozen' ? `
-                <button class="btn btn-warning" onclick='updateStatus(${JSON.stringify(sig).replace(/'/g, "&apos;")}, "frozen")'>
+                <button class="btn btn-warning" onclick='updateStatus(${sigString}, "frozen")'>
                   Bekukan
                 </button>
               ` : ''}
               ${sig.status !== 'cancelled' ? `
-                <button class="btn btn-danger" onclick='updateStatus(${JSON.stringify(sig).replace(/'/g, "&apos;")}, "cancelled")'>
+                <button class="btn btn-danger" onclick='updateStatus(${sigString}, "cancelled")'>
                   Batalkan
                 </button>
               ` : ''}
