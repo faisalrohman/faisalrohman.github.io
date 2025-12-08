@@ -163,7 +163,8 @@
       cursor: pointer;
       transition: all 0.3s ease;
       display: inline-block;
-      min-height: 45px; /* Menjaga tinggi tombol saat loading */
+      min-height: 45px;
+      position: relative;
     }
      
     .btn-full {
@@ -175,7 +176,8 @@
         padding: 0.4rem 0.6rem;
         font-size: 0.8rem;
         margin: 0.1rem;
-        min-height: auto;
+        min-height: 32px;
+        min-width: 40px;
     }
      
     .btn-primary {
@@ -189,7 +191,7 @@
     }
      
     .btn-primary:disabled {
-      opacity: 0.6;
+      opacity: 0.7;
       cursor: not-allowed;
     }
      
@@ -205,27 +207,31 @@
     .btn-warning { background: #ffc107; color: #212529; }
     .btn-warning:hover { background: #e0a800; }
 
-    /* --- BOUNCING DOTS ANIMATION --- */
+    /* --- ANIMASI BOUNCING DOTS --- */
     .bouncing-loader {
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100%;
-      min-height: 20px;
     }
     .bouncing-loader > div {
       width: 10px;
       height: 10px;
       margin: 0 3px;
       border-radius: 50%;
-      background-color: #ffffff; /* Default putih untuk tombol primary */
+      background-color: #ffffff; /* Default untuk background gelap (tombol primary/success/danger) */
       opacity: 1;
       animation: bouncing-loader 0.6s infinite alternate;
     }
     
-    /* Varian warna gelap untuk background putih (misal di tabel) */
-    .bouncing-loader.dark > div {
-        background-color: #667eea;
+    /* Varian Gelap (untuk background terang) */
+    .bouncing-loader.dark > div { background-color: #667eea; }
+    
+    /* Varian Kecil (untuk tombol di tabel) */
+    .bouncing-loader.small > div {
+        width: 6px;
+        height: 6px;
+        margin: 0 2px;
     }
 
     .bouncing-loader > div:nth-child(2) { animation-delay: 0.2s; }
@@ -237,6 +243,19 @@
         transform: translateY(-8px);
       }
     }
+    
+    /* Sesuaikan lompatan untuk dots kecil */
+    .bouncing-loader.small { animation: none; } /* Reset container */
+    .bouncing-loader.small > div {
+        animation-name: bouncing-loader-small;
+    }
+    @keyframes bouncing-loader-small {
+      to {
+        opacity: 0.3;
+        transform: translateY(-4px);
+      }
+    }
+
      
     .qr-result {
       text-align: center;
@@ -400,6 +419,33 @@
         color: #6c757d;
         margin-top: 0.25rem;
     }
+
+    /* --- MODAL --- */
+    .modal-overlay {
+      display: none; /* Default Hidden */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+    
+    .modal-overlay.active { display: flex; }
+    
+    .modal-content {
+      background: #ffffff;
+      border-radius: 15px;
+      padding: 2rem;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    .modal-qr { margin: 1.5rem 0; }
      
     @media (max-width: 768px) {
       .app-container { padding: 1rem; }
@@ -495,7 +541,9 @@
      </div>
     </div>
    </div>
-  </main><div id="qrModal" class="modal-overlay">
+  </main>
+  
+  <div id="qrModal" class="modal-overlay" style="display: none;">
    <div class="modal-content">
     <h3 id="modalTitle">QR Code</h3>
     <div class="modal-qr" id="modalQrCode"></div>
@@ -503,9 +551,10 @@
     </div><button class="btn btn-primary btn-full" onclick="closeQrModal()">Tutup</button>
    </div>
   </div>
+
   <script>
     // ⚠️ GANTI URL INI DENGAN URL APPS SCRIPT ANDA
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwvK9wwO7hvOF8z6uh2eMWVYlUF3qwn5uxVkqrCuR1Otdxg7F9BDvE2fn7spfO6WkSF/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx9V1jcx57Jx-Z1XEdPCQrCdeH3k8f69UoqKxTohEnYlaoFKOnD20t42zLReP3_xq-3/exec';
     
     let signatures = [];
     let filteredSignatures = [];
@@ -524,6 +573,7 @@
     // HTML Loader Constants (Bouncing Dots)
     const LOADER_HTML_WHITE = '<div class="bouncing-loader"><div></div><div></div><div></div></div>';
     const LOADER_HTML_DARK = '<div class="bouncing-loader dark"><div></div><div></div><div></div></div>';
+    const LOADER_HTML_SMALL = '<div class="bouncing-loader small"><div></div><div></div><div></div></div>';
 
     // Resize Image
     function processImage(file) {
@@ -624,9 +674,9 @@
                     <td><span class="status-badge ${badgeClass}">${statusText}</span></td>
                     <td>
                         <button class="btn btn-secondary btn-sm" title="Cetak QR" onclick='printQrCode(${sigString})'>🖨️</button>
-                        ${sig.status !== 'valid' ? `<button class="btn btn-success btn-sm" title="Set Valid" onclick='updateStatus(${sigString}, "valid")'>✅</button>` : ''}
-                        ${sig.status !== 'frozen' ? `<button class="btn btn-warning btn-sm" title="Bekukan" onclick='updateStatus(${sigString}, "frozen")'>❄️</button>` : ''}
-                        ${sig.status !== 'cancelled' ? `<button class="btn btn-danger btn-sm" title="Batalkan" onclick='updateStatus(${sigString}, "cancelled")'>🚫</button>` : ''}
+                        ${sig.status !== 'valid' ? `<button class="btn btn-success btn-sm" title="Set Valid" onclick='updateStatus(this, ${sigString}, "valid")'>✅</button>` : ''}
+                        ${sig.status !== 'frozen' ? `<button class="btn btn-warning btn-sm" title="Bekukan" onclick='updateStatus(this, ${sigString}, "frozen")'>❄️</button>` : ''}
+                        ${sig.status !== 'cancelled' ? `<button class="btn btn-danger btn-sm" title="Batalkan" onclick='updateStatus(this, ${sigString}, "cancelled")'>🚫</button>` : ''}
                     </td>
                 </tr>
             `;
@@ -674,14 +724,40 @@
       } catch (error) { return false; }
     }
     
-    async function updateSignatureStatus(signatureId, status) {
+    // Updated with Button Loading Animation
+    async function updateSignatureStatus(btnElement, sig, newStatus) {
+      const originalContent = btnElement.innerHTML;
+      
+      // Set button to loading state
+      btnElement.disabled = true;
+      btnElement.innerHTML = LOADER_HTML_SMALL;
+
       try {
         const response = await fetch(APPS_SCRIPT_URL, {
           method: 'POST',
-          body: JSON.stringify({ action: 'update', signature_id: signatureId, status: status })
+          body: JSON.stringify({ action: 'update', signature_id: sig.signature_id, status: newStatus })
         });
-        return (await response.json()).success;
-      } catch (error) { return false; }
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          showToast(`Status diubah: ${newStatus.toUpperCase()}`, 'success');
+          // Update local data
+          const idx = signatures.findIndex(s => s.signature_id === sig.signature_id);
+          if(idx !== -1) signatures[idx].status = newStatus;
+          handleSearch(); // Refresh table
+        } else { 
+            showToast('Gagal update status.', 'error'); 
+            // Reset button if failed
+            btnElement.disabled = false;
+            btnElement.innerHTML = originalContent;
+        }
+      } catch (error) { 
+          showToast('Terjadi kesalahan koneksi.', 'error');
+          // Reset button if error
+          btnElement.disabled = false;
+          btnElement.innerHTML = originalContent;
+      }
     }
     
     function checkLoginStatus() {
@@ -851,28 +927,43 @@
       btn.disabled = false; btn.innerHTML = '<span id="verify-btn-text">Verifikasi Tanda Tangan</span>';
       isLoading = false;
     });
-    
-    async function updateStatus(sig, newStatus) {
-      const success = await updateSignatureStatus(sig.signature_id, newStatus);
-      if (success) {
-        showToast(`Status diubah: ${newStatus.toUpperCase()}`, 'success');
-        const idx = signatures.findIndex(s => s.signature_id === sig.signature_id);
-        if(idx !== -1) signatures[idx].status = newStatus;
-        handleSearch(); 
-      } else { showToast('Gagal update status.', 'error'); }
-    }
-    
+
     function printQrCode(sig) {
       const modalQr = document.getElementById('modalQrCode');
       modalQr.innerHTML = '';
-      new QRCode(modalQr, { text: `${APP_URL}?id=${sig.signature_id}`, width: 250, height: 250, correctLevel: QRCode.CorrectLevel.H });
-      if (sig.logo) addLogoToQR(modalQr, sig.logo);
+      
+      new QRCode(modalQr, { 
+        text: `${APP_URL}?id=${sig.signature_id}`, 
+        width: 250, 
+        height: 250, 
+        correctLevel: QRCode.CorrectLevel.H 
+      });
+
+      if (sig.logo) {
+        addLogoToQR(modalQr, sig.logo);
+      }
+      
       document.getElementById('modalTitle').textContent = sig.document_name;
       document.getElementById('modalSignatureId').textContent = sig.signature_id;
-      document.getElementById('qrModal').classList.add('active');
+      
+      const modal = document.getElementById('qrModal');
+      modal.style.display = 'flex';
+      modal.classList.add('active');
     }
     
-    function closeQrModal() { document.getElementById('qrModal').classList.remove('active'); }
+    function closeQrModal() { 
+      const modal = document.getElementById('qrModal');
+      modal.style.display = 'none';
+      modal.classList.remove('active');
+    }
+
+    // Tutup jika klik di luar
+    window.onclick = function(event) {
+      const modal = document.getElementById('qrModal');
+      if (event.target == modal) {
+        closeQrModal();
+      }
+    }
     
     function showToast(msg, type) {
       const t = document.createElement('div');
