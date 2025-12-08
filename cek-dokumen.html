@@ -52,7 +52,7 @@
       border-radius: 20px;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
       overflow: hidden;
-      max-width: 900px;
+      max-width: 1100px; /* Diperlebar agar tabel muat */
       margin: 0 auto;
       width: 100%;
     }
@@ -102,7 +102,7 @@
     }
      
     .content {
-      padding: 2.5rem;
+      padding: 2rem;
     }
      
     .tab-content {
@@ -148,27 +148,32 @@
       background: #f8f9fa;
     }
      
-    input[type="text"]:focus,
-    input[type="password"]:focus,
-    input[type="file"]:focus {
+    input:focus {
       outline: none;
       border-color: #667eea;
       box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     }
      
     .btn {
-      padding: 1rem;
+      padding: 0.8rem 1rem;
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
       font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
+      display: inline-block;
     }
      
     .btn-full {
       width: 100%;
       margin-top: 1rem;
+    }
+
+    .btn-sm {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.8rem;
+        margin: 0.1rem;
     }
      
     .btn-primary {
@@ -178,7 +183,7 @@
      
     .btn-primary:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
     }
      
     .btn-primary:disabled {
@@ -189,53 +194,26 @@
     .btn-secondary {
       background: #6c757d;
       color: #ffffff;
-      padding: 0.5rem 1rem;
-      font-size: 0.9rem;
-      margin-right: 0.5rem;
-      margin-bottom: 0.5rem;
     }
-     
-    .btn-secondary:hover {
-      background: #5a6268;
-    }
+    .btn-secondary:hover { background: #5a6268; }
      
     .btn-danger {
       background: #dc3545;
       color: #ffffff;
-      padding: 0.5rem 1rem;
-      font-size: 0.9rem;
-      margin-bottom: 0.5rem;
     }
-     
-    .btn-danger:hover {
-      background: #c82333;
-    }
+    .btn-danger:hover { background: #c82333; }
      
     .btn-success {
       background: #28a745;
       color: #ffffff;
-      padding: 0.5rem 1rem;
-      font-size: 0.9rem;
-      margin-right: 0.5rem;
-      margin-bottom: 0.5rem;
     }
-     
-    .btn-success:hover {
-      background: #218838;
-    }
+    .btn-success:hover { background: #218838; }
      
     .btn-warning {
       background: #ffc107;
       color: #212529;
-      padding: 0.5rem 1rem;
-      font-size: 0.9rem;
-      margin-right: 0.5rem;
-      margin-bottom: 0.5rem;
     }
-     
-    .btn-warning:hover {
-      background: #e0a800;
-    }
+    .btn-warning:hover { background: #e0a800; }
      
     .qr-result {
       text-align: center;
@@ -260,7 +238,7 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 50px; /* Ukuran default logo di QR */
+      width: 50px;
       height: 50px;
       background: #ffffff;
       border-radius: 8px;
@@ -296,38 +274,18 @@
       text-align: center;
     }
      
-    .verify-result.valid {
-      background: #d4edda;
-      border: 2px solid #28a745;
-    }
-     
-    .verify-result.invalid {
-      background: #f8d7da;
-      border: 2px solid #dc3545;
-    }
-     
-    .verify-result.frozen {
-      background: #fff3cd;
-      border: 2px solid #ffc107;
-    }
-     
+    .verify-result.valid { background: #d4edda; border: 2px solid #28a745; }
+    .verify-result.invalid { background: #f8d7da; border: 2px solid #dc3545; }
+    .verify-result.frozen { background: #fff3cd; border: 2px solid #ffc107; }
+    
     .verify-result h3 {
       margin: 0 0 1rem 0;
       font-size: 1.5rem;
     }
-     
-    .verify-result.valid h3 {
-      color: #28a745;
-    }
-     
-    .verify-result.invalid h3 {
-      color: #dc3545;
-    }
-     
-    .verify-result.frozen h3 {
-      color: #856404;
-    }
-     
+    .verify-result.valid h3 { color: #28a745; }
+    .verify-result.invalid h3 { color: #dc3545; }
+    .verify-result.frozen h3 { color: #856404; }
+
     .signature-details {
       background: #ffffff;
       padding: 1.5rem;
@@ -335,215 +293,95 @@
       margin-top: 1rem;
       text-align: left;
     }
-     
+    
     .detail-row {
       display: flex;
       justify-content: space-between;
       padding: 0.75rem 0;
       border-bottom: 1px solid #e9ecef;
     }
-     
-    .detail-row:last-child {
-      border-bottom: none;
+    
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { font-weight: 600; color: #6c757d; }
+    .detail-value { color: #212529; text-align: right; }
+
+    /* --- TABLE & PAGINATION STYLES --- */
+    .history-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+        gap: 1rem;
     }
-     
-    .detail-label {
-      font-weight: 600;
-      color: #6c757d;
+
+    .search-box {
+        flex: 1;
+        min-width: 250px;
     }
-     
-    .detail-value {
-      color: #212529;
-      text-align: right;
+
+    .table-container {
+        overflow-x: auto;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
     }
-     
-    .history-list {
-      margin-top: 1rem;
+
+    .custom-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+        background: #fff;
+        min-width: 900px;
     }
-     
-    .history-item {
-      background: #f8f9fa;
-      padding: 1.25rem;
-      border-radius: 10px;
-      margin-bottom: 1rem;
-      border: 2px solid #e9ecef;
-      transition: all 0.3s ease;
+
+    .custom-table th, .custom-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #e9ecef;
+        vertical-align: middle;
     }
-     
-    .history-item:hover {
-      border-color: #667eea;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+
+    .custom-table th {
+        background-color: #f8f9fa;
+        color: #495057;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.8rem;
     }
-     
-    .history-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.75rem;
+
+    .custom-table tr:hover {
+        background-color: #f1f3f5;
     }
-     
-    .history-title {
-      font-weight: 600;
-      color: #212529;
-      font-size: 1.1rem;
+
+    .status-badge {
+        padding: 0.3rem 0.6rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: inline-block;
     }
-     
-    .history-status {
-      padding: 0.35rem 0.75rem;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 600;
+    .badge-valid { background: #d4edda; color: #28a745; }
+    .badge-frozen { background: #fff3cd; color: #856404; }
+    .badge-cancelled { background: #f8d7da; color: #dc3545; }
+
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e9ecef;
     }
-     
-    .status-valid {
-      background: #d4edda;
-      color: #28a745;
+
+    .pagination-info {
+        color: #6c757d;
+        font-size: 0.9rem;
     }
-     
-    .status-frozen {
-      background: #fff3cd;
-      color: #856404;
-    }
-     
-    .status-cancelled {
-      background: #f8d7da;
-      color: #dc3545;
-    }
-     
-    .history-info {
-      color: #6c757d;
-      font-size: 0.9rem;
-      line-height: 1.6;
-      margin-bottom: 1rem;
-    }
-     
-    .history-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 1rem;
-      padding-top: 1rem;
-      border-top: 1px solid #e9ecef;
-    }
-     
-    .empty-state {
-      text-align: center;
-      padding: 3rem 1rem;
-      color: #6c757d;
-    }
-     
-    .empty-state svg {
-      width: 80px;
-      height: 80px;
-      margin-bottom: 1rem;
-      opacity: 0.5;
-    }
-     
-    .loading {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      border-top-color: #ffffff;
-      animation: spin 0.8s linear infinite;
-    }
-     
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-     
-    .login-container {
-      max-width: 400px;
-      margin: 0 auto;
-    }
-     
-    .login-icon {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-     
-    .login-icon svg {
-      width: 80px;
-      height: 80px;
-      color: #667eea;
-    }
-     
-    .error-message {
-      background: #f8d7da;
-      color: #721c24;
-      padding: 0.75rem;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-      text-align: center;
-      font-size: 0.9rem;
-    }
-     
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      padding: 1rem;
-    }
-     
-    .modal-overlay.active {
-      display: flex;
-    }
-     
-    .modal-content {
-      background: #ffffff;
-      border-radius: 15px;
-      padding: 2rem;
-      max-width: 400px;
-      width: 100%;
-      text-align: center;
-    }
-     
-    .modal-qr {
-      margin: 1.5rem 0;
-    }
-     
-    .logout-btn {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      background: rgba(255, 255, 255, 0.2);
-      color: #ffffff;
-      border: 2px solid #ffffff;
-      padding: 0.5rem 1.5rem;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-     
-    .logout-btn:hover {
-      background: rgba(255, 255, 255, 0.3);
-    }
-     
-    .export-btn {
-      background: #28a745;
-      color: #ffffff;
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: all 0.3s ease;
-      margin-bottom: 1rem;
-      display: inline-block;
-    }
-     
-    .export-btn:hover {
-      background: #218838;
-      transform: translateY(-2px);
+
+    .pagination-buttons {
+        display: flex;
+        gap: 0.5rem;
     }
 
     .help-text {
@@ -553,37 +391,15 @@
     }
      
     @media (max-width: 768px) {
-      .app-container {
-        padding: 1rem;
-      }
-       
-      .header h1 {
-        font-size: 1.75rem;
-      }
-       
-      .content {
-        padding: 1.5rem;
-      }
-       
-      .tab {
-        padding: 1rem;
-        font-size: 0.9rem;
-      }
-       
-      .logout-btn {
-        position: static;
-        margin-bottom: 1rem;
-        width: 100%;
-      }
-       
-      .detail-row {
-        flex-direction: column;
-      }
-       
-      .detail-value {
-        text-align: left;
-        margin-top: 0.25rem;
-      }
+      .app-container { padding: 1rem; }
+      .header h1 { font-size: 1.75rem; }
+      .content { padding: 1rem; }
+      .tab { padding: 1rem; font-size: 0.9rem; }
+      .logout-btn { position: static; margin-bottom: 1rem; width: 100%; }
+      .detail-row { flex-direction: column; }
+      .detail-value { text-align: left; margin-top: 0.25rem; }
+      .history-controls { flex-direction: column; align-items: stretch; }
+      .pagination-container { flex-direction: column; gap: 1rem; }
     }
   </style>
   <style>@view-transition { navigation: auto; }</style>
@@ -639,8 +455,32 @@
        <div class="signature-id"><strong>ID Tanda Tangan:</strong><br><span id="signatureIdDisplay"></span>
        </div>
       </div>
-     </div><div id="history" class="tab-content"><button class="export-btn" onclick="exportHistory()"> 📊 Export Riwayat (CSV) </button>
-      <div id="historyList" class="history-list"></div>
+     </div><div id="history" class="tab-content">
+      <div class="history-controls">
+       <div class="search-box"><input type="text" id="searchInput" placeholder="Cari Dokumen, Nama, atau ID..." onkeyup="handleSearch()">
+       </div><button class="export-btn" onclick="exportHistory()">📊 Export CSV</button>
+      </div>
+      <div class="table-container">
+       <table class="custom-table">
+        <thead>
+         <tr>
+          <th>No.</th>
+          <th>Tanggal</th>
+          <th>Nama Dokumen</th>
+          <th>Penandatangan</th>
+          <th>Jabatan</th>
+          <th>Status</th>
+          <th>Aksi</th>
+         </tr>
+        </thead>
+        <tbody id="historyTableBody"></tbody>
+       </table>
+      </div>
+      <div class="pagination-container">
+       <div class="pagination-info" id="paginationInfo">Menampilkan 0-0 dari 0 data</div>
+       <div class="pagination-buttons"><button class="btn btn-secondary btn-sm" id="prevBtn" onclick="prevPage()">Previous</button> <button class="btn btn-secondary btn-sm" id="nextBtn" onclick="nextPage()">Next</button>
+       </div>
+      </div>
      </div>
     </div>
    </div>
@@ -653,26 +493,27 @@
    </div>
   </div>
   <script>
-    // ⚠️ GANTI URL INI DENGAN URL APPS SCRIPT ANDA YANG BARU DIUPDATE
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxIBaYIJQw22D2QTw1VPgOLPTZFThqOAs807gpucFZjTRlNQsCulamXZs7nWkjoGwLt/exec';
+    // ⚠️ GANTI URL INI DENGAN URL APPS SCRIPT ANDA
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwvK9wwO7hvOF8z6uh2eMWVYlUF3qwn5uxVkqrCuR1Otdxg7F9BDvE2fn7spfO6WkSF/exec';
     
     let signatures = [];
+    let filteredSignatures = [];
     let isLoading = false;
     let isLoggedIn = false;
+    
+    // Pagination Variables
+    let currentPage = 1;
+    const itemsPerPage = 10;
     
     const ADMIN_USERNAME = 'admine';
     const ADMIN_PASSWORD = 'adminttd';
     const APP_URL = 'https://faisalrohman.github.io/cek-dokumen.html';
-    const STORAGE_KEY = 'qr_auth_session'; // Key untuk localStorage
+    const STORAGE_KEY = 'qr_auth_session'; 
 
-    // Fungsi resize gambar ke Base64 (Kecil agar muat di Google Sheet)
+    // Resize Image
     function processImage(file) {
       return new Promise((resolve, reject) => {
-        if (!file) {
-          resolve('');
-          return;
-        }
-
+        if (!file) { resolve(''); return; }
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = function(event) {
@@ -680,18 +521,13 @@
           img.src = event.target.result;
           img.onload = function() {
             const canvas = document.createElement('canvas');
-            const maxWidth = 100; // Resize ke 100px max width
+            const maxWidth = 100; 
             const scaleSize = maxWidth / img.width;
-            
             canvas.width = maxWidth;
             canvas.height = img.height * scaleSize;
-            
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            
-            // Konversi ke Base64 (JPEG low quality cukup untuk logo kecil)
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-            resolve(dataUrl);
+            resolve(canvas.toDataURL('image/jpeg', 0.8));
           }
           img.onerror = reject;
         }
@@ -699,79 +535,149 @@
       });
     }
     
-    // Load history (hanya dipanggil di tab history)
     async function loadData() {
       try {
+        // Show loading in table if needed
+        document.getElementById('historyTableBody').innerHTML = '<tr><td colspan="7" style="text-align:center;">Memuat data...</td></tr>';
+        
         const response = await fetch(APPS_SCRIPT_URL);
         const result = await response.json();
         
         if (result.success) {
           signatures = result.data || [];
-          renderHistory();
+          // Sort by date new to old
+          signatures.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+          
+          filteredSignatures = [...signatures]; // Init filtered data
+          currentPage = 1; // Reset page
+          renderTable();
         }
       } catch (error) {
         console.error('Error loading history:', error);
+        document.getElementById('historyTableBody').innerHTML = '<tr><td colspan="7" style="text-align:center; color:red;">Gagal memuat data</td></tr>';
       }
     }
-    
-    // Fungsi Verifikasi Cepat ke Server
+
+    // --- TABLE & PAGINATION LOGIC ---
+
+    function handleSearch() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        
+        if (!query) {
+            filteredSignatures = [...signatures];
+        } else {
+            filteredSignatures = signatures.filter(sig => 
+                sig.document_name.toLowerCase().includes(query) ||
+                sig.signer_name.toLowerCase().includes(query) ||
+                sig.signature_id.toLowerCase().includes(query)
+            );
+        }
+        currentPage = 1; // Reset to page 1 on search
+        renderTable();
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('historyTableBody');
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const pageData = filteredSignatures.slice(start, end);
+        
+        if (pageData.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 2rem;">Tidak ada data ditemukan</td></tr>`;
+            updatePaginationInfo(0, 0, 0);
+            return;
+        }
+
+        let html = '';
+        pageData.forEach((sig, index) => {
+            const globalIndex = start + index + 1;
+            const date = new Date(sig.timestamp);
+            const formattedDate = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+            
+            let badgeClass = 'badge-valid';
+            let statusText = 'VALID';
+            if (sig.status === 'frozen') { badgeClass = 'badge-frozen'; statusText = 'DIBEKUKAN'; }
+            if (sig.status === 'cancelled') { badgeClass = 'badge-cancelled'; statusText = 'DIBATALKAN'; }
+
+            const sigString = JSON.stringify(sig).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+
+            html += `
+                <tr>
+                    <td>${globalIndex}</td>
+                    <td>${formattedDate}</td>
+                    <td>${sig.document_name}</td>
+                    <td>${sig.signer_name}</td>
+                    <td>${sig.signer_position || '-'}</td>
+                    <td><span class="status-badge ${badgeClass}">${statusText}</span></td>
+                    <td>
+                        <button class="btn btn-secondary btn-sm" title="Cetak QR" onclick='printQrCode(${sigString})'>🖨️</button>
+                        ${sig.status !== 'valid' ? `<button class="btn btn-success btn-sm" title="Set Valid" onclick='updateStatus(${sigString}, "valid")'>✅</button>` : ''}
+                        ${sig.status !== 'frozen' ? `<button class="btn btn-warning btn-sm" title="Bekukan" onclick='updateStatus(${sigString}, "frozen")'>❄️</button>` : ''}
+                        ${sig.status !== 'cancelled' ? `<button class="btn btn-danger btn-sm" title="Batalkan" onclick='updateStatus(${sigString}, "cancelled")'>🚫</button>` : ''}
+                    </td>
+                </tr>
+            `;
+        });
+        
+        tbody.innerHTML = html;
+        updatePaginationInfo(start + 1, Math.min(end, filteredSignatures.length), filteredSignatures.length);
+    }
+
+    function updatePaginationInfo(start, end, total) {
+        document.getElementById('paginationInfo').textContent = `Menampilkan ${start}-${end} dari ${total} data`;
+        
+        document.getElementById('prevBtn').disabled = currentPage === 1;
+        document.getElementById('nextBtn').disabled = end >= total;
+    }
+
+    function prevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            renderTable();
+        }
+    }
+
+    function nextPage() {
+        const totalPages = Math.ceil(filteredSignatures.length / itemsPerPage);
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderTable();
+        }
+    }
+
+    // --- OTHER FUNCTIONS ---
+
     async function verifySignatureServer(signatureId) {
        try {
          const response = await fetch(APPS_SCRIPT_URL, {
            method: 'POST',
-           body: JSON.stringify({
-             action: 'verify',
-             signature_id: signatureId
-           })
+           body: JSON.stringify({ action: 'verify', signature_id: signatureId })
          });
          const result = await response.json();
          return result.success ? result.data : null;
-       } catch (error) {
-         console.error('Error verifying signature:', error);
-         return null;
-       }
+       } catch (error) { return null; }
     }
 
-    // Create signature in Google Sheets
     async function createSignature(data) {
       try {
         const response = await fetch(APPS_SCRIPT_URL, {
           method: 'POST',
-          body: JSON.stringify({
-            action: 'create',
-            ...data
-          })
+          body: JSON.stringify({ action: 'create', ...data })
         });
-        
-        const result = await response.json();
-        return result.success;
-      } catch (error) {
-        console.error('Error creating signature:', error);
-        return false;
-      }
+        return (await response.json()).success;
+      } catch (error) { return false; }
     }
     
-    // Update signature status
     async function updateSignatureStatus(signatureId, status) {
       try {
         const response = await fetch(APPS_SCRIPT_URL, {
           method: 'POST',
-          body: JSON.stringify({
-            action: 'update',
-            signature_id: signatureId,
-            status: status
-          })
+          body: JSON.stringify({ action: 'update', signature_id: signatureId, status: status })
         });
-        
-        const result = await response.json();
-        return result.success;
-      } catch (error) {
-        console.error('Error updating signature:', error);
-        return false;
-      }
+        return (await response.json()).success;
+      } catch (error) { return false; }
     }
     
-    // Cek status login saat halaman dimuat
     function checkLoginStatus() {
        const session = localStorage.getItem(STORAGE_KEY);
        if (session === 'true') {
@@ -798,465 +704,190 @@
     }
     
     async function initializeApp() {
-      checkLoginStatus(); // Cek login dari localStorage
-      
+      checkLoginStatus();
       const urlParams = new URLSearchParams(window.location.search);
       const signatureId = urlParams.get('id');
-      
       if (signatureId) {
         switchTab('verify');
         document.getElementById('verify-tab-btn').classList.add('active');
         document.getElementById('signatureId').value = signatureId;
-        
-        // Auto verify
         const verifyBtn = document.getElementById('verify-btn');
-        if (verifyBtn) {
-           verifyBtn.click();
-        }
-      } else {
-         // Jika tidak ada ID, dan user login, mungkin bisa ke tab create atau tetap verify
-         if (isLoggedIn) {
-             // Optional: Mau default ke tab create atau verify saat login?
-             // switchTab('verify'); 
-         }
+        if (verifyBtn) verifyBtn.click();
       }
     }
     
     function addLogoToQR(container, logoBase64) {
-      if (!logoBase64) return; // Jika tidak ada logo, skip
-
+      if (!logoBase64) return;
       setTimeout(() => {
         if (container.querySelector('.qr-logo-overlay')) return;
-        
         const logoDiv = document.createElement('div');
         logoDiv.className = 'qr-logo-overlay';
-        
         const logoImg = document.createElement('img');
         logoImg.src = logoBase64;
-        logoImg.alt = 'Logo';
-        logoImg.onerror = function() {
-          logoDiv.style.display = 'none';
-        };
-        
+        logoImg.onerror = function() { logoDiv.style.display = 'none'; };
         logoDiv.appendChild(logoImg);
         container.appendChild(logoDiv);
       }, 100);
     }
     
     function switchTab(tabName) {
-      if (!isLoggedIn && (tabName === 'create' || tabName === 'history')) {
-        return;
-      }
+      if (!isLoggedIn && (tabName === 'create' || tabName === 'history')) return;
       
       document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
       
-      if (event && event.target) {
-        event.target.classList.add('active');
-      } else {
+      if (event && event.target) event.target.classList.add('active');
+      else {
         const tabBtn = document.getElementById(tabName + '-tab-btn');
         if (tabBtn) tabBtn.classList.add('active');
       }
-      
       document.getElementById(tabName).classList.add('active');
-      
-      if (tabName === 'history') {
-        loadData();
-      }
+      if (tabName === 'history') loadData();
     }
     
     document.getElementById('loginForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      const errorDiv = document.getElementById('loginError');
-      
-      if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      const u = document.getElementById('username').value;
+      const p = document.getElementById('password').value;
+      if (u === ADMIN_USERNAME && p === ADMIN_PASSWORD) {
         isLoggedIn = true;
-        localStorage.setItem(STORAGE_KEY, 'true'); // Simpan sesi login
-        
+        localStorage.setItem(STORAGE_KEY, 'true');
         updateUIForLogin();
-        
         switchTab('verify');
         document.getElementById('verify-tab-btn').classList.add('active');
-        
         document.getElementById('loginForm').reset();
-        errorDiv.style.display = 'none';
+        document.getElementById('loginError').style.display = 'none';
       } else {
-        errorDiv.textContent = 'Username atau password salah!';
-        errorDiv.style.display = 'block';
+        document.getElementById('loginError').textContent = 'Username/Password salah!';
+        document.getElementById('loginError').style.display = 'block';
       }
     });
     
     document.getElementById('logoutBtn').addEventListener('click', () => {
       isLoggedIn = false;
-      localStorage.removeItem(STORAGE_KEY); // Hapus sesi login
-      
+      localStorage.removeItem(STORAGE_KEY);
       updateUIForLogout();
-      
       switchTab('verify');
       document.getElementById('verify-tab-btn').classList.add('active');
     });
     
-    function generateId() {
-      return 'SIG-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-    }
-    
     document.getElementById('createForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      
       if (isLoading) return;
       
-      const documentName = document.getElementById('documentName').value;
-      const signerName = document.getElementById('signerName').value;
-      const signerPosition = document.getElementById('signerPosition').value;
+      const docName = document.getElementById('documentName').value;
+      const sigName = document.getElementById('signerName').value;
+      const sigPos = document.getElementById('signerPosition').value;
       const logoFile = document.getElementById('logoUpload').files[0];
-
-      const signatureId = generateId();
-      const timestamp = new Date().toISOString();
+      const sigId = 'SIG-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9).toUpperCase();
       
-      const generateBtn = document.getElementById('generate-btn');
-      generateBtn.disabled = true;
-      generateBtn.innerHTML = '<span class="loading"></span> Memproses...';
+      const btn = document.getElementById('generate-btn');
+      btn.disabled = true; btn.innerHTML = '<span class="loading"></span> Memproses...';
       isLoading = true;
       
-      // Proses konversi gambar ke Base64 (resize dulu)
       let logoBase64 = '';
-      try {
-        logoBase64 = await processImage(logoFile);
-      } catch (err) {
-        console.error("Gagal proses gambar", err);
-        showToast('Gagal memproses gambar logo', 'error');
-        generateBtn.disabled = false;
-        generateBtn.innerHTML = '<span id="generate-btn-text">Generate QR Code</span>';
-        isLoading = false;
-        return;
-      }
+      try { logoBase64 = await processImage(logoFile); } catch(err) {}
 
-      const signatureData = {
-        signature_id: signatureId,
-        document_name: documentName,
-        signer_name: signerName,
-        signer_position: signerPosition,
-        timestamp: timestamp,
-        status: 'valid',
-        logo: logoBase64 // Kirim data logo
-      };
-      
-      const success = await createSignature(signatureData);
+      const success = await createSignature({
+        signature_id: sigId, document_name: docName, signer_name: sigName,
+        signer_position: sigPos, timestamp: new Date().toISOString(), status: 'valid', logo: logoBase64
+      });
       
       if (success) {
         const qrContainer = document.getElementById('qrcode');
         qrContainer.innerHTML = '';
-        qrContainer.style.position = 'relative';
+        new QRCode(qrContainer, { text: `${APP_URL}?id=${sigId}`, width: 200, height: 200, correctLevel: QRCode.CorrectLevel.H });
+        if (logoBase64) addLogoToQR(qrContainer, logoBase64);
         
-        const qrUrl = `${APP_URL}?id=${signatureId}`;
-        
-        new QRCode(qrContainer, {
-          text: qrUrl,
-          width: 200,
-          height: 200,
-          colorDark: '#000000',
-          colorLight: '#ffffff',
-          correctLevel: QRCode.CorrectLevel.H
-        });
-        
-        // Render logo jika ada
-        if (logoBase64) {
-            addLogoToQR(qrContainer, logoBase64);
-        }
-        
-        document.getElementById('signatureIdDisplay').textContent = signatureId;
+        document.getElementById('signatureIdDisplay').textContent = sigId;
         document.getElementById('qrResult').style.display = 'block';
-        
         document.getElementById('createForm').reset();
-        
-        // Hapus history lokal agar saat pindah tab history, data reload baru
         signatures = []; 
-      } else {
-        showToast('Gagal membuat tanda tangan. Silakan coba lagi.', 'error');
-      }
+      } else { showToast('Gagal membuat tanda tangan.', 'error'); }
       
-      generateBtn.disabled = false;
-      generateBtn.innerHTML = '<span id="generate-btn-text">Generate QR Code</span>';
+      btn.disabled = false; btn.innerHTML = '<span id="generate-btn-text">Generate QR Code</span>';
       isLoading = false;
     });
     
     document.getElementById('verifyForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      
       if (isLoading) return;
-      
-      const signatureId = document.getElementById('signatureId').value.trim();
-      const verifyBtn = document.getElementById('verify-btn');
-      
-      verifyBtn.disabled = true;
-      verifyBtn.innerHTML = '<span class="loading"></span>';
+      const sigId = document.getElementById('signatureId').value.trim();
+      const btn = document.getElementById('verify-btn');
+      btn.disabled = true; btn.innerHTML = '<span class="loading"></span>';
       isLoading = true;
       
-      const signature = await verifySignatureServer(signatureId);
+      const sig = await verifySignatureServer(sigId);
+      const resDiv = document.getElementById('verifyResult');
       
-      const resultDiv = document.getElementById('verifyResult');
-      
-      if (signature) {
-        const date = new Date(signature.timestamp);
-        let statusClass = 'valid';
-        let statusText = 'VALID';
-        let statusLabel = '✓ Tanda Tangan Valid';
-        let statusColor = '#28a745';
+      if (sig) {
+        let stClass = 'valid', stText = 'VALID', stLabel = '✓ Valid', stColor = '#28a745';
+        if (sig.status === 'frozen') { stClass = 'frozen'; stText = 'DIBEKUKAN'; stLabel = '⚠ Dibekukan'; stColor = '#856404'; }
+        else if (sig.status === 'cancelled') { stClass = 'invalid'; stText = 'DIBATALKAN'; stLabel = '✗ Dibatalkan'; stColor = '#dc3545'; }
         
-        if (signature.status === 'frozen') {
-          statusClass = 'frozen';
-          statusText = 'DIBEKUKAN';
-          statusLabel = '⚠ Tanda Tangan Dibekukan';
-          statusColor = '#856404';
-        } else if (signature.status === 'cancelled') {
-          statusClass = 'invalid';
-          statusText = 'DIBATALKAN';
-          statusLabel = '✗ Tanda Tangan Dibatalkan';
-          statusColor = '#dc3545';
-        }
+        let logoHtml = sig.logo ? `<div style="text-align: center; margin-bottom: 1rem;"><img src="${sig.logo}" style="max-height: 60px;"></div>` : '';
         
-        // Tampilkan logo jika ada
-        let logoHtml = '';
-        if (signature.logo) {
-            logoHtml = `<div style="text-align: center; margin-bottom: 1rem;">
-                <img src="${signature.logo}" alt="Logo Instansi" style="max-height: 60px; object-fit: contain;">
-            </div>`;
-        }
-
-        resultDiv.className = `verify-result ${statusClass}`;
-        resultDiv.innerHTML = `
-          ${logoHtml}
-          <h3>${statusLabel}</h3>
+        resDiv.className = `verify-result ${stClass}`;
+        resDiv.innerHTML = `${logoHtml}<h3>${stLabel}</h3>
           <div class="signature-details">
-            <div class="detail-row">
-              <span class="detail-label">ID Tanda Tangan:</span>
-              <span class="detail-value">${signature.signature_id}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Nama Dokumen:</span>
-              <span class="detail-value">${signature.document_name}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Penandatangan:</span>
-              <span class="detail-value">${signature.signer_name}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Jabatan:</span>
-              <span class="detail-value">${signature.signer_position || '-'}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Tanggal:</span>
-              <span class="detail-value">${date.toLocaleDateString('id-ID', { 
-                day: 'numeric', 
-                month: 'long', 
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Status:</span>
-              <span class="detail-value" style="color: ${statusColor}; font-weight: bold;">${statusText}</span>
-            </div>
-          </div>
-        `;
+            <div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">${sig.signature_id}</span></div>
+            <div class="detail-row"><span class="detail-label">Dokumen:</span><span class="detail-value">${sig.document_name}</span></div>
+            <div class="detail-row"><span class="detail-label">Oleh:</span><span class="detail-value">${sig.signer_name}</span></div>
+            <div class="detail-row"><span class="detail-label">Jabatan:</span><span class="detail-value">${sig.signer_position || '-'}</span></div>
+            <div class="detail-row"><span class="detail-label">Tanggal:</span><span class="detail-value">${new Date(sig.timestamp).toLocaleDateString('id-ID')}</span></div>
+            <div class="detail-row"><span class="detail-label">Status:</span><span class="detail-value" style="color:${stColor};font-weight:bold;">${stText}</span></div>
+          </div>`;
       } else {
-        resultDiv.className = 'verify-result invalid';
-        resultDiv.innerHTML = `
-          <h3>✗ Tanda Tangan Tidak Valid</h3>
-          <p>ID tanda tangan tidak ditemukan dalam sistem. Pastikan ID yang Anda masukkan benar.</p>
-        `;
+        resDiv.className = 'verify-result invalid';
+        resDiv.innerHTML = `<h3>✗ Tidak Valid</h3><p>ID tidak ditemukan.</p>`;
       }
-      
-      resultDiv.style.display = 'block';
-      
-      verifyBtn.disabled = false;
-      verifyBtn.innerHTML = '<span id="verify-btn-text">Verifikasi Tanda Tangan</span>';
+      resDiv.style.display = 'block';
+      btn.disabled = false; btn.innerHTML = '<span id="verify-btn-text">Verifikasi Tanda Tangan</span>';
       isLoading = false;
     });
     
-    async function updateStatus(signature, newStatus) {
-      const success = await updateSignatureStatus(signature.signature_id, newStatus);
-      
+    async function updateStatus(sig, newStatus) {
+      // sig is object from onclick
+      const success = await updateSignatureStatus(sig.signature_id, newStatus);
       if (success) {
-        showToast(`Status berhasil diubah menjadi ${newStatus.toUpperCase()}`, 'success');
-        // update local data if exists
-        const index = signatures.findIndex(s => s.signature_id === signature.signature_id);
-        if(index !== -1) signatures[index].status = newStatus;
-        renderHistory();
-      } else {
-        showToast('Gagal mengubah status. Silakan coba lagi.', 'error');
-      }
+        showToast(`Status diubah: ${newStatus.toUpperCase()}`, 'success');
+        const idx = signatures.findIndex(s => s.signature_id === sig.signature_id);
+        if(idx !== -1) signatures[idx].status = newStatus;
+        handleSearch(); // Refresh table view
+      } else { showToast('Gagal update status.', 'error'); }
     }
     
-    function printQrCode(signature) {
-      const modalQrCode = document.getElementById('modalQrCode');
-      modalQrCode.innerHTML = '';
-      modalQrCode.style.position = 'relative';
-      
-      const qrUrl = `${APP_URL}?id=${signature.signature_id}`;
-      
-      new QRCode(modalQrCode, {
-        text: qrUrl,
-        width: 250,
-        height: 250,
-        colorDark: '#000000',
-        colorLight: '#ffffff',
-        correctLevel: QRCode.CorrectLevel.H
-      });
-      
-      // Pakai logo dari data signature
-      if (signature.logo) {
-          addLogoToQR(modalQrCode, signature.logo);
-      }
-      
-      document.getElementById('modalTitle').textContent = signature.document_name;
-      document.getElementById('modalSignatureId').textContent = signature.signature_id;
+    function printQrCode(sig) {
+      const modalQr = document.getElementById('modalQrCode');
+      modalQr.innerHTML = '';
+      new QRCode(modalQr, { text: `${APP_URL}?id=${sig.signature_id}`, width: 250, height: 250, correctLevel: QRCode.CorrectLevel.H });
+      if (sig.logo) addLogoToQR(modalQr, sig.logo);
+      document.getElementById('modalTitle').textContent = sig.document_name;
+      document.getElementById('modalSignatureId').textContent = sig.signature_id;
       document.getElementById('qrModal').classList.add('active');
     }
     
-    function closeQrModal() {
-      document.getElementById('qrModal').classList.remove('active');
-    }
+    function closeQrModal() { document.getElementById('qrModal').classList.remove('active'); }
     
-    function renderHistory() {
-      const historyList = document.getElementById('historyList');
-      
-      if (signatures.length === 0) {
-        historyList.innerHTML = `
-          <div class="empty-state">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <h3>Belum Ada Riwayat</h3>
-            <p>Tanda tangan digital yang Anda buat akan muncul di sini</p>
-          </div>
-        `;
-        return;
-      }
-      
-      const sortedSignatures = [...signatures].sort((a, b) => 
-        new Date(b.timestamp) - new Date(a.timestamp)
-      );
-      
-      historyList.innerHTML = sortedSignatures.map(sig => {
-        const date = new Date(sig.timestamp);
-        let statusClass = 'status-valid';
-        let statusText = 'VALID';
-        
-        if (sig.status === 'frozen') {
-          statusClass = 'status-frozen';
-          statusText = 'DIBEKUKAN';
-        } else if (sig.status === 'cancelled') {
-          statusClass = 'status-cancelled';
-          statusText = 'DIBATALKAN';
-        }
-        
-        // Escape quotes for JSON stringify in onclick
-        const sigString = JSON.stringify(sig).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
-
-        return `
-          <div class="history-item">
-            <div class="history-header">
-              <div class="history-title">${sig.document_name}</div>
-              <span class="history-status ${statusClass}">${statusText}</span>
-            </div>
-            <div class="history-info">
-              <div><strong>Penandatangan:</strong> ${sig.signer_name}</div>
-              <div><strong>Jabatan:</strong> ${sig.signer_position || '-'}</div>
-              <div><strong>ID:</strong> ${sig.signature_id}</div>
-              <div><strong>Tanggal:</strong> ${date.toLocaleDateString('id-ID', { 
-                day: 'numeric', 
-                month: 'long', 
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}</div>
-            </div>
-            <div class="history-actions">
-              <button class="btn btn-secondary" onclick='printQrCode(${sigString})'>
-                Cetak QR
-              </button>
-              ${sig.status !== 'valid' ? `
-                <button class="btn btn-success" onclick='updateStatus(${sigString}, "valid")'>
-                  Set Valid
-                </button>
-              ` : ''}
-              ${sig.status !== 'frozen' ? `
-                <button class="btn btn-warning" onclick='updateStatus(${sigString}, "frozen")'>
-                  Bekukan
-                </button>
-              ` : ''}
-              ${sig.status !== 'cancelled' ? `
-                <button class="btn btn-danger" onclick='updateStatus(${sigString}, "cancelled")'>
-                  Batalkan
-                </button>
-              ` : ''}
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-    
-    function showToast(message, type) {
-      const toast = document.createElement('div');
-      toast.className = `verify-result ${type === 'error' ? 'invalid' : 'valid'}`;
-      toast.innerHTML = `<h3>${message}</h3>`;
-      toast.style.position = 'fixed';
-      toast.style.top = '20px';
-      toast.style.left = '50%';
-      toast.style.transform = 'translateX(-50%)';
-      toast.style.zIndex = '2000';
-      toast.style.maxWidth = '500px';
-      document.body.appendChild(toast);
-      
-      setTimeout(() => {
-        toast.remove();
-      }, 3000);
+    function showToast(msg, type) {
+      const t = document.createElement('div');
+      t.className = `verify-result ${type === 'error'?'invalid':'valid'}`;
+      t.innerHTML = `<h3>${msg}</h3>`;
+      Object.assign(t.style, {position:'fixed', top:'20px', left:'50%', transform:'translateX(-50%)', zIndex:'2000', maxWidth:'500px', padding:'1rem'});
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 3000);
     }
     
     function exportHistory() {
-      if (signatures.length === 0) {
-        showToast('Tidak ada riwayat untuk di-export', 'error');
-        return;
-      }
-      
-      let csv = 'ID Tanda Tangan,Nama Dokumen,Penandatangan,Jabatan,Tanggal,Status\n';
-      
-      signatures.forEach(sig => {
-        const date = new Date(sig.timestamp);
-        const formattedDate = date.toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-        
-        const status = sig.status === 'valid' ? 'VALID' : 
-                       sig.status === 'frozen' ? 'DIBEKUKAN' : 'DIBATALKAN';
-        
-        csv += `"${sig.signature_id}","${sig.document_name}","${sig.signer_name}","${sig.signer_position || '-'}","${formattedDate}","${status}"\n`;
+      if (signatures.length === 0) return showToast('Data kosong', 'error');
+      let csv = 'ID,Dokumen,Penandatangan,Jabatan,Tanggal,Status\n';
+      signatures.forEach(s => {
+        csv += `"${s.signature_id}","${s.document_name}","${s.signer_name}","${s.signer_position||'-'}","${new Date(s.timestamp).toLocaleDateString('id-ID')}","${s.status.toUpperCase()}"\n`;
       });
-      
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      
-      const now = new Date();
-      const filename = `riwayat-tanda-tangan-${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}.csv`;
-      
-      link.setAttribute('href', url);
-      link.setAttribute('download', filename);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
+      link.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8;'}));
+      link.download = `History-${Date.now()}.csv`;
       link.click();
-      document.body.removeChild(link);
-      
-      showToast('Riwayat berhasil di-export!', 'success');
     }
     
     initializeApp();
