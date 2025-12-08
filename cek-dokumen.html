@@ -115,11 +115,25 @@
     .bouncing-loader.small > div { animation-name: bouncing-loader-small; }
     @keyframes bouncing-loader-small { to { opacity: 0.3; transform: translateY(-4px); } }
 
-    /* --- VERIFY RESULTS --- */
-    .qr-result, .verify-result {
+    /* --- VERIFY RESULTS & QR RESULT CONTAINER --- */
+    .verify-result {
       text-align: center; margin-top: 2rem; padding: 2rem;
       background: #f8f9fa; border-radius: 15px;
     }
+    
+    /* PERBAIKAN 1: Menengahkan Container QR Code di Tab "Buat Tanda Tangan" */
+    .qr-result {
+      text-align: center;
+      margin-top: 2rem;
+      padding: 2rem;
+      background: #f8f9fa;
+      border-radius: 15px;
+      /* Tambahkan flexbox untuk memastikan anak-anaknya (QR Code) di tengah */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
     .verify-result.valid { background: #d4edda; border: 2px solid #28a745; }
     .verify-result.invalid { background: #f8d7da; border: 2px solid #dc3545; }
     .verify-result.frozen { background: #fff3cd; border: 2px solid #ffc107; }
@@ -141,7 +155,7 @@
         margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;
     }
     .search-box { flex: 1; min-width: 250px; }
-    .table-container { width: 100%; border-radius: 10px; } /* Removed overflow-x: auto for standard view, added in media query */
+    .table-container { width: 100%; border-radius: 10px; }
 
     .custom-table {
         width: 100%; border-collapse: collapse; font-size: 0.9rem; background: #fff;
@@ -181,11 +195,29 @@
       background: #ffffff; border-radius: 15px; padding: 2rem;
       max-width: 400px; width: 100%; text-align: center;
     }
-    .modal-qr { margin: 1.5rem 0; display: flex; justify-content: center; position: relative;}
-    /* QR code and Overlay Fix */
-    #qrcode, .modal-qr div { /* Target the inner div created by qrcodejs */
+    
+    /* PERBAIKAN 2: Memperbaiki Posisi Logo di dalam Modal Cetak Ulang */
+    .modal-qr {
+      margin: 1.5rem 0;
+      /* Ubah dari 'flex' menjadi 'inline-block' agar berperilaku sama dengan QR code utama */
+      display: inline-block; 
+      position: relative; /* Penting untuk menjadi acuan posisi absolut logo */
+    }
+
+    /* Style untuk QR Code dan Overlay Logo */
+    #qrcode, .modal-qr {
+        padding: 1.5rem;
+        background: #ffffff;
+        border-radius: 15px;
+        margin: 1rem 0;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    #qrcode {
+        display: inline-block;
         position: relative;
     }
+
     .qr-logo-overlay {
       position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
       width: 50px; height: 50px; background: #ffffff; border-radius: 8px;
@@ -212,7 +244,6 @@
       .pagination-container { flex-direction: column; gap: 1rem; }
 
       /* --- CARD TABLE FOR MOBILE --- */
-      /* Sembunyikan Header Tabel di Mobile */
       .custom-table thead { display: none; }
       
       .custom-table, .custom-table tbody, .custom-table tr, .custom-table td {
@@ -233,14 +264,12 @@
       
       .custom-table td:last-child { border-bottom: none; flex-direction: column; align-items: stretch; gap: 0.5rem; }
       
-      /* Gunakan data-label attribute untuk menampilkan label di mobile */
       .custom-table td::before {
         content: attr(data-label);
         font-weight: 700; color: #6c757d; font-size: 0.85rem; text-align: left;
         margin-right: 1rem;
       }
       
-      /* Aksi Buttons di Mobile */
       .action-buttons-mobile {
           display: flex; gap: 0.5rem; justify-content: flex-end; width: 100%;
       }
@@ -341,7 +370,7 @@
 
   <script>
     // ⚠️ GANTI URL INI DENGAN URL APPS SCRIPT ANDA
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzeqqgziNUF-Wm4XbD4PU3ZD4eFcdA1SRTnoGxop4xZ9W23s_5FPqbIvxM9P8OaXbNY/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzhPxKpxAb9mKWl1tyCrl2zcAcnpzNg2OS_ZZPrqBc8e4GSAwHLq3Hs575OLZVXsI-1/exec';
     
     let signatures = [];
     let filteredSignatures = [];
@@ -449,9 +478,8 @@
             if (sig.status === 'frozen') { badgeClass = 'badge-frozen'; statusText = 'DIBEKUKAN'; }
             if (sig.status === 'cancelled') { badgeClass = 'badge-cancelled'; statusText = 'DIBATALKAN'; }
 
-            // PERBAIKAN: Kirim ID saja (string), bukan seluruh object sig
             const sigId = sig.signature_id;
-            const sigString = JSON.stringify(sig).replace(/'/g, "&apos;").replace(/"/g, "&quot;"); // Untuk cetak QR saja
+            const sigString = JSON.stringify(sig).replace(/'/g, "&apos;").replace(/"/g, "&quot;"); 
 
             html += `
                 <tr>
@@ -515,11 +543,8 @@
       } catch (error) { return false; }
     }
     
-    // PERBAIKAN FUNGSI UPDATE STATUS
     async function updateStatus(btnElement, signatureId, newStatus) {
       const originalContent = btnElement.innerHTML;
-      
-      // Set button to loading state
       btnElement.disabled = true;
       btnElement.innerHTML = LOADER_HTML_SMALL;
 
@@ -533,16 +558,11 @@
         
         if (result.success) {
           showToast(`Status diubah: ${newStatus.toUpperCase()}`, 'success');
-          
-          // Update local data array
           const idx = signatures.findIndex(s => s.signature_id === signatureId);
           if(idx !== -1) {
               signatures[idx].status = newStatus;
           }
-          
-          // Re-filter and Render table to show new status buttons
           handleSearch(); 
-          
         } else { 
             showToast('Gagal update status.', 'error'); 
             btnElement.disabled = false;
@@ -654,7 +674,6 @@
       const sigId = 'SIG-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9).toUpperCase();
       
       const btn = document.getElementById('generate-btn');
-      // SHOW BOUNCING DOTS
       btn.disabled = true; 
       btn.innerHTML = LOADER_HTML_WHITE; 
       isLoading = true;
@@ -674,7 +693,7 @@
         if (logoBase64) addLogoToQR(qrContainer, logoBase64);
         
         document.getElementById('signatureIdDisplay').textContent = sigId;
-        document.getElementById('qrResult').style.display = 'block';
+        document.getElementById('qrResult').style.display = 'flex';
         document.getElementById('createForm').reset();
         signatures = []; 
       } else { showToast('Gagal membuat tanda tangan.', 'error'); }
@@ -689,7 +708,6 @@
       const sigId = document.getElementById('signatureId').value.trim();
       const btn = document.getElementById('verify-btn');
       
-      // SHOW BOUNCING DOTS
       btn.disabled = true; 
       btn.innerHTML = LOADER_HTML_WHITE;
       isLoading = true;
@@ -752,7 +770,6 @@
       modal.classList.remove('active');
     }
 
-    // Tutup jika klik di luar
     window.onclick = function(event) {
       const modal = document.getElementById('qrModal');
       if (event.target == modal) {
