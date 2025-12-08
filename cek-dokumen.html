@@ -1,0 +1,1272 @@
+<!doctype html>
+<html lang="id">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Signature Verification</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script><!--
+  ========================================
+  GOOGLE APPS SCRIPT CODE
+  ========================================
+  
+  CARA SETUP:
+  1. Buat Google Spreadsheet baru
+  2. Rename sheet menjadi "Signatures"
+  3. Baris 1 (header): ID | Dokumen | Penandatangan | Jabatan | Timestamp | Status
+  4. Klik Extensions > Apps Script
+  5. Copy code di bawah ini ke Apps Script editor
+  6. Deploy > New deployment > Web app
+  7. Execute as: Me
+  8. Who has access: Anyone
+  9. Copy URL deployment dan ganti di variable APPS_SCRIPT_URL di bawah
+  
+  ========================================
+  APPS SCRIPT CODE - COPY DARI SINI:
+  ========================================
+  
+function doPost(e) {
+  try {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Signatures');
+    
+    if (!sheet) {
+      return ContentService.createTextOutput(JSON.stringify({
+        success: false,
+        error: 'Sheet "Signatures" not found'
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    const data = JSON.parse(e.postData.contents);
+    
+    if (data.action === 'create') {
+      sheet.appendRow([
+        data.signature_id,
+        data.document_name,
+        data.signer_name,
+        data.signer_position,
+        data.timestamp,
+        data.status || 'valid'
+      ]);
+      
+      return ContentService.createTextOutput(JSON.stringify({
+        success: true,
+        message: 'Signature created'
+      })).setMimeType(ContentService.MimeType.JSON);
+      
+    } else if (data.action === 'update') {
+      const values = sheet.getDataRange().getValues();
+      let updated = false;
+      
+      for (let i = 1; i < values.length; i++) {
+        if (values[i][0] === data.signature_id) {
+          sheet.getRange(i + 1, 6).setValue(data.status);
+          updated = true;
+          break;
+        }
+      }
+      
+      return ContentService.createTextOutput(JSON.stringify({
+        success: updated,
+        message: updated ? 'Status updated' : 'Signature not found'
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      success: false,
+      error: 'Invalid action'
+    })).setMimeType(ContentService.MimeType.JSON);
+    
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({
+      success: false,
+      error: error.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  try {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Signatures');
+    
+    if (!sheet) {
+      return ContentService.createTextOutput(JSON.stringify({
+        success: false,
+        error: 'Sheet "Signatures" not found',
+        data: []
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    const values = sheet.getDataRange().getValues();
+    const data = [];
+    
+    for (let i = 1; i < values.length; i++) {
+      if (values[i][0]) {
+        data.push({
+          signature_id: values[i][0],
+          document_name: values[i][1],
+          signer_name: values[i][2],
+          signer_position: values[i][3],
+          timestamp: values[i][4],
+          status: values[i][5] || 'valid'
+        });
+      }
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      success: true,
+      data: data
+    })).setMimeType(ContentService.MimeType.JSON);
+    
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({
+      success: false,
+      error: error.toString(),
+      data: []
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+  
+  ========================================
+  APPS SCRIPT CODE - SAMPAI SINI
+  ========================================
+  -->
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      width: 100%;
+    }
+    
+    html {
+      height: 100%;
+      width: 100%;
+    }
+    
+    .app-container {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 2rem;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .header h1 {
+      color: #ffffff;
+      font-size: 2.5rem;
+      margin: 0 0 0.5rem 0;
+      font-weight: 700;
+    }
+    
+    .header p {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
+      margin: 0;
+    }
+    
+    .main-card {
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    
+    .tabs {
+      display: flex;
+      background: #f8f9fa;
+      border-bottom: 2px solid #e9ecef;
+    }
+    
+    .tab {
+      flex: 1;
+      padding: 1.25rem;
+      text-align: center;
+      background: transparent;
+      border: none;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #6c757d;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .tab:hover {
+      background: rgba(102, 126, 234, 0.1);
+      color: #667eea;
+    }
+    
+    .tab.active {
+      color: #667eea;
+      background: #ffffff;
+    }
+    
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #667eea;
+    }
+    
+    .tab.hidden {
+      display: none;
+    }
+    
+    .content {
+      padding: 2.5rem;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #495057;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 0.875rem;
+      border: 2px solid #e9ecef;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+    }
+    
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .btn {
+      padding: 1rem;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-full {
+      width: 100%;
+      margin-top: 1rem;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #ffffff;
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .btn-secondary {
+      background: #6c757d;
+      color: #ffffff;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+    
+    .btn-danger {
+      background: #dc3545;
+      color: #ffffff;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .btn-danger:hover {
+      background: #c82333;
+    }
+    
+    .btn-success {
+      background: #28a745;
+      color: #ffffff;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .btn-success:hover {
+      background: #218838;
+    }
+    
+    .btn-warning {
+      background: #ffc107;
+      color: #212529;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .btn-warning:hover {
+      background: #e0a800;
+    }
+    
+    .qr-result {
+      text-align: center;
+      margin-top: 2rem;
+      padding: 2rem;
+      background: #f8f9fa;
+      border-radius: 15px;
+    }
+    
+    #qrcode, .modal-qr {
+      display: inline-block;
+      padding: 1.5rem;
+      background: #ffffff;
+      border-radius: 15px;
+      margin: 1rem 0;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+    
+    .qr-logo-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 60px;
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 5px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    
+    .qr-logo-overlay img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    
+    .signature-id {
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      color: #6c757d;
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background: #ffffff;
+      border-radius: 8px;
+      word-break: break-all;
+    }
+    
+    .verify-result {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      border-radius: 15px;
+      text-align: center;
+    }
+    
+    .verify-result.valid {
+      background: #d4edda;
+      border: 2px solid #28a745;
+    }
+    
+    .verify-result.invalid {
+      background: #f8d7da;
+      border: 2px solid #dc3545;
+    }
+    
+    .verify-result.frozen {
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+    }
+    
+    .verify-result h3 {
+      margin: 0 0 1rem 0;
+      font-size: 1.5rem;
+    }
+    
+    .verify-result.valid h3 {
+      color: #28a745;
+    }
+    
+    .verify-result.invalid h3 {
+      color: #dc3545;
+    }
+    
+    .verify-result.frozen h3 {
+      color: #856404;
+    }
+    
+    .signature-details {
+      background: #ffffff;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-top: 1rem;
+      text-align: left;
+    }
+    
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #e9ecef;
+    }
+    
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+    
+    .detail-label {
+      font-weight: 600;
+      color: #6c757d;
+    }
+    
+    .detail-value {
+      color: #212529;
+      text-align: right;
+    }
+    
+    .history-list {
+      margin-top: 1rem;
+    }
+    
+    .history-item {
+      background: #f8f9fa;
+      padding: 1.25rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      border: 2px solid #e9ecef;
+      transition: all 0.3s ease;
+    }
+    
+    .history-item:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+    }
+    
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+    
+    .history-title {
+      font-weight: 600;
+      color: #212529;
+      font-size: 1.1rem;
+    }
+    
+    .history-status {
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    
+    .status-valid {
+      background: #d4edda;
+      color: #28a745;
+    }
+    
+    .status-frozen {
+      background: #fff3cd;
+      color: #856404;
+    }
+    
+    .status-cancelled {
+      background: #f8d7da;
+      color: #dc3545;
+    }
+    
+    .history-info {
+      color: #6c757d;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+    
+    .history-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e9ecef;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #6c757d;
+    }
+    
+    .empty-state svg {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+    
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #ffffff;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .login-container {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    
+    .login-icon {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .login-icon svg {
+      width: 80px;
+      height: 80px;
+      color: #667eea;
+    }
+    
+    .error-message {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 0.75rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+    
+    .modal-overlay.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: #ffffff;
+      border-radius: 15px;
+      padding: 2rem;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    
+    .modal-qr {
+      margin: 1.5rem 0;
+    }
+    
+    .logout-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      border: 2px solid #ffffff;
+      padding: 0.5rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .logout-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    
+    .export-btn {
+      background: #28a745;
+      color: #ffffff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      margin-bottom: 1rem;
+      display: inline-block;
+    }
+    
+    .export-btn:hover {
+      background: #218838;
+      transform: translateY(-2px);
+    }
+    
+    @media (max-width: 768px) {
+      .app-container {
+        padding: 1rem;
+      }
+      
+      .header h1 {
+        font-size: 1.75rem;
+      }
+      
+      .content {
+        padding: 1.5rem;
+      }
+      
+      .tab {
+        padding: 1rem;
+        font-size: 0.9rem;
+      }
+      
+      .logout-btn {
+        position: static;
+        margin-bottom: 1rem;
+        width: 100%;
+      }
+      
+      .detail-row {
+        flex-direction: column;
+      }
+      
+      .detail-value {
+        text-align: left;
+        margin-top: 0.25rem;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <main class="app-container"><button id="logoutBtn" class="logout-btn" style="display: none;">Logout</button>
+   <header class="header">
+    <h1>Verifikasi Tanda Tangan Digital</h1>
+    <p>Buat dan verifikasi tanda tangan digital dengan QR Code</p>
+   </header>
+   <div class="main-card">
+    <nav class="tabs"><button class="tab" onclick="switchTab('login')" id="login-tab-btn">Login</button> <button class="tab active" onclick="switchTab('verify')" id="verify-tab-btn">Verifikasi</button> <button class="tab hidden" onclick="switchTab('create')" id="create-tab-btn">Buat Tanda Tangan</button> <button class="tab hidden" onclick="switchTab('history')" id="history-tab-btn">Riwayat</button>
+    </nav>
+    <div class="content"><!-- Login Tab -->
+     <div id="login" class="tab-content">
+      <div class="login-container">
+       <div class="login-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+       </div>
+       <div id="loginError" style="display: none;" class="error-message"></div>
+       <form id="loginForm">
+        <div class="form-group"><label for="username">Username</label> <input type="text" id="username" placeholder="Masukkan username" required>
+        </div>
+        <div class="form-group"><label for="password">Password</label> <input type="password" id="password" placeholder="Masukkan password" required>
+        </div><button type="submit" class="btn btn-primary btn-full" id="login-btn"> <span id="login-btn-text">Login</span> </button>
+       </form>
+      </div>
+     </div><!-- Verify Signature Tab -->
+     <div id="verify" class="tab-content active">
+      <form id="verifyForm">
+       <div class="form-group"><label for="signatureId">ID Tanda Tangan</label> <input type="text" id="signatureId" placeholder="Masukkan ID dari QR Code" required>
+       </div><button type="submit" class="btn btn-primary btn-full" id="verify-btn"> <span id="verify-btn-text">Verifikasi Tanda Tangan</span> </button>
+      </form>
+      <div id="verifyResult" style="display: none;"></div>
+     </div><!-- Create Signature Tab -->
+     <div id="create" class="tab-content">
+      <form id="createForm">
+       <div class="form-group"><label for="documentName">Nama Dokumen</label> <input type="text" id="documentName" placeholder="Contoh: Kontrak Kerja 2024" required>
+       </div>
+       <div class="form-group"><label for="signerName">Nama Penandatangan</label> <input type="text" id="signerName" placeholder="Contoh: John Doe" required>
+       </div>
+       <div class="form-group"><label for="signerPosition">Jabatan</label> <input type="text" id="signerPosition" placeholder="Contoh: Direktur Utama" required>
+       </div><button type="submit" class="btn btn-primary btn-full" id="generate-btn"> <span id="generate-btn-text">Generate QR Code</span> </button>
+      </form>
+      <div id="qrResult" style="display: none;" class="qr-result">
+       <h3>QR Code Berhasil Dibuat!</h3>
+       <div id="qrcode"></div>
+       <p style="margin: 1rem 0; color: #6c757d;">Simpan atau screenshot QR Code ini</p>
+       <div class="signature-id"><strong>ID Tanda Tangan:</strong><br><span id="signatureIdDisplay"></span>
+       </div>
+      </div>
+     </div><!-- History Tab -->
+     <div id="history" class="tab-content"><button class="export-btn" onclick="exportHistory()"> 📊 Export Riwayat (CSV) </button>
+      <div id="historyList" class="history-list"></div>
+     </div>
+    </div>
+   </div>
+  </main><!-- Modal for QR Code -->
+  <div id="qrModal" class="modal-overlay">
+   <div class="modal-content">
+    <h3 id="modalTitle">QR Code</h3>
+    <div class="modal-qr" id="modalQrCode"></div>
+    <div class="signature-id"><strong>ID:</strong><br><span id="modalSignatureId"></span>
+    </div><button class="btn btn-primary btn-full" onclick="closeQrModal()">Tutup</button>
+   </div>
+  </div>
+  <script>
+    // ⚠️ GANTI URL INI DENGAN URL APPS SCRIPT ANDA
+    const APPS_SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+    
+    let signatures = [];
+    let isLoading = false;
+    let isLoggedIn = false;
+    
+    const ADMIN_USERNAME = 'admine';
+    const ADMIN_PASSWORD = 'adminttd';
+    const LOGO_URL = 'https://blogger.googleusercontent.com/img/a/AVvXsEjjINzUrLqjW0r_V3PERAPmCZmh5EzTUmCaLlTlOqiVEY-HAylPbPVOGwYo-u7Ob2Qe914Ql7oebQvqJsC9XnpKUhPEdA576pUITGT6MN68RgpyTI_72-M3U7TMSTfDCbAPriU4kn1EeTIW__WGJteBgnOEyjA5uwJYCaXJ-RqS4u7LBh-7wLm44yd-cLq-';
+    const APP_URL = 'https://faisalrohman.github.io/cek-dokumen.html';
+    
+    // Load data from Google Sheets
+    async function loadData() {
+      try {
+        const response = await fetch(APPS_SCRIPT_URL);
+        const result = await response.json();
+        
+        if (result.success) {
+          signatures = result.data || [];
+          renderHistory();
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+    }
+    
+    // Create signature in Google Sheets
+    async function createSignature(data) {
+      try {
+        const response = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'create',
+            ...data
+          })
+        });
+        
+        const result = await response.json();
+        return result.success;
+      } catch (error) {
+        console.error('Error creating signature:', error);
+        return false;
+      }
+    }
+    
+    // Update signature status in Google Sheets
+    async function updateSignatureStatus(signatureId, status) {
+      try {
+        const response = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'update',
+            signature_id: signatureId,
+            status: status
+          })
+        });
+        
+        const result = await response.json();
+        return result.success;
+      } catch (error) {
+        console.error('Error updating signature:', error);
+        return false;
+      }
+    }
+    
+    async function initializeApp() {
+      await loadData();
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const signatureId = urlParams.get('id');
+      
+      if (signatureId) {
+        switchTab('verify');
+        document.getElementById('verify-tab-btn').classList.add('active');
+        document.getElementById('signatureId').value = signatureId;
+        
+        let attempts = 0;
+        const maxAttempts = 20;
+        
+        const checkAndVerify = setInterval(() => {
+          attempts++;
+          
+          if (signatures.length > 0 || attempts >= maxAttempts) {
+            clearInterval(checkAndVerify);
+            
+            setTimeout(() => {
+              const verifyBtn = document.getElementById('verify-btn');
+              if (verifyBtn && !isLoading) {
+                verifyBtn.click();
+              }
+            }, 300);
+          }
+        }, 200);
+      }
+    }
+    
+    function addLogoToQR(container) {
+      setTimeout(() => {
+        if (container.querySelector('.qr-logo-overlay')) return;
+        
+        const logoDiv = document.createElement('div');
+        logoDiv.className = 'qr-logo-overlay';
+        
+        const logoImg = document.createElement('img');
+        logoImg.src = LOGO_URL;
+        logoImg.alt = 'Logo';
+        logoImg.onerror = function() {
+          logoDiv.style.display = 'none';
+        };
+        
+        logoDiv.appendChild(logoImg);
+        container.appendChild(logoDiv);
+      }, 100);
+    }
+    
+    function switchTab(tabName) {
+      if (!isLoggedIn && (tabName === 'create' || tabName === 'history')) {
+        return;
+      }
+      
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      if (event && event.target) {
+        event.target.classList.add('active');
+      } else {
+        const tabBtn = document.getElementById(tabName + '-tab-btn');
+        if (tabBtn) tabBtn.classList.add('active');
+      }
+      
+      document.getElementById(tabName).classList.add('active');
+      
+      if (tabName === 'history') {
+        loadData();
+      }
+    }
+    
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const errorDiv = document.getElementById('loginError');
+      
+      if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+        isLoggedIn = true;
+        
+        document.getElementById('create-tab-btn').classList.remove('hidden');
+        document.getElementById('history-tab-btn').classList.remove('hidden');
+        document.getElementById('login-tab-btn').classList.add('hidden');
+        document.getElementById('logoutBtn').style.display = 'block';
+        
+        switchTab('verify');
+        document.getElementById('verify-tab-btn').classList.add('active');
+        
+        document.getElementById('loginForm').reset();
+        errorDiv.style.display = 'none';
+      } else {
+        errorDiv.textContent = 'Username atau password salah!';
+        errorDiv.style.display = 'block';
+      }
+    });
+    
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      isLoggedIn = false;
+      
+      document.getElementById('create-tab-btn').classList.add('hidden');
+      document.getElementById('history-tab-btn').classList.add('hidden');
+      document.getElementById('login-tab-btn').classList.remove('hidden');
+      document.getElementById('logoutBtn').style.display = 'none';
+      
+      switchTab('verify');
+      document.getElementById('verify-tab-btn').classList.add('active');
+    });
+    
+    function generateId() {
+      return 'SIG-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+    }
+    
+    document.getElementById('createForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      if (isLoading) return;
+      
+      const documentName = document.getElementById('documentName').value;
+      const signerName = document.getElementById('signerName').value;
+      const signerPosition = document.getElementById('signerPosition').value;
+      const signatureId = generateId();
+      const timestamp = new Date().toISOString();
+      
+      const generateBtn = document.getElementById('generate-btn');
+      generateBtn.disabled = true;
+      generateBtn.innerHTML = '<span class="loading"></span>';
+      isLoading = true;
+      
+      const signatureData = {
+        signature_id: signatureId,
+        document_name: documentName,
+        signer_name: signerName,
+        signer_position: signerPosition,
+        timestamp: timestamp,
+        status: 'valid'
+      };
+      
+      const success = await createSignature(signatureData);
+      
+      if (success) {
+        const qrContainer = document.getElementById('qrcode');
+        qrContainer.innerHTML = '';
+        qrContainer.style.position = 'relative';
+        
+        const qrUrl = `${APP_URL}?id=${signatureId}`;
+        
+        new QRCode(qrContainer, {
+          text: qrUrl,
+          width: 200,
+          height: 200,
+          colorDark: '#000000',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.H
+        });
+        
+        addLogoToQR(qrContainer);
+        
+        document.getElementById('signatureIdDisplay').textContent = signatureId;
+        document.getElementById('qrResult').style.display = 'block';
+        
+        document.getElementById('createForm').reset();
+        
+        await loadData();
+      } else {
+        showToast('Gagal membuat tanda tangan. Silakan coba lagi.', 'error');
+      }
+      
+      generateBtn.disabled = false;
+      generateBtn.innerHTML = '<span id="generate-btn-text">Generate QR Code</span>';
+      isLoading = false;
+    });
+    
+    document.getElementById('verifyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      if (isLoading) return;
+      
+      const signatureId = document.getElementById('signatureId').value.trim();
+      const verifyBtn = document.getElementById('verify-btn');
+      
+      verifyBtn.disabled = true;
+      verifyBtn.innerHTML = '<span class="loading"></span>';
+      isLoading = true;
+      
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const signature = signatures.find(sig => sig.signature_id === signatureId);
+      
+      const resultDiv = document.getElementById('verifyResult');
+      
+      if (signature) {
+        const date = new Date(signature.timestamp);
+        let statusClass = 'valid';
+        let statusText = 'VALID';
+        let statusLabel = '✓ Tanda Tangan Valid';
+        let statusColor = '#28a745';
+        
+        if (signature.status === 'frozen') {
+          statusClass = 'frozen';
+          statusText = 'DIBEKUKAN';
+          statusLabel = '⚠ Tanda Tangan Dibekukan';
+          statusColor = '#856404';
+        } else if (signature.status === 'cancelled') {
+          statusClass = 'invalid';
+          statusText = 'DIBATALKAN';
+          statusLabel = '✗ Tanda Tangan Dibatalkan';
+          statusColor = '#dc3545';
+        }
+        
+        resultDiv.className = `verify-result ${statusClass}`;
+        resultDiv.innerHTML = `
+          <h3>${statusLabel}</h3>
+          <div class="signature-details">
+            <div class="detail-row">
+              <span class="detail-label">ID Tanda Tangan:</span>
+              <span class="detail-value">${signature.signature_id}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Nama Dokumen:</span>
+              <span class="detail-value">${signature.document_name}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Penandatangan:</span>
+              <span class="detail-value">${signature.signer_name}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Jabatan:</span>
+              <span class="detail-value">${signature.signer_position || '-'}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Tanggal:</span>
+              <span class="detail-value">${date.toLocaleDateString('id-ID', { 
+                day: 'numeric', 
+                month: 'long', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Status:</span>
+              <span class="detail-value" style="color: ${statusColor}; font-weight: bold;">${statusText}</span>
+            </div>
+          </div>
+        `;
+      } else {
+        resultDiv.className = 'verify-result invalid';
+        resultDiv.innerHTML = `
+          <h3>✗ Tanda Tangan Tidak Valid</h3>
+          <p>ID tanda tangan tidak ditemukan dalam sistem. Pastikan ID yang Anda masukkan benar.</p>
+        `;
+      }
+      
+      resultDiv.style.display = 'block';
+      
+      verifyBtn.disabled = false;
+      verifyBtn.innerHTML = '<span id="verify-btn-text">Verifikasi Tanda Tangan</span>';
+      isLoading = false;
+    });
+    
+    async function updateStatus(signature, newStatus) {
+      const success = await updateSignatureStatus(signature.signature_id, newStatus);
+      
+      if (success) {
+        showToast(`Status berhasil diubah menjadi ${newStatus.toUpperCase()}`, 'success');
+        await loadData();
+      } else {
+        showToast('Gagal mengubah status. Silakan coba lagi.', 'error');
+      }
+    }
+    
+    function printQrCode(signature) {
+      const modalQrCode = document.getElementById('modalQrCode');
+      modalQrCode.innerHTML = '';
+      modalQrCode.style.position = 'relative';
+      
+      const qrUrl = `${APP_URL}?id=${signature.signature_id}`;
+      
+      new QRCode(modalQrCode, {
+        text: qrUrl,
+        width: 250,
+        height: 250,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+      });
+      
+      addLogoToQR(modalQrCode);
+      
+      document.getElementById('modalTitle').textContent = signature.document_name;
+      document.getElementById('modalSignatureId').textContent = signature.signature_id;
+      document.getElementById('qrModal').classList.add('active');
+    }
+    
+    function closeQrModal() {
+      document.getElementById('qrModal').classList.remove('active');
+    }
+    
+    function renderHistory() {
+      const historyList = document.getElementById('historyList');
+      
+      if (signatures.length === 0) {
+        historyList.innerHTML = `
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <h3>Belum Ada Riwayat</h3>
+            <p>Tanda tangan digital yang Anda buat akan muncul di sini</p>
+          </div>
+        `;
+        return;
+      }
+      
+      const sortedSignatures = [...signatures].sort((a, b) => 
+        new Date(b.timestamp) - new Date(a.timestamp)
+      );
+      
+      historyList.innerHTML = sortedSignatures.map(sig => {
+        const date = new Date(sig.timestamp);
+        let statusClass = 'status-valid';
+        let statusText = 'VALID';
+        
+        if (sig.status === 'frozen') {
+          statusClass = 'status-frozen';
+          statusText = 'DIBEKUKAN';
+        } else if (sig.status === 'cancelled') {
+          statusClass = 'status-cancelled';
+          statusText = 'DIBATALKAN';
+        }
+        
+        return `
+          <div class="history-item">
+            <div class="history-header">
+              <div class="history-title">${sig.document_name}</div>
+              <span class="history-status ${statusClass}">${statusText}</span>
+            </div>
+            <div class="history-info">
+              <div><strong>Penandatangan:</strong> ${sig.signer_name}</div>
+              <div><strong>Jabatan:</strong> ${sig.signer_position || '-'}</div>
+              <div><strong>ID:</strong> ${sig.signature_id}</div>
+              <div><strong>Tanggal:</strong> ${date.toLocaleDateString('id-ID', { 
+                day: 'numeric', 
+                month: 'long', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}</div>
+            </div>
+            <div class="history-actions">
+              <button class="btn btn-secondary" onclick='printQrCode(${JSON.stringify(sig).replace(/'/g, "&apos;")})'>
+                Cetak QR
+              </button>
+              ${sig.status !== 'valid' ? `
+                <button class="btn btn-success" onclick='updateStatus(${JSON.stringify(sig).replace(/'/g, "&apos;")}, "valid")'>
+                  Set Valid
+                </button>
+              ` : ''}
+              ${sig.status !== 'frozen' ? `
+                <button class="btn btn-warning" onclick='updateStatus(${JSON.stringify(sig).replace(/'/g, "&apos;")}, "frozen")'>
+                  Bekukan
+                </button>
+              ` : ''}
+              ${sig.status !== 'cancelled' ? `
+                <button class="btn btn-danger" onclick='updateStatus(${JSON.stringify(sig).replace(/'/g, "&apos;")}, "cancelled")'>
+                  Batalkan
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function showToast(message, type) {
+      const toast = document.createElement('div');
+      toast.className = `verify-result ${type === 'error' ? 'invalid' : 'valid'}`;
+      toast.innerHTML = `<h3>${message}</h3>`;
+      toast.style.position = 'fixed';
+      toast.style.top = '20px';
+      toast.style.left = '50%';
+      toast.style.transform = 'translateX(-50%)';
+      toast.style.zIndex = '2000';
+      toast.style.maxWidth = '500px';
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+    }
+    
+    function exportHistory() {
+      if (signatures.length === 0) {
+        showToast('Tidak ada riwayat untuk di-export', 'error');
+        return;
+      }
+      
+      let csv = 'ID Tanda Tangan,Nama Dokumen,Penandatangan,Jabatan,Tanggal,Status\n';
+      
+      signatures.forEach(sig => {
+        const date = new Date(sig.timestamp);
+        const formattedDate = date.toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        
+        const status = sig.status === 'valid' ? 'VALID' : 
+                      sig.status === 'frozen' ? 'DIBEKUKAN' : 'DIBATALKAN';
+        
+        csv += `"${sig.signature_id}","${sig.document_name}","${sig.signer_name}","${sig.signer_position || '-'}","${formattedDate}","${status}"\n`;
+      });
+      
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      const now = new Date();
+      const filename = `riwayat-tanda-tangan-${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}.csv`;
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      showToast('Riwayat berhasil di-export!', 'success');
+    }
+    
+    initializeApp();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9aa8260aa315f8dc',t:'MTc2NTE1Mzc2OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
