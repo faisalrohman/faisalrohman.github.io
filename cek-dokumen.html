@@ -52,7 +52,7 @@
       border-radius: 20px;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
       overflow: hidden;
-      max-width: 1100px; /* Diperlebar agar tabel muat */
+      max-width: 1100px;
       margin: 0 auto;
       width: 100%;
     }
@@ -163,6 +163,7 @@
       cursor: pointer;
       transition: all 0.3s ease;
       display: inline-block;
+      min-height: 45px; /* Menjaga tinggi tombol saat loading */
     }
      
     .btn-full {
@@ -174,6 +175,7 @@
         padding: 0.4rem 0.6rem;
         font-size: 0.8rem;
         margin: 0.1rem;
+        min-height: auto;
     }
      
     .btn-primary {
@@ -191,29 +193,50 @@
       cursor: not-allowed;
     }
      
-    .btn-secondary {
-      background: #6c757d;
-      color: #ffffff;
-    }
+    .btn-secondary { background: #6c757d; color: #ffffff; }
     .btn-secondary:hover { background: #5a6268; }
      
-    .btn-danger {
-      background: #dc3545;
-      color: #ffffff;
-    }
+    .btn-danger { background: #dc3545; color: #ffffff; }
     .btn-danger:hover { background: #c82333; }
      
-    .btn-success {
-      background: #28a745;
-      color: #ffffff;
-    }
+    .btn-success { background: #28a745; color: #ffffff; }
     .btn-success:hover { background: #218838; }
      
-    .btn-warning {
-      background: #ffc107;
-      color: #212529;
-    }
+    .btn-warning { background: #ffc107; color: #212529; }
     .btn-warning:hover { background: #e0a800; }
+
+    /* --- BOUNCING DOTS ANIMATION --- */
+    .bouncing-loader {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      min-height: 20px;
+    }
+    .bouncing-loader > div {
+      width: 10px;
+      height: 10px;
+      margin: 0 3px;
+      border-radius: 50%;
+      background-color: #ffffff; /* Default putih untuk tombol primary */
+      opacity: 1;
+      animation: bouncing-loader 0.6s infinite alternate;
+    }
+    
+    /* Varian warna gelap untuk background putih (misal di tabel) */
+    .bouncing-loader.dark > div {
+        background-color: #667eea;
+    }
+
+    .bouncing-loader > div:nth-child(2) { animation-delay: 0.2s; }
+    .bouncing-loader > div:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bouncing-loader {
+      to {
+        opacity: 0.3;
+        transform: translateY(-8px);
+      }
+    }
      
     .qr-result {
       text-align: center;
@@ -315,10 +338,7 @@
         gap: 1rem;
     }
 
-    .search-box {
-        flex: 1;
-        min-width: 250px;
-    }
+    .search-box { flex: 1; min-width: 250px; }
 
     .table-container {
         overflow-x: auto;
@@ -349,9 +369,7 @@
         font-size: 0.8rem;
     }
 
-    .custom-table tr:hover {
-        background-color: #f1f3f5;
-    }
+    .custom-table tr:hover { background-color: #f1f3f5; }
 
     .status-badge {
         padding: 0.3rem 0.6rem;
@@ -374,15 +392,8 @@
         border-top: 1px solid #e9ecef;
     }
 
-    .pagination-info {
-        color: #6c757d;
-        font-size: 0.9rem;
-    }
-
-    .pagination-buttons {
-        display: flex;
-        gap: 0.5rem;
-    }
+    .pagination-info { color: #6c757d; font-size: 0.9rem; }
+    .pagination-buttons { display: flex; gap: 0.5rem; }
 
     .help-text {
         font-size: 0.8rem;
@@ -509,6 +520,10 @@
     const ADMIN_PASSWORD = 'adminttd';
     const APP_URL = 'https://faisalrohman.github.io/cek-dokumen.html';
     const STORAGE_KEY = 'qr_auth_session'; 
+    
+    // HTML Loader Constants (Bouncing Dots)
+    const LOADER_HTML_WHITE = '<div class="bouncing-loader"><div></div><div></div><div></div></div>';
+    const LOADER_HTML_DARK = '<div class="bouncing-loader dark"><div></div><div></div><div></div></div>';
 
     // Resize Image
     function processImage(file) {
@@ -537,19 +552,17 @@
     
     async function loadData() {
       try {
-        // Show loading in table if needed
-        document.getElementById('historyTableBody').innerHTML = '<tr><td colspan="7" style="text-align:center;">Memuat data...</td></tr>';
+        // Show Bouncing Dots in table
+        document.getElementById('historyTableBody').innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 2rem;">${LOADER_HTML_DARK}</td></tr>`;
         
         const response = await fetch(APPS_SCRIPT_URL);
         const result = await response.json();
         
         if (result.success) {
           signatures = result.data || [];
-          // Sort by date new to old
           signatures.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-          
-          filteredSignatures = [...signatures]; // Init filtered data
-          currentPage = 1; // Reset page
+          filteredSignatures = [...signatures];
+          currentPage = 1;
           renderTable();
         }
       } catch (error) {
@@ -572,7 +585,7 @@
                 sig.signature_id.toLowerCase().includes(query)
             );
         }
-        currentPage = 1; // Reset to page 1 on search
+        currentPage = 1; 
         renderTable();
     }
 
@@ -625,24 +638,17 @@
 
     function updatePaginationInfo(start, end, total) {
         document.getElementById('paginationInfo').textContent = `Menampilkan ${start}-${end} dari ${total} data`;
-        
         document.getElementById('prevBtn').disabled = currentPage === 1;
         document.getElementById('nextBtn').disabled = end >= total;
     }
 
     function prevPage() {
-        if (currentPage > 1) {
-            currentPage--;
-            renderTable();
-        }
+        if (currentPage > 1) { currentPage--; renderTable(); }
     }
 
     function nextPage() {
         const totalPages = Math.ceil(filteredSignatures.length / itemsPerPage);
-        if (currentPage < totalPages) {
-            currentPage++;
-            renderTable();
-        }
+        if (currentPage < totalPages) { currentPage++; renderTable(); }
     }
 
     // --- OTHER FUNCTIONS ---
@@ -680,13 +686,8 @@
     
     function checkLoginStatus() {
        const session = localStorage.getItem(STORAGE_KEY);
-       if (session === 'true') {
-         isLoggedIn = true;
-         updateUIForLogin();
-       } else {
-         isLoggedIn = false;
-         updateUIForLogout();
-       }
+       if (session === 'true') { isLoggedIn = true; updateUIForLogin(); } 
+       else { isLoggedIn = false; updateUIForLogout(); }
     }
 
     function updateUIForLogin() {
@@ -782,7 +783,9 @@
       const sigId = 'SIG-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9).toUpperCase();
       
       const btn = document.getElementById('generate-btn');
-      btn.disabled = true; btn.innerHTML = '<span class="loading"></span> Memproses...';
+      // SHOW BOUNCING DOTS
+      btn.disabled = true; 
+      btn.innerHTML = LOADER_HTML_WHITE; 
       isLoading = true;
       
       let logoBase64 = '';
@@ -814,7 +817,10 @@
       if (isLoading) return;
       const sigId = document.getElementById('signatureId').value.trim();
       const btn = document.getElementById('verify-btn');
-      btn.disabled = true; btn.innerHTML = '<span class="loading"></span>';
+      
+      // SHOW BOUNCING DOTS
+      btn.disabled = true; 
+      btn.innerHTML = LOADER_HTML_WHITE;
       isLoading = true;
       
       const sig = await verifySignatureServer(sigId);
@@ -847,13 +853,12 @@
     });
     
     async function updateStatus(sig, newStatus) {
-      // sig is object from onclick
       const success = await updateSignatureStatus(sig.signature_id, newStatus);
       if (success) {
         showToast(`Status diubah: ${newStatus.toUpperCase()}`, 'success');
         const idx = signatures.findIndex(s => s.signature_id === sig.signature_id);
         if(idx !== -1) signatures[idx].status = newStatus;
-        handleSearch(); // Refresh table view
+        handleSearch(); 
       } else { showToast('Gagal update status.', 'error'); }
     }
     
