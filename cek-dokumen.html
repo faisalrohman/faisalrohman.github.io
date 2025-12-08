@@ -6,6 +6,7 @@
   <title>Digital Signature Verification</title>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <style>
+    /* --- CSS RESET & BASIC --- */
     body {
       box-sizing: border-box;
       margin: 0;
@@ -15,37 +16,20 @@
       min-height: 100vh;
       width: 100%;
     }
-     
-    html {
-      height: 100%;
-      width: 100%;
-    }
-     
+    html { height: 100%; width: 100%; }
+    
     .app-container {
       width: 100%;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       padding: 2rem;
+      box-sizing: border-box;
     }
      
-    .header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-     
-    .header h1 {
-      color: #ffffff;
-      font-size: 2.5rem;
-      margin: 0 0 0.5rem 0;
-      font-weight: 700;
-    }
-     
-    .header p {
-      color: rgba(255, 255, 255, 0.9);
-      font-size: 1rem;
-      margin: 0;
-    }
+    .header { text-align: center; margin-bottom: 2rem; }
+    .header h1 { color: #ffffff; font-size: 2.5rem; margin: 0 0 0.5rem 0; font-weight: 700; }
+    .header p { color: rgba(255, 255, 255, 0.9); font-size: 1rem; margin: 0; }
      
     .main-card {
       background: #ffffff;
@@ -57,406 +41,209 @@
       width: 100%;
     }
      
-    .tabs {
-      display: flex;
-      background: #f8f9fa;
-      border-bottom: 2px solid #e9ecef;
-    }
-     
+    /* --- TABS --- */
+    .tabs { display: flex; background: #f8f9fa; border-bottom: 2px solid #e9ecef; }
     .tab {
-      flex: 1;
-      padding: 1.25rem;
-      text-align: center;
-      background: transparent;
-      border: none;
-      font-size: 1rem;
-      font-weight: 600;
-      color: #6c757d;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
+      flex: 1; padding: 1.25rem; text-align: center; background: transparent;
+      border: none; font-size: 1rem; font-weight: 600; color: #6c757d;
+      cursor: pointer; transition: all 0.3s ease; position: relative;
     }
-     
-    .tab:hover {
-      background: rgba(102, 126, 234, 0.1);
-      color: #667eea;
-    }
-     
-    .tab.active {
-      color: #667eea;
-      background: #ffffff;
-    }
-     
+    .tab:hover { background: rgba(102, 126, 234, 0.1); color: #667eea; }
+    .tab.active { color: #667eea; background: #ffffff; }
     .tab.active::after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: #667eea;
+      content: ''; position: absolute; bottom: -2px; left: 0; right: 0;
+      height: 2px; background: #667eea;
     }
+    .tab.hidden { display: none; }
      
-    .tab.hidden {
-      display: none;
-    }
+    .content { padding: 2rem; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
      
-    .content {
-      padding: 2rem;
+    /* --- FORMS --- */
+    .form-group { margin-bottom: 1.5rem; }
+    label { display: block; margin-bottom: 0.5rem; color: #495057; font-weight: 600; font-size: 0.95rem; }
+    input[type="text"], input[type="password"], input[type="file"] {
+      width: 100%; padding: 0.875rem; border: 2px solid #e9ecef; border-radius: 10px;
+      font-size: 1rem; transition: all 0.3s ease; box-sizing: border-box;
     }
+    input[type="file"] { padding: 0.6rem; background: #f8f9fa; }
+    input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
      
-    .tab-content {
-      display: none;
-    }
-     
-    .tab-content.active {
-      display: block;
-      animation: fadeIn 0.3s ease;
-    }
-     
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-     
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
-     
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      color: #495057;
-      font-weight: 600;
-      font-size: 0.95rem;
-    }
-     
-    input[type="text"],
-    input[type="password"],
-    input[type="file"] {
-      width: 100%;
-      padding: 0.875rem;
-      border: 2px solid #e9ecef;
-      border-radius: 10px;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-      box-sizing: border-box;
-    }
-
-    input[type="file"] {
-      padding: 0.6rem;
-      background: #f8f9fa;
-    }
-     
-    input:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-     
+    /* --- BUTTONS --- */
     .btn {
-      padding: 0.8rem 1rem;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: inline-block;
-      min-height: 45px;
-      position: relative;
+      padding: 0.8rem 1rem; border: none; border-radius: 8px; font-size: 1rem;
+      font-weight: 600; cursor: pointer; transition: all 0.3s ease;
+      display: inline-block; min-height: 45px; position: relative;
     }
-     
-    .btn-full {
-      width: 100%;
-      margin-top: 1rem;
-    }
-
+    .btn-full { width: 100%; margin-top: 1rem; }
     .btn-sm {
-        padding: 0.4rem 0.6rem;
-        font-size: 0.8rem;
-        margin: 0.1rem;
-        min-height: 32px;
-        min-width: 40px;
+        padding: 0.4rem 0.6rem; font-size: 0.8rem; margin: 0.1rem;
+        min-height: 32px; min-width: 40px;
     }
-     
-    .btn-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: #ffffff;
-    }
-     
-    .btn-primary:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-    }
-     
-    .btn-primary:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-     
+    .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
+    .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
     .btn-secondary { background: #6c757d; color: #ffffff; }
     .btn-secondary:hover { background: #5a6268; }
-     
     .btn-danger { background: #dc3545; color: #ffffff; }
     .btn-danger:hover { background: #c82333; }
-     
     .btn-success { background: #28a745; color: #ffffff; }
     .btn-success:hover { background: #218838; }
-     
     .btn-warning { background: #ffc107; color: #212529; }
     .btn-warning:hover { background: #e0a800; }
-
-    /* --- ANIMASI BOUNCING DOTS --- */
-    .bouncing-loader {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100%;
+    .logout-btn {
+      position: absolute; top: 1rem; right: 1rem; background: rgba(255, 255, 255, 0.2);
+      color: #ffffff; border: 2px solid #ffffff; padding: 0.5rem 1.5rem;
+      border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;
     }
+    .logout-btn:hover { background: rgba(255, 255, 255, 0.3); }
+
+    /* --- ANIMATION --- */
+    .bouncing-loader { display: flex; justify-content: center; align-items: center; height: 100%; }
     .bouncing-loader > div {
-      width: 10px;
-      height: 10px;
-      margin: 0 3px;
-      border-radius: 50%;
-      background-color: #ffffff; /* Default untuk background gelap (tombol primary/success/danger) */
-      opacity: 1;
-      animation: bouncing-loader 0.6s infinite alternate;
+      width: 10px; height: 10px; margin: 0 3px; border-radius: 50%;
+      background-color: #ffffff; opacity: 1; animation: bouncing-loader 0.6s infinite alternate;
     }
-    
-    /* Varian Gelap (untuk background terang) */
     .bouncing-loader.dark > div { background-color: #667eea; }
-    
-    /* Varian Kecil (untuk tombol di tabel) */
-    .bouncing-loader.small > div {
-        width: 6px;
-        height: 6px;
-        margin: 0 2px;
-    }
-
+    .bouncing-loader.small > div { width: 6px; height: 6px; margin: 0 2px; }
     .bouncing-loader > div:nth-child(2) { animation-delay: 0.2s; }
     .bouncing-loader > div:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bouncing-loader { to { opacity: 0.3; transform: translateY(-8px); } }
+    .bouncing-loader.small { animation: none; }
+    .bouncing-loader.small > div { animation-name: bouncing-loader-small; }
+    @keyframes bouncing-loader-small { to { opacity: 0.3; transform: translateY(-4px); } }
 
-    @keyframes bouncing-loader {
-      to {
-        opacity: 0.3;
-        transform: translateY(-8px);
-      }
+    /* --- VERIFY RESULTS --- */
+    .qr-result, .verify-result {
+      text-align: center; margin-top: 2rem; padding: 2rem;
+      background: #f8f9fa; border-radius: 15px;
     }
-    
-    /* Sesuaikan lompatan untuk dots kecil */
-    .bouncing-loader.small { animation: none; } /* Reset container */
-    .bouncing-loader.small > div {
-        animation-name: bouncing-loader-small;
-    }
-    @keyframes bouncing-loader-small {
-      to {
-        opacity: 0.3;
-        transform: translateY(-4px);
-      }
-    }
-
-     
-    .qr-result {
-      text-align: center;
-      margin-top: 2rem;
-      padding: 2rem;
-      background: #f8f9fa;
-      border-radius: 15px;
-    }
-     
-    #qrcode, .modal-qr {
-      display: inline-block;
-      padding: 1.5rem;
-      background: #ffffff;
-      border-radius: 15px;
-      margin: 1rem 0;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      position: relative;
-    }
-     
-    .qr-logo-overlay {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 50px;
-      height: 50px;
-      background: #ffffff;
-      border-radius: 8px;
-      padding: 3px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-    }
-     
-    .qr-logo-overlay img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-     
-    .signature-id {
-      font-family: 'Courier New', monospace;
-      font-size: 0.9rem;
-      color: #6c757d;
-      margin-top: 1rem;
-      padding: 0.75rem;
-      background: #ffffff;
-      border-radius: 8px;
-      word-break: break-all;
-    }
-     
-    .verify-result {
-      margin-top: 2rem;
-      padding: 1.5rem;
-      border-radius: 15px;
-      text-align: center;
-    }
-     
     .verify-result.valid { background: #d4edda; border: 2px solid #28a745; }
     .verify-result.invalid { background: #f8d7da; border: 2px solid #dc3545; }
     .verify-result.frozen { background: #fff3cd; border: 2px solid #ffc107; }
     
-    .verify-result h3 {
-      margin: 0 0 1rem 0;
-      font-size: 1.5rem;
-    }
+    .verify-result h3 { margin: 0 0 1rem 0; font-size: 1.5rem; }
     .verify-result.valid h3 { color: #28a745; }
     .verify-result.invalid h3 { color: #dc3545; }
     .verify-result.frozen h3 { color: #856404; }
 
-    .signature-details {
-      background: #ffffff;
-      padding: 1.5rem;
-      border-radius: 10px;
-      margin-top: 1rem;
-      text-align: left;
-    }
-    
-    .detail-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 0.75rem 0;
-      border-bottom: 1px solid #e9ecef;
-    }
-    
+    .signature-details { background: #ffffff; padding: 1.5rem; border-radius: 10px; margin-top: 1rem; text-align: left; }
+    .detail-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid #e9ecef; }
     .detail-row:last-child { border-bottom: none; }
     .detail-label { font-weight: 600; color: #6c757d; }
     .detail-value { color: #212529; text-align: right; }
 
-    /* --- TABLE & PAGINATION STYLES --- */
+    /* --- RESPONSIVE TABLE STYLES --- */
     .history-controls {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-        flex-wrap: wrap;
-        gap: 1rem;
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;
     }
-
     .search-box { flex: 1; min-width: 250px; }
-
-    .table-container {
-        overflow-x: auto;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.05);
-    }
+    .table-container { width: 100%; border-radius: 10px; } /* Removed overflow-x: auto for standard view, added in media query */
 
     .custom-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.9rem;
-        background: #fff;
-        min-width: 900px;
+        width: 100%; border-collapse: collapse; font-size: 0.9rem; background: #fff;
     }
-
     .custom-table th, .custom-table td {
-        padding: 1rem;
-        text-align: left;
-        border-bottom: 1px solid #e9ecef;
-        vertical-align: middle;
+        padding: 1rem; text-align: left; border-bottom: 1px solid #e9ecef; vertical-align: middle;
     }
-
     .custom-table th {
-        background-color: #f8f9fa;
-        color: #495057;
-        font-weight: 700;
-        text-transform: uppercase;
-        font-size: 0.8rem;
+        background-color: #f8f9fa; color: #495057; font-weight: 700;
+        text-transform: uppercase; font-size: 0.8rem;
     }
-
     .custom-table tr:hover { background-color: #f1f3f5; }
 
     .status-badge {
-        padding: 0.3rem 0.6rem;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        display: inline-block;
+        padding: 0.3rem 0.6rem; border-radius: 20px; font-size: 0.75rem;
+        font-weight: 700; text-transform: uppercase; display: inline-block;
     }
     .badge-valid { background: #d4edda; color: #28a745; }
     .badge-frozen { background: #fff3cd; color: #856404; }
     .badge-cancelled { background: #f8d7da; color: #dc3545; }
 
     .pagination-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 1.5rem;
-        padding-top: 1rem;
-        border-top: 1px solid #e9ecef;
+        display: flex; justify-content: space-between; align-items: center;
+        margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e9ecef;
     }
-
     .pagination-info { color: #6c757d; font-size: 0.9rem; }
     .pagination-buttons { display: flex; gap: 0.5rem; }
 
-    .help-text {
-        font-size: 0.8rem;
-        color: #6c757d;
-        margin-top: 0.25rem;
-    }
-
     /* --- MODAL --- */
     .modal-overlay {
-      display: none; /* Default Hidden */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      padding: 1rem;
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center;
+      align-items: center; padding: 1rem;
     }
-    
     .modal-overlay.active { display: flex; }
-    
     .modal-content {
-      background: #ffffff;
-      border-radius: 15px;
-      padding: 2rem;
-      max-width: 400px;
-      width: 100%;
-      text-align: center;
+      background: #ffffff; border-radius: 15px; padding: 2rem;
+      max-width: 400px; width: 100%; text-align: center;
     }
-    .modal-qr { margin: 1.5rem 0; }
-     
+    .modal-qr { margin: 1.5rem 0; display: flex; justify-content: center; position: relative;}
+    /* QR code and Overlay Fix */
+    #qrcode, .modal-qr div { /* Target the inner div created by qrcodejs */
+        position: relative;
+    }
+    .qr-logo-overlay {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 50px; height: 50px; background: #ffffff; border-radius: 8px;
+      padding: 3px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      display: flex; align-items: center; justify-content: center; pointer-events: none;
+      z-index: 10;
+    }
+    .qr-logo-overlay img { width: 100%; height: 100%; object-fit: contain; }
+
+    /* --- RESPONSIVE MEDIA QUERIES --- */
     @media (max-width: 768px) {
       .app-container { padding: 1rem; }
       .header h1 { font-size: 1.75rem; }
       .content { padding: 1rem; }
       .tab { padding: 1rem; font-size: 0.9rem; }
-      .logout-btn { position: static; margin-bottom: 1rem; width: 100%; }
+      
+      .logout-btn { position: static; margin-bottom: 1rem; width: 100%; text-align: center; }
+      
+      /* Form Layout */
       .detail-row { flex-direction: column; }
       .detail-value { text-align: left; margin-top: 0.25rem; }
+      
       .history-controls { flex-direction: column; align-items: stretch; }
       .pagination-container { flex-direction: column; gap: 1rem; }
+
+      /* --- CARD TABLE FOR MOBILE --- */
+      /* Sembunyikan Header Tabel di Mobile */
+      .custom-table thead { display: none; }
+      
+      .custom-table, .custom-table tbody, .custom-table tr, .custom-table td {
+        display: block; width: 100%;
+      }
+      
+      .custom-table tr {
+        margin-bottom: 1rem; border: 1px solid #e9ecef;
+        border-radius: 10px; padding: 1rem; background: #fff;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      }
+      
+      .custom-table td {
+        display: flex; justify-content: space-between; align-items: center;
+        text-align: right; padding: 0.5rem 0; border-bottom: 1px solid #f8f9fa;
+        min-height: 40px;
+      }
+      
+      .custom-table td:last-child { border-bottom: none; flex-direction: column; align-items: stretch; gap: 0.5rem; }
+      
+      /* Gunakan data-label attribute untuk menampilkan label di mobile */
+      .custom-table td::before {
+        content: attr(data-label);
+        font-weight: 700; color: #6c757d; font-size: 0.85rem; text-align: left;
+        margin-right: 1rem;
+      }
+      
+      /* Aksi Buttons di Mobile */
+      .action-buttons-mobile {
+          display: flex; gap: 0.5rem; justify-content: flex-end; width: 100%;
+      }
     }
   </style>
   <style>@view-transition { navigation: auto; }</style>
@@ -554,7 +341,7 @@
 
   <script>
     // ⚠️ GANTI URL INI DENGAN URL APPS SCRIPT ANDA
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx9V1jcx57Jx-Z1XEdPCQrCdeH3k8f69UoqKxTohEnYlaoFKOnD20t42zLReP3_xq-3/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzeqqgziNUF-Wm4XbD4PU3ZD4eFcdA1SRTnoGxop4xZ9W23s_5FPqbIvxM9P8OaXbNY/exec';
     
     let signatures = [];
     let filteredSignatures = [];
@@ -570,7 +357,7 @@
     const APP_URL = 'https://faisalrohman.github.io/cek-dokumen.html';
     const STORAGE_KEY = 'qr_auth_session'; 
     
-    // HTML Loader Constants (Bouncing Dots)
+    // HTML Loader Constants
     const LOADER_HTML_WHITE = '<div class="bouncing-loader"><div></div><div></div><div></div></div>';
     const LOADER_HTML_DARK = '<div class="bouncing-loader dark"><div></div><div></div><div></div></div>';
     const LOADER_HTML_SMALL = '<div class="bouncing-loader small"><div></div><div></div><div></div></div>';
@@ -662,21 +449,25 @@
             if (sig.status === 'frozen') { badgeClass = 'badge-frozen'; statusText = 'DIBEKUKAN'; }
             if (sig.status === 'cancelled') { badgeClass = 'badge-cancelled'; statusText = 'DIBATALKAN'; }
 
-            const sigString = JSON.stringify(sig).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+            // PERBAIKAN: Kirim ID saja (string), bukan seluruh object sig
+            const sigId = sig.signature_id;
+            const sigString = JSON.stringify(sig).replace(/'/g, "&apos;").replace(/"/g, "&quot;"); // Untuk cetak QR saja
 
             html += `
                 <tr>
-                    <td>${globalIndex}</td>
-                    <td>${formattedDate}</td>
-                    <td>${sig.document_name}</td>
-                    <td>${sig.signer_name}</td>
-                    <td>${sig.signer_position || '-'}</td>
-                    <td><span class="status-badge ${badgeClass}">${statusText}</span></td>
-                    <td>
-                        <button class="btn btn-secondary btn-sm" title="Cetak QR" onclick='printQrCode(${sigString})'>🖨️</button>
-                        ${sig.status !== 'valid' ? `<button class="btn btn-success btn-sm" title="Set Valid" onclick='updateStatus(this, ${sigString}, "valid")'>✅</button>` : ''}
-                        ${sig.status !== 'frozen' ? `<button class="btn btn-warning btn-sm" title="Bekukan" onclick='updateStatus(this, ${sigString}, "frozen")'>❄️</button>` : ''}
-                        ${sig.status !== 'cancelled' ? `<button class="btn btn-danger btn-sm" title="Batalkan" onclick='updateStatus(this, ${sigString}, "cancelled")'>🚫</button>` : ''}
+                    <td data-label="No.">${globalIndex}</td>
+                    <td data-label="Tanggal">${formattedDate}</td>
+                    <td data-label="Nama Dokumen">${sig.document_name}</td>
+                    <td data-label="Penandatangan">${sig.signer_name}</td>
+                    <td data-label="Jabatan">${sig.signer_position || '-'}</td>
+                    <td data-label="Status"><span class="status-badge ${badgeClass}">${statusText}</span></td>
+                    <td data-label="Aksi">
+                        <div class="action-buttons-mobile">
+                            <button class="btn btn-secondary btn-sm" title="Cetak QR" onclick='printQrCode(${sigString})'>🖨️</button>
+                            ${sig.status !== 'valid' ? `<button class="btn btn-success btn-sm" title="Set Valid" onclick="updateStatus(this, '${sigId}', 'valid')">✅</button>` : ''}
+                            ${sig.status !== 'frozen' ? `<button class="btn btn-warning btn-sm" title="Bekukan" onclick="updateStatus(this, '${sigId}', 'frozen')">❄️</button>` : ''}
+                            ${sig.status !== 'cancelled' ? `<button class="btn btn-danger btn-sm" title="Batalkan" onclick="updateStatus(this, '${sigId}', 'cancelled')">🚫</button>` : ''}
+                        </div>
                     </td>
                 </tr>
             `;
@@ -724,8 +515,8 @@
       } catch (error) { return false; }
     }
     
-    // Updated with Button Loading Animation
-    async function updateSignatureStatus(btnElement, sig, newStatus) {
+    // PERBAIKAN FUNGSI UPDATE STATUS
+    async function updateStatus(btnElement, signatureId, newStatus) {
       const originalContent = btnElement.innerHTML;
       
       // Set button to loading state
@@ -735,26 +526,30 @@
       try {
         const response = await fetch(APPS_SCRIPT_URL, {
           method: 'POST',
-          body: JSON.stringify({ action: 'update', signature_id: sig.signature_id, status: newStatus })
+          body: JSON.stringify({ action: 'update', signature_id: signatureId, status: newStatus })
         });
         
         const result = await response.json();
         
         if (result.success) {
           showToast(`Status diubah: ${newStatus.toUpperCase()}`, 'success');
-          // Update local data
-          const idx = signatures.findIndex(s => s.signature_id === sig.signature_id);
-          if(idx !== -1) signatures[idx].status = newStatus;
-          handleSearch(); // Refresh table
+          
+          // Update local data array
+          const idx = signatures.findIndex(s => s.signature_id === signatureId);
+          if(idx !== -1) {
+              signatures[idx].status = newStatus;
+          }
+          
+          // Re-filter and Render table to show new status buttons
+          handleSearch(); 
+          
         } else { 
             showToast('Gagal update status.', 'error'); 
-            // Reset button if failed
             btnElement.disabled = false;
             btnElement.innerHTML = originalContent;
         }
       } catch (error) { 
           showToast('Terjadi kesalahan koneksi.', 'error');
-          // Reset button if error
           btnElement.disabled = false;
           btnElement.innerHTML = originalContent;
       }
