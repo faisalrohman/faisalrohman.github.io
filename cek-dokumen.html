@@ -788,9 +788,11 @@
     
     function exportHistory() {
       if (signatures.length === 0) return showToast('Data kosong', 'error');
-      let csv = 'ID,Dokumen,Penandatangan,Jabatan,Tanggal,Status\n';
+      // Tambahkan Header URL File
+      let csv = 'ID,Dokumen,Penandatangan,Jabatan,Tanggal,Status,URL File\n';
       signatures.forEach(s => {
-        csv += `"${s.signature_id}","${s.document_name}","${s.signer_name}","${s.signer_position||'-'}","${new Date(s.timestamp).toLocaleDateString('id-ID')}","${s.status.toUpperCase()}"\n`;
+        // Tambahkan value URL
+        csv += `"${s.signature_id}","${s.document_name}","${s.signer_name}","${s.signer_position||'-'}","${new Date(s.timestamp).toLocaleDateString('id-ID')}","${s.status.toUpperCase()}","${s.file_url||''}"\n`;
       });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8;'}));
