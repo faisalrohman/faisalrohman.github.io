@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cetak Kartu Tryout TKA 1 — MTs NU TBS</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root{--navy:#12345a;--blue:#1f5f91;--gold:#d6a640;--ink:#172536;--muted:#607080;--line:#d8e0e8;--bg:#f3f6fa}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:14px/1.45 Arial,sans-serif;color:var(--ink)}
+header{background:linear-gradient(120deg,#102b4c,#1d5a86);color:white;padding:22px 26px}
+header h1{margin:0 0 4px;font-size:23px}header p{margin:0;color:#dce9f4}
+main{max-width:1200px;margin:22px auto;padding:0 18px}.panel{background:white;border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px;box-shadow:0 3px 12px #1a35500b}
+h2{font-size:17px;margin:0 0 13px;color:var(--navy)}.row{display:flex;gap:12px;flex-wrap:wrap;align-items:end}
+.field{display:flex;flex-direction:column;gap:5px;min-width:180px;flex:1}.field label{font-size:12px;color:var(--muted);font-weight:bold}
+input,select,button{font:inherit;border:1px solid #cbd5df;border-radius:8px;padding:10px;background:white;color:var(--ink)}
+input[type=file]{padding:8px}button{cursor:pointer;font-weight:bold;background:var(--blue);color:white;border-color:var(--blue)}button.secondary{background:white;color:var(--blue)}button:disabled{opacity:.45;cursor:not-allowed}
+.hint{color:var(--muted);font-size:12px;margin-top:8px}.status{margin-top:10px;padding:9px 12px;border-radius:8px;background:#eef5fb;color:#234e70}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.stat{background:#f3f7fb;border:1px solid var(--line);padding:9px 14px;border-radius:9px}.stat b{font-size:18px;color:var(--navy);display:block}
+.table-wrap{overflow:auto;max-height:360px;border:1px solid var(--line);border-radius:8px;margin-top:12px}table{border-collapse:collapse;width:100%;font-size:12px}th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}th{background:#f2f6fa;position:sticky;top:0}
+.note{font-size:12px;color:var(--muted);line-height:1.6}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+@page{size:A4 portrait;margin:8mm}
+.attendance-area{display:none}
+@media print{
+ body.print-attendance .print-area{display:none!important}
+ body.print-attendance .attendance-area{display:block!important}
+ body.print-attendance .attendance-sheet{display:block;page-break-after:always;color:#172536;font-family:Arial,sans-serif}
+ body.print-attendance .attendance-sheet:last-child{page-break-after:auto}
+ body.print-attendance .attendance-title{text-align:center;margin-bottom:5mm}
+ body.print-attendance .attendance-title h2{font-size:15pt;margin:0;color:#12345a}
+ body.print-attendance .attendance-title p{font-size:9pt;margin:1mm 0}
+ body.print-attendance .attendance-meta{display:flex;justify-content:space-between;font-size:10pt;margin:4mm 0}
+ body.print-attendance table{width:100%;border-collapse:collapse;font-size:9pt}
+ body.print-attendance th,body.print-attendance td{border:1px solid #526477;padding:2.2mm 2mm;white-space:normal}
+ body.print-attendance th{background:#eaf1f7!important;color:#12345a;text-align:center}
+ body.print-attendance td.center{text-align:center}
+ body.print-attendance .attendance-sign{width:30%}
+ body.print-attendance .attendance-footer{display:flex;justify-content:space-between;margin-top:12mm;font-size:9pt}
+ body.print-attendance .signbox{width:38%;text-align:center}
+}
+@media print{
+ body{background:white}.no-print,header{display:none!important}main{max-width:none;margin:0;padding:0}.print-area{display:grid;grid-template-columns:1fr 1fr;gap:5mm 5mm;align-content:start}
+ .ticket{height:88mm;border:1.2px solid #294b68;border-radius:3mm;padding:3mm 3mm 4mm 4mm;break-inside:avoid;position:relative;overflow:hidden;background:linear-gradient(160deg,#fff 0%,#f7fbff 100%)}
+ .ticket:before{content:"";position:absolute;left:0;top:0;bottom:0;width:2.2mm;background:linear-gradient(#d6a640,#1f5f91)}
+ .ticket-head{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #d6a640;padding:0 0 1.2mm 2mm}
+ .ticket-head strong{font-size:10pt;color:#12345a;letter-spacing:.3px}.ticket-head span{font-size:7pt;color:#53687a;font-weight:bold;text-align:right}
+ .school{font-size:6.5pt;color:#607080;margin:.8mm 0 1.2mm 2mm}
+ .student{font-size:10pt;font-weight:bold;color:#142f4b;margin:0 0 1.2mm 2mm;text-transform:uppercase;padding:1mm 1.5mm;background:#eaf2f9;border-left:1mm solid #d6a640;border-radius:1mm}
+ .details{display:flex;flex-direction:column;gap:.45mm;margin-left:2mm}
+ .detail{display:flex;align-items:baseline;gap:1.5mm;font-size:7.5pt;border-bottom:1px dotted #c8d4df;padding:0 0 .35mm}.detail label{width:27mm;flex:none;color:#687887;font-size:6.5pt;text-transform:uppercase}.detail label:after{content:" :"}.detail b{font-size:8pt;color:#172f49}
+ .schedule{margin:1.5mm 0 0 2mm;padding-top:1mm}
+ .schedule-title{font-size:7pt;font-weight:bold;color:#173e62;margin-bottom:.6mm;text-transform:uppercase}
+ .schedule table{width:100%;border-collapse:collapse;font-size:6.5pt}
+ .schedule th{background:#173e62;color:white;padding:.7mm;text-align:left;font-size:6pt}
+ .schedule td{border:1px solid #c8d4df;padding:.7mm;color:#24394d}
+ .foot{position:absolute;bottom:1.8mm;right:3mm;font-size:6pt;color:#71808c}
+}
+@media screen{.print-area{display:none}}
+</style>
+</head>
+<body>
+<header class="no-print"><h1>Kartu Tryout TKA 1</h1><p>MTs NU TBS Kudus · Aplikasi impor data dan cetak kartu peserta</p></header>
+<main>
+<section class="panel no-print">
+<h2>1. Import data peserta (Excel)</h2>
+<div class="row">
+ <div class="field"><label>Pilih file XLSX / XLS</label><input id="file" type="file" accept=".xlsx,.xls,.csv"></div>
+ <div class="field"><label>Sheet</label><select id="sheet" disabled><option>— Import file terlebih dahulu —</option></select></div>
+ <button id="load" disabled>Muat data</button>
+</div>
+<div class="hint">Kolom yang dibutuhkan: Nama, Kelas, No Registrasi, Password, Sesi, dan Ruang. Nama header boleh bervariasi; periksa pemetaan setelah file dimuat.</div>
+<div id="status" class="status">Belum ada file yang diimpor.</div>
+<div id="mapping" style="display:none;margin-top:14px">
+ <h2>2. Pemetaan kolom</h2>
+ <div class="row" id="mapfields"></div>
+ <div class="actions"><button id="apply">Terapkan pemetaan</button></div>
+</div>
+<div class="stats" id="stats" style="display:none">
+ <div class="stat"><b id="count">0</b>Peserta</div><div class="stat"><b id="classes">0</b>Kelas</div><div class="stat"><b id="rooms">0</b>Ruang</div>
+</div>
+</section>
+<section class="panel no-print" id="printControls" style="display:none">
+<h2>3. Pilih jenis cetak</h2>
+<div class="row">
+ <div class="field"><label>Jenis cetak</label><select id="mode"><option value="all">Cetak semua peserta</option><option value="class">Cetak per kelas</option><option value="room">Cetak per ruang</option><option value="student">Cetak per siswa</option></select></div>
+ <div class="field" id="filterField" style="display:none"><label id="filterLabel">Pilih data</label><select id="filter"></select></div>
+ <div class="field" id="searchField" style="display:none"><label>Cari nama / nomor registrasi</label><input id="search" placeholder="Ketik nama atau nomor registrasi"></div>
+</div>
+<div class="actions">
+ <button id="preview">Tampilkan pilihan</button><button id="print" disabled>Cetak kartu (A4)</button>
+ <button class="secondary" id="reset">Reset pilihan</button>
+</div>
+<div class="note" style="margin-top:12px"><b>Jadwal Tryout TKA 1</b><br>11 November 2026 — Literasi<br>12 November 2026 — Numerasi<br>Sesi 1: 08.20–09.40 WIB · Sesi 2: 10.40–12.00 WIB · Sesi 3: 12.25–13.45 WIB</div>
+<div class="table-wrap"><table><thead><tr><th>Nama</th><th>Kelas</th><th>No Registrasi</th><th>Sesi</th><th>Ruang</th></tr></thead><tbody id="tbody"></tbody></table></div>
+<div class="hint" id="resultCount"></div>
+</section>
+<section class="panel no-print" id="attendanceControls" style="display:none">
+<h2>4. Cetak daftar hadir peserta</h2>
+<div class="row">
+ <div class="field"><label>Pilih ruang / lab</label><select id="attRoom"><option value="__ALL__">Semua Lab / Ruang</option></select></div>
+ <div class="field"><label>Pilih sesi</label><select id="attSession"><option value="__ALL__">Semua Sesi</option><option value="1">Sesi 1</option><option value="2">Sesi 2</option><option value="3">Sesi 3</option></select></div>
+ <div class="field"><label>Pilih mata uji</label><select id="attSubject"><option value="__ALL__">Semua Mapel (Literasi & Numerasi)</option><option value="Literasi">Literasi — 11 November 2026</option><option value="Numerasi">Numerasi — 12 November 2026</option></select></div>
+</div>
+<div class="actions">
+ <button id="attPreview">Tampilkan daftar hadir</button>
+ <button id="attPrint" disabled>Cetak daftar hadir (A4)</button>
+</div>
+<div class="hint" id="attCount"></div>
+</section>
+<section id="printArea" class="print-area"></section>
+<section id="attendanceArea" class="attendance-area"></section>
+</main>
+<script>
+const fields=["Nama","Kelas","No Registrasi","Password","Sesi","Ruang"];
+const aliases={
+ "Nama":["nama","name","nama siswa","nama peserta"],
+ "Kelas":["kelas","rombel","class"],
+ "No Registrasi":["no registrasi","nomor registrasi","noreg","no reg","registrasi","nomor peserta","no peserta"],
+ "Password":["password","kata sandi","sandi"],
+ "Sesi":["sesi","session"],
+ "Ruang":["ruang","ruangan","room"]
+};
+let workbook=null, rawRows=[], headers=[], data=[];
+const $=id=>document.getElementById(id);
+function norm(v){return String(v??"").trim().toLowerCase().replace(/[_\-]+/g," ").replace(/\s+/g," ")}
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+$("file").addEventListener("change",async e=>{
+ const f=e.target.files[0];if(!f)return;
+ try{
+  const buf=await f.arrayBuffer();workbook=XLSX.read(buf,{type:"array"});
+  $("sheet").innerHTML=workbook.SheetNames.map((s,i)=>`<option value="${i}">${esc(s)}</option>`).join("");
+  $("sheet").disabled=false;$("load").disabled=false;$("status").textContent=`File siap: ${f.name} (${workbook.SheetNames.length} sheet). Pilih sheet lalu klik Muat data.`;
+ }catch(err){$("status").textContent="File tidak dapat dibaca. Pastikan format XLSX/XLS valid."}
+});
+function loadSheet(){
+ const name=workbook.SheetNames[Number($("sheet").value)];
+ const rows=XLSX.utils.sheet_to_json(workbook.Sheets[name],{header:1,defval:"",raw:false});
+ const idx=rows.findIndex(r=>r.some(c=>String(c).trim()!==""));
+ if(idx<0){$("status").textContent="Sheet kosong.";return}
+ headers=rows[idx].map((h,i)=>String(h||`Kolom ${i+1}`).trim());
+ rawRows=rows.slice(idx+1).filter(r=>r.some(c=>String(c).trim()!==""));
+ const mapfields=$("mapfields");mapfields.innerHTML="";
+ fields.forEach(f=>{
+  const candidates=aliases[f];let found=headers.findIndex(h=>candidates.includes(norm(h)));
+  const options=`<option value="-1">— Tidak dipetakan —</option>`+headers.map((h,i)=>`<option value="${i}" ${i===found?"selected":""}>${esc(h)}</option>`).join("");
+  mapfields.insertAdjacentHTML("beforeend",`<div class="field"><label>${f}</label><select data-field="${f}">${options}</select></div>`);
+ });
+ $("mapping").style.display="block";$("status").textContent=`Sheet "${name}" terbaca: ${rawRows.length} baris data, ${headers.length} kolom. Periksa pemetaan kolom.`;
+}
+$("load").onclick=loadSheet;
+$("apply").onclick=()=>{
+ const mapping={};document.querySelectorAll("#mapfields select").forEach(s=>mapping[s.dataset.field]=Number(s.value));
+ const missing=fields.filter(f=>mapping[f]<0);
+ if(missing.length){$("status").textContent="Kolom belum dipetakan: "+missing.join(", ")+". Lengkapi semua kolom.";return}
+ data=rawRows.map(r=>Object.fromEntries(fields.map(f=>[f,String(r[mapping[f]]??"").trim()]))).filter(r=>r.Nama||r["No Registrasi"]);
+ if(!data.length){$("status").textContent="Tidak ditemukan baris peserta yang berisi Nama atau No Registrasi.";return}
+ $("count").textContent=data.length;$("classes").textContent=new Set(data.map(x=>x.Kelas).filter(Boolean)).size;$("rooms").textContent=new Set(data.map(x=>x.Ruang).filter(Boolean)).size;
+ $("stats").style.display="flex";$("printControls").style.display="block";$("attendanceControls").style.display="block";$("status").textContent=`Berhasil memuat ${data.length} peserta. Pilih jenis cetak.`;
+ updateAttendanceFilters();
+ updateFilter();renderTable(data);
+};
+function updateFilter(){
+ const mode=$("mode").value,ff=$("filterField"),sf=$("searchField"),sel=$("filter");
+ ff.style.display=(mode==="class"||mode==="room")?"flex":"none";sf.style.display=mode==="student"?"flex":"none";
+ if(mode==="class"||mode==="room"){
+  $("filterLabel").textContent=mode==="class"?"Pilih kelas":"Pilih ruang";
+  const key=mode==="class"?"Kelas":"Ruang",vals=[...new Set(data.map(x=>x[key]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"id",{numeric:true}));
+  sel.innerHTML=vals.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");
+ }
+}
+$("mode").onchange=()=>{updateFilter();$("tbody").innerHTML="";$("print").disabled=true;$("resultCount").textContent=""};
+function selected(){
+ const mode=$("mode").value;
+ if(mode==="class")return data.filter(x=>x.Kelas===$("filter").value);
+ if(mode==="room")return data.filter(x=>x.Ruang===$("filter").value);
+ if(mode==="student"){const q=norm($("search").value);return data.filter(x=>norm(x.Nama).includes(q)||norm(x["No Registrasi"]).includes(q))}
+ return data.slice();
+}
+function renderTable(rows){
+ $("tbody").innerHTML=rows.slice(0,1000).map(x=>`<tr><td>${esc(x.Nama)}</td><td>${esc(x.Kelas)}</td><td>${esc(x["No Registrasi"])}</td><td>${esc(x.Sesi)}</td><td>${esc(x.Ruang)}</td></tr>`).join("");
+ $("resultCount").textContent=`Menampilkan ${Math.min(rows.length,1000)} dari ${rows.length} peserta yang dipilih.`;
+}
+$("preview").onclick=()=>{
+ const rows=selected();renderTable(rows);$("print").disabled=!rows.length;
+ $("status").textContent=rows.length?`${rows.length} kartu siap dicetak.`:"Tidak ada peserta yang cocok dengan pilihan.";
+};
+$("search").addEventListener("input",()=>{$("print").disabled=true});
+$("print").onclick=()=>{
+ const rows=selected();if(!rows.length)return;
+ $("printArea").innerHTML=rows.map((x,i)=>`
+ <article class="ticket">
+  <div class="ticket-head"><strong>KARTU PESERTA TRYOUT TKA 1</strong><span>MTs NU TBS KUDUS</span></div>
+  <div class="school">Tahun Pelajaran 2026/2027</div>
+  <div class="student">${esc(x.Nama)}</div>
+  <div class="details">
+   <div class="detail"><label>Nama</label><b>${esc(x.Nama)}</b></div>
+   <div class="detail"><label>Kelas</label><b>${esc(x.Kelas)}</b></div>
+   <div class="detail"><label>No. Registrasi</label><b>${esc(x["No Registrasi"])}</b></div>
+   <div class="detail"><label>Password</label><b>${esc(x.Password)}</b></div>
+   <div class="detail"><label>Sesi</label><b>${esc(x.Sesi)}</b></div>
+   <div class="detail"><label>Ruang</label><b>${esc(x.Ruang)}</b></div>
+  </div>
+  <div class="schedule">
+   <div class="schedule-title">Jadwal Pelaksanaan Tryout</div>
+   <table><thead><tr><th>Tanggal</th><th>Mata Uji</th><th>Waktu</th></tr></thead>
+   <tbody><tr><td>11 Nov 2026</td><td>Literasi</td><td>${sessionTime(x.Sesi)}</td></tr>
+   <tr><td>12 Nov 2026</td><td>Numerasi</td><td>${sessionTime(x.Sesi)}</td></tr></tbody></table>
+  </div>
+  <div class="foot">Harap dibawa saat pelaksanaan tryout</div>
+ </article>`).join("");
+ window.print();
+};
+
+function sessionNumber(s){
+ const v=norm(s);
+ if(/\b1\b/.test(v)||v.includes("pertama"))return "1";
+ if(/\b2\b/.test(v)||v.includes("dua"))return "2";
+ if(/\b3\b/.test(v)||v.includes("tiga"))return "3";
+ return v.replace(/[^0-9]/g,"") || v;
+}
+function updateAttendanceFilters(){
+ const rooms=[...new Set(data.map(x=>x.Ruang).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"id",{numeric:true}));
+ $("attRoom").innerHTML=`<option value="__ALL__">Semua Lab / Ruang</option>`+rooms.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");
+}
+function attendanceRows(room, ses){
+ return data.filter(x=>(room==="__ALL__" || x.Ruang===room) &&
+   (ses==="__ALL__" || sessionNumber(x.Sesi)===ses))
+   .sort((a,b)=>a.Nama.localeCompare(b.Nama,"id"));
+}
+function attendanceMarkup(rows, room, ses, subject){
+ const date=subject==="Literasi"?"Rabu, 11 November 2026":"Kamis, 12 November 2026";
+ const time=ses==="1"?"08.20–09.40 WIB":ses==="2"?"10.40–12.00 WIB":"12.25–13.45 WIB";
+ const body=rows.map((x,i)=>`<tr>
+  <td class="center">${i+1}</td><td>${esc(x.Nama)}</td><td class="center">${esc(x.Kelas)}</td>
+  <td class="center">${esc(x["No Registrasi"])}</td><td class="center attendance-sign"></td>
+ </tr>`).join("");
+ return `<div class="attendance-sheet">
+  <div class="attendance-title"><h2>DAFTAR HADIR PESERTA TRYOUT TKA 1</h2><p>MTs NU TBS KUDUS · TAHUN PELAJARAN 2026/2027</p></div>
+  <div class="attendance-meta"><div><b>Mata Uji:</b> ${subject}<br><b>Hari/Tanggal:</b> ${date}</div>
+  <div><b>Ruang / Lab:</b> ${esc(room)}<br><b>Sesi:</b> ${ses} (${time})</div></div>
+  <table><thead><tr><th style="width:8%">No.</th><th>Nama Peserta</th><th style="width:13%">Kelas</th><th style="width:19%">No. Registrasi</th><th style="width:25%">Tanda Tangan</th></tr></thead>
+  <tbody>${body}</tbody></table>
+  <div class="attendance-footer"><div class="signbox">Pengawas Ruang,<br><br><br><br>(........................................)</div><div class="signbox">Kudus, ${date.split(", ")[1]}<br>Koordinator Tryout,<br><br><br>(........................................)</div></div>
+ </div>`;
+}
+function attendanceJobs(){
+ const roomChoice=$("attRoom").value, sessionChoice=$("attSession").value, subjectChoice=$("attSubject").value;
+ const rooms=roomChoice==="__ALL__"
+   ? [...new Set(data.map(x=>x.Ruang).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"id",{numeric:true}))
+   : [roomChoice];
+ const sessions=sessionChoice==="__ALL__"?["1","2","3"]:[sessionChoice];
+ const subjects=subjectChoice==="__ALL__"?["Literasi","Numerasi"]:[subjectChoice];
+ const jobs=[];
+ rooms.forEach(room=>sessions.forEach(ses=>subjects.forEach(subject=>{
+  const rows=attendanceRows(room,ses);
+  if(rows.length)jobs.push({room,ses,subject,rows});
+ })));
+ return jobs;
+}
+$("attPreview").onclick=()=>{
+ const jobs=attendanceJobs(), total=jobs.reduce((n,j)=>n+j.rows.length,0);
+ $("attCount").textContent=`Akan dibuat ${jobs.length} lembar daftar hadir untuk ${total} entri peserta. Filter: ${$("attRoom").selectedOptions[0]?.text || "-"} · ${$("attSession").selectedOptions[0]?.text || "-"} · ${$("attSubject").selectedOptions[0]?.text || "-"}.`;
+ $("attPrint").disabled=!jobs.length;
+};
+$("attPrint").onclick=()=>{
+ const jobs=attendanceJobs();if(!jobs.length)return;
+ $("attendanceArea").innerHTML=jobs.map(j=>attendanceMarkup(j.rows,j.room,j.ses,j.subject)).join("");
+ document.body.classList.add("print-attendance");
+ window.print();
+};
+window.addEventListener("afterprint",()=>document.body.classList.remove("print-attendance"));
+function sessionTime(s){
+ const v=norm(s);
+ if(v.includes("1")||v.includes("pertama"))return "08.20–09.40 WIB";
+ if(v.includes("2")||v.includes("dua"))return "10.40–12.00 WIB";
+ if(v.includes("3")||v.includes("tiga"))return "12.25–13.45 WIB";
+ return "Sesi sesuai data peserta";
+}
+$("reset").onclick=()=>{$("mode").value="all";$("search").value="";updateFilter();$("tbody").innerHTML="";$("print").disabled=true;$("resultCount").textContent="";$("status").textContent="Pilihan cetak direset."};
+</script>
+</body>
+</html>
